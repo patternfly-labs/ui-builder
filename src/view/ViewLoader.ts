@@ -39,11 +39,25 @@ export default class ViewLoader {
 
       this._panel.webview.html = this.getWebviewContent(encodedText, fileName);
 
+      // this._panel.webview.onDidReceiveMessage(
+      //   (command: ICommand) => {
+      //     switch (command.action) {
+      //       case CommandAction.Save:
+      //         // this.saveFileContent(fileUri, command.content);
+      //         return;
+      //     }
+      //   },
+      //   undefined,
+      //   this._disposables
+      // );
+
+      // Handle messages from the webview
       this._panel.webview.onDidReceiveMessage(
-        (command: ICommand) => {
-          switch (command.action) {
-            case CommandAction.Save:
-              // this.saveFileContent(fileUri, command.content);
+        (message: any) => {
+          switch (message.command) {
+            case 'codeEditor':
+              vscode.window.showErrorMessage(message.text);
+              fs.writeFileSync(fileName, message.text);
               return;
           }
         },
@@ -57,7 +71,7 @@ export default class ViewLoader {
     // Local path to main script run in the webview
     const reactAppPathOnDisk = vscode.Uri.file(
       // path.join(this._extensionPath, "uiBuilder", "uiBuilder.js")
-      path.join(this._extensionPath, "patternfly-builder/dist", "main.js")
+      path.join(this._extensionPath, "patternfly-builder/dist", "index.js")
     );
     const reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
     // @ts-ignore

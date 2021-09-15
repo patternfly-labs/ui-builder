@@ -1,3 +1,1 @@
-const App = () => (
-    <Page>page</Page>
-);
+<Page><PageSection><Button>Button within a section</Button></PageSection></Page>

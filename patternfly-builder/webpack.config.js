@@ -13,6 +13,12 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".tsx", ".js"]
   },
+  output: {
+    filename: "index.js",
+    path: path.resolve(__dirname, "dist"),
+    libraryTarget: "umd",
+    library: "patternfly-builder"
+  },
   devServer: {
     port: 8085
   },

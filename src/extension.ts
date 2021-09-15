@@ -52,5 +52,6 @@ export function isQuickStartsFile(file?: string) {
   if (!file) {
     return false;
   }
-  return file.endsWith(".yaml") || file.endsWith(".adoc");
+  // return file.endsWith(".yaml") || file.endsWith(".adoc");
+  return true;
 }
