@@ -26,7 +26,7 @@ export default class ViewLoader {
     if (encodedText) {
       this._panel = vscode.window.createWebviewPanel(
         "configView",
-        "Quick Starts Preview",
+        "UI Builder",
         vscode.ViewColumn.Two,
         {
           enableScripts: true,

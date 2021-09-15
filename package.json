@@ -33,7 +33,7 @@
   },
   "scripts": {
     "clean": "rm -rf out && rm -rf uiBuilder",
-    "build": "yarn build:ui && yarn build:vscode",
+    "build:all": "yarn build:ui && yarn build:vscode",
     "build:vscode": "npm run clean && yarn dev:compile",
     "build:ui": "rm -rf patternfly-builder/dist && cd patternfly-builder && yarn build",
     "vscode:prepublish": "npm run prod:compile",
@@ -66,10 +66,7 @@
     "copy-webpack-plugin": "^9.0.1"
   },
   "dependencies": {
-    "@cloudmosaic/quickstarts": "0.0.6",
     "@patternfly/patternfly": "4.122.2",
-    "@patternfly/react-catalog-view-extension": "4.12.15",
-    "asciidoctor": "^2.2.1",
     "js-base64": "^3.6.0",
     "js-yaml": "^4.0.0",
     "react": "^16.14.0",
