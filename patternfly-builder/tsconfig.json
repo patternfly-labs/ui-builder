@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "sourceMap": true,
+    "target": "ES2017",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true
+  }
+}

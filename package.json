@@ -1,0 +1,77 @@
+{
+  "name": "ui-builder",
+  "displayName": "ui-builder",
+  "description": "PatternFly UI Builder",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jschuler/ui-builder.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jschuler/ui-builder/issues"
+  },
+  "homepage": "https://github.com/jschuler/ui-builder",
+  "publisher": "PatternFly",
+  "engines": {
+    "vscode": "^1.29.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.uiBuilder"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.uiBuilder",
+        "title": "UI Builder"
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "rm -rf out && rm -rf uiBuilder",
+    "build:vscode": "npm run clean && yarn dev:compile",
+    "build:ui": "rm -rf patternfly-builder/dist && cd patternfly-builder && yarn build",
+    "vscode:prepublish": "npm run prod:compile",
+    "prod:compile": "npm run clean && npm-run-all prod:compile:*",
+    "dev:compile": "npm-run-all dev:compile:*",
+    "watch": "npm-run-all -p watch:*",
+    "dev:compile:extension": "tsc -p ./",
+    "prod:compile:extension": "tsc -p ./",
+    "watch:extension": "tsc -watch -p ./",
+    "sub:pull": "git submodule update --init --recursive",
+    "sub:update": "git submodule update --remote --merge"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.0",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^10.12.21",
+    "@types/react": "^16.8.0",
+    "@types/react-dom": "^16.8.0",
+    "css-loader": "^5.0.0",
+    "file-loader": "^6.1.1",
+    "npm-run-all": "^4.1.5",
+    "null-loader": "^4.0.1",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.5",
+    "tslint": "^6.1.3",
+    "url-loader": "^4.1.1",
+    "vscode": "^1.1.37",
+    "webpack": "^5.1.3",
+    "webpack-cli": "^4.0.0",
+    "copy-webpack-plugin": "^9.0.1"
+  },
+  "dependencies": {
+    "@cloudmosaic/quickstarts": "0.0.6",
+    "@patternfly/patternfly": "4.122.2",
+    "@patternfly/react-catalog-view-extension": "4.12.15",
+    "asciidoctor": "^2.2.1",
+    "js-base64": "^3.6.0",
+    "js-yaml": "^4.0.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
+  }
+}
