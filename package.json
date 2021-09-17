@@ -33,7 +33,7 @@
   },
   "scripts": {
     "clean": "rm -rf out && rm -rf uiBuilder",
-    "build:all": "npm run build:ui && npm run build:vscode",
+    "build:all": "npm run build:ui && npm run build:vs",
     "build:vs": "npm run clean && npm run dev:compile",
     "build:ui": "rm -rf patternfly-builder/dist && cd patternfly-builder && npm run build",
     "vscode:prepublish": "npm run prod:compile",
