@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import { load as yamlLoad } from "js-yaml";
 import { Base64 } from 'js-base64';
 
 import { CommandAction, ICommand } from "./model";
@@ -31,8 +30,7 @@ export default class ViewLoader {
         {
           enableScripts: true,
           localResourceRoots: [
-            vscode.Uri.file(path.join(extensionPath, "uiBuilder")),
-            vscode.Uri.file(path.join(extensionPath, "patternfly-builder/dist")),
+            vscode.Uri.file(path.join(extensionPath, "uiBuilder"))
           ],
         }
       );
@@ -70,16 +68,15 @@ export default class ViewLoader {
   private getWebviewContent(text: string, filePath: string): string {
     // Local path to main script run in the webview
     const reactAppPathOnDisk = vscode.Uri.file(
-      // path.join(this._extensionPath, "uiBuilder", "uiBuilder.js")
-      path.join(this._extensionPath, "patternfly-builder/dist", "index.js")
+      path.join(this._extensionPath, "uiBuilder", "index.js")
     );
     const reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
     // @ts-ignore
-    const pfStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "patternfly-builder/dist", "patternfly.css")));
+    const pfStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "patternfly.css")));
     // @ts-ignore
-    const pfAddonsStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "patternfly-builder/dist", "patternfly-addons.css")));
+    const pfAddonsStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "patternfly-addons.css")));
     // @ts-ignore
-    const otherStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "patternfly-builder/dist", "styles.css")));
+    const otherStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "styles.css")));
     // return fs.readFileSync(reactAppUri.fsPath,'utf8');
     const html = `<!DOCTYPE html>
     <html lang="en">
@@ -113,9 +110,6 @@ export default class ViewLoader {
   }
 
   private encodeContent(text: string, fileName: string): any {
-    if (fileName.endsWith(".yaml")) {
-      return Base64.encode(JSON.stringify(yamlLoad(text)));
-    }
     return Base64.encode(text);
   }
 

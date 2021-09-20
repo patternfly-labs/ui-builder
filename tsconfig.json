@@ -1,16 +1,15 @@
 {
 	"compilerOptions": {
+		"jsx": "react",
+		"moduleResolution": "Node",
+    	"allowSyntheticDefaultImports": true,
 		"module": "commonjs",
-		"target": "es6",
+		"target": "ES2017",
 		"outDir": "out",
-		"lib": [
-			"es6"
-		],
 		"sourceMap": true,
 		"rootDir": "src",
 		"skipLibCheck": true,
-		"strict": true   /* enable all strict type-checking options */
-		/* Additional Checks */
+		// "strict": true   /* enable all strict type-checking options */
 		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
 		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
 		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
@@ -18,10 +17,7 @@
 	"exclude": [
 		"node_modules",
 		".vscode-test",
-		"**/view/app/index.css",
-		"**/view/app/tsconfig.json",
-		"**/view/app/*.tsx",
-		"**/view/app/*.ts",
-		"patternfly-builder"
-	]
+		"**/builder"
+	],
+	"include": ["src", "custom.d.ts"]
 }
