@@ -90,7 +90,7 @@ export const LiveRegion = ({
   }
 
   return (
-    <div className="pf-u-h-100">
+    <div className="pf-u-h-100" style={{ marginRight: '24px' }}>
       {livePreview}
     </div>
   );

@@ -11,3 +11,9 @@
   background-color: pink;
 }
 
+.uib-preview .pf-c-page,
+.uib-preview .pf-c-page__main-section {
+  padding: 1rem;
+  border-width: 2px;
+  border-style: dashed;
+}

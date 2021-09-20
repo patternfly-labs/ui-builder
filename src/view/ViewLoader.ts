@@ -54,7 +54,7 @@ export default class ViewLoader {
         (message: any) => {
           switch (message.command) {
             case 'codeEditor':
-              vscode.window.showErrorMessage(message.text);
+              // vscode.window.showErrorMessage(message.text);
               fs.writeFileSync(fileName, message.text);
               return;
           }
