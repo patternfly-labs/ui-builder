@@ -8,12 +8,44 @@
 }
 
 .pf-m-dropzone {
-  background-color: pink;
+  background-color: deepskyblue
 }
 
-.uib-preview .pf-c-page,
-.uib-preview .pf-c-page__main-section {
+.pf-m-droppable {
+  background-color: pink;
+  pointer-events: all !important;
+}
+
+.pf-m-droppable.pf-m-dropzone {
+  background-color: deepskyblue
+}
+
+.uib-preview.layout-mode .pf-c-page,
+.uib-preview.layout-mode .pf-c-page__main-section,
+.uib-preview.layout-mode .pf-c-card,
+.uib-preview.layout-mode .pf-l-gallery,
+.uib-preview.layout-mode .pf-l-gallery div {
   padding: 1rem;
   border-width: 2px;
   border-style: dashed;
+  min-height: 50px;
+}
+
+/* Default no pointer events */
+.uib-preview.layout-mode {
+  pointer-events: none;
+}
+
+/* Disable pointer events for children of the droppable target */
+.pf-m-droppable * {
+  pointer-events: none;
+}
+
+.pf-c-data-list__item.pf-m-hide {
+  display: none;
+}
+
+/* TODO: Override should not be needed to see the label */
+.pf-c-switch__label {
+  color: white !important;
 }

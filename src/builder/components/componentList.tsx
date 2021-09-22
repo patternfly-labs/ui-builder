@@ -1,23 +1,79 @@
-import * as React from 'react';
-import GripVerticalIcon from '@patternfly/react-icons/dist/js/icons/grip-vertical-icon';
+import * as React from "react";
+import GripVerticalIcon from "@patternfly/react-icons/dist/js/icons/grip-vertical-icon";
+import { css } from "@patternfly/react-styles";
 
-const components = {
-  PageSection: '<PageSection>PageSection</PageSection>',
-  Button: '<Button>Button</Button>',
+export const components = {
+  PageHeader: "<PageHeader></PageHeader>",
+  PageSection: "<PageSection></PageSection>",
+  Gallery: "<Gallery></Gallery>",
+  GalleryItem: "<GalleryItem></GalleryItem>",
+  Card: "<Card></Card>",
+  CardBody: "<CardBody></CardBody>",
+  Button: "<Button></Button>",
+  DatePicker: "<DatePicker></DatePicker>",
+  Badge: "<Badge>5</Badge>",
+};
+
+// allowed drag targets
+export const allowableDropMap = {
+  PageHeader: ["pf-c-page"],
+  PageSection: ["pf-c-page"],
+  Gallery: ["pf-c-page__main-section"],
+  GalleryItem: ["pf-l-gallery"],
+  Card: ["pf-c-page__main-section", "pf-l-gallery", "pf-l-gallery__item"],
+  CardBody: ["pf-c-card"],
+  Button: ["pf-c-page__main-section", "pf-l-gallery", "pf-l-gallery__item", "pf-c-card", "pf-c-card__body"],
+  DatePicker: ["pf-c-page__main-section", "pf-l-gallery", "pf-l-gallery__item", "pf-c-card", "pf-c-card__body"],
+  Badge: ["pf-c-page__main-section", "pf-l-gallery", "pf-l-gallery__item", "pf-c-card", "pf-c-card__body"]
 };
 
 function ComponentItem([component, code]) {
+  const [isHidden, setHidden] = React.useState(true);
+  React.useEffect(() => {
+    const classTargets = allowableDropMap[component];
+    if (classTargets) {
+      classTargets.forEach((className) => {
+        if (document.querySelectorAll(`.uib-preview .${className}`).length) {
+          isHidden && setHidden(false);
+        }
+      });
+    }
+  });
   const spanId = `component-list-${component}`;
 
   return (
     <li
       key={component}
-      className="pf-c-data-list__item"
+      className={css("pf-c-data-list__item", isHidden && "pf-m-hide")}
       aria-labelledby={spanId}
       draggable
-      onDragStart={ev => {
-        ev.dataTransfer.setData('text/plain', code);
-        ev.dataTransfer.dropEffect = 'copy';
+      onDragStart={(ev) => {
+        console.log(`dragStart: ${component}`);
+        const classTargets = allowableDropMap[component];
+        if (classTargets) {
+          classTargets.forEach((className) => {
+            [
+              ...document.querySelectorAll(`.uib-preview .${className}`),
+            ].forEach((el) => {
+              el.classList.add("pf-m-droppable");
+            });
+          });
+        }
+        ev.dataTransfer.setData(
+          "text/plain",
+          JSON.stringify({
+            component,
+            code,
+          })
+        );
+        ev.dataTransfer.dropEffect = "copy";
+        // hack so that in dragEnter we know which component originated the drag
+        ev.dataTransfer.setData("component/" + component, component);
+      }}
+      onDragEnd={(ev) => {
+        [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
+          el.classList.remove("pf-m-droppable");
+        });
       }}
     >
       <div className="pf-c-data-list__item-row">
@@ -30,9 +86,7 @@ function ComponentItem([component, code]) {
         </div>
         <div className="pf-c-data-list__item-content">
           <div className="pf-c-data-list__cell">
-            <span id={spanId}>
-              {component}
-            </span>
+            <span id={spanId}>{component}</span>
           </div>
         </div>
       </div>
@@ -50,4 +104,4 @@ export const ComponentList = () => {
       {Object.entries(components).map(ComponentItem)}
     </ul>
   );
-}
+};

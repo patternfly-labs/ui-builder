@@ -271,7 +271,6 @@ function injectProp(node: any, propName: string, propValue: string, idCounter: n
 
 export function parseComponent(code: string, injectFunction: boolean, injectInteractive: boolean, injectId: boolean) {
   const ast = parse(code);
-
   if (injectFunction) {
     // Modify AST for function creation
     ast.body = ast.body.filter(node => !['ImportDeclaration', 'ExportAllDeclaration'].includes(node.type));
@@ -367,7 +366,12 @@ export function convertToReactComponent(code: string, injectInteractive: boolean
   const ast = parseComponent(code, true, injectInteractive, injectInteractive);
   //console.log(ast)
   code = generate(ast, { generator: es2017Generator }).trim();
-  //console.log(code)
+  /*
+  return function LivePreview() {
+    return React.createElement(Page,{"onDragEnter":ev => onLiveRegionDragEnter(ev, 0),"onDragLeave":ev => onLiveRegionDragLeave(ev, 0),"onDrop":ev => onLiveRegionDrop(ev, 0)});;
+  };
+  */
+  console.log(code)
   return { code, hasTS: ast.sourceType === 'ts' };
 }
 

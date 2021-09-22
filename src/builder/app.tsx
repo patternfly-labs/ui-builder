@@ -17,9 +17,10 @@ import logo from "./logo.svg";
 import { LiveRegion } from "./liveRegion";
 import { ComponentList } from "./components/componentList";
 import { Base64 } from "js-base64";
+import { css } from "@patternfly/react-styles";
 
 export const App = ({ vscode, data, filePath }) => {
-  const [code, setCode] = React.useState("<Page>page</Page>");
+  const [code, setCode] = React.useState("<Page></Page>");
   const [showCode, setShowCode] = React.useState(true);
 
   React.useEffect(() => {
@@ -34,7 +35,12 @@ export const App = ({ vscode, data, filePath }) => {
   }, [data]);
 
   const onChange = (newCode) => {
-    setCode(newCode);
+    if (newCode.includes('PageHeader') && !newCode.includes('header=')) {
+      // cheating here... remove when LiveRegion onLiveRegionDrop can handle adding JSXAttributes
+      setCode(`<Page header={<PageHeader></PageHeader>}></Page>`);
+    } else {
+      setCode(newCode);
+    }
     vscode &&
       vscode.postMessage &&
       vscode.postMessage({
@@ -55,7 +61,8 @@ export const App = ({ vscode, data, filePath }) => {
               <PageHeaderToolsGroup>
                 <PageHeaderToolsItem>
                   <Switch
-                    label="Show code"
+                    label="Layout mode"
+                    labelOff="Preview mode"
                     isChecked={showCode}
                     onChange={() => setShowCode(!showCode)}
                   />
@@ -71,7 +78,7 @@ export const App = ({ vscode, data, filePath }) => {
     >
       <PageSection>
         <Split>
-          <SplitItem isFilled className="uib-preview">
+          <SplitItem isFilled className={css('uib-preview', showCode && 'layout-mode')}>
             <LiveRegion code={code} setCode={onChange} />
           </SplitItem>
           {showCode && (
