@@ -2,6 +2,16 @@
 
 ```
 npm i
+```
+
+## UI
+```
+// launch UI in http://localhost:8085/
+npm run start:ui
+```
+
+## VSCode
+```
 npm run build:all
 Press F5 to launch VSCode extension editor
 ```
