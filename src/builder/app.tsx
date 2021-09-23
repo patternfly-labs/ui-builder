@@ -77,12 +77,12 @@ export const App = ({ vscode, data, filePath }) => {
       }
     >
       <PageSection>
-        <Split>
+        <Split style={{ height: '100%' }}>
           <SplitItem isFilled className={css('uib-preview', showCode && 'layout-mode')}>
             <LiveRegion code={code} setCode={onChange} />
           </SplitItem>
           {showCode && (
-            <SplitItem>
+            <SplitItem style={{ display: !vscode ? 'block' : 'none' }}>
               <CodeEditor
                 language={Language.javascript}
                 height="calc(100vh - 142px)"

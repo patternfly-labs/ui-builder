@@ -1,6 +1,8 @@
 import * as React from "react";
 import GripVerticalIcon from "@patternfly/react-icons/dist/js/icons/grip-vertical-icon";
+import ExternalLinkAltIcon from "@patternfly/react-icons/dist/js/icons/external-link-alt-icon";
 import { css } from "@patternfly/react-styles";
+import { Button } from "@patternfly/react-core";
 
 export const components = {
   PageHeader: "<PageHeader></PageHeader>",
@@ -87,6 +89,16 @@ function ComponentItem([component, code]) {
         <div className="pf-c-data-list__item-content">
           <div className="pf-c-data-list__cell">
             <span id={spanId}>{component}</span>
+            <Button variant="plain" aria-label="Action" style={{ float: 'right', padding: 0 }} onClick={() => {
+              // TODO: Need a lookup map as it won't work this generically
+              let toLink = component.toLowerCase();
+              if (component.toLowerCase().startsWith('page')) {
+                toLink = 'page';
+              }
+              window.open(`https://www.patternfly.org/v4/components/${toLink}`)
+            }}>
+              <ExternalLinkAltIcon />
+            </Button>
           </div>
         </div>
       </div>
