@@ -21,7 +21,7 @@ const imgBrand =
 const imgAvatar =
   "https://www.patternfly.org/v4/images/avatarImg.668560cdf25a4932ef9f711b4acad52d.svg";
 
-export const PageHeader = ({ ...props }) => {
+export const PageHeaderSnippet = ({ ...props }) => {
   const [isDropdownOpen, setDropdownOpen] = React.useState(false);
   const [isKebabOpen, setKebabOpen] = React.useState(false);
   const onDropdownToggle = (isDropdownOpen) => {

@@ -1,0 +1,284 @@
+{
+  "description": "",
+  "displayName": "PageSection",
+  "methods": [],
+  "props": {
+    "children": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Content rendered inside the section"
+    },
+    "className": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Additional classes added to the section",
+      "defaultValue": {
+        "value": "''",
+        "computed": false
+      }
+    },
+    "variant": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "'default' | 'light' | 'dark' | 'darker'",
+        "elements": [
+          {
+            "name": "literal",
+            "value": "'default'"
+          },
+          {
+            "name": "literal",
+            "value": "'light'"
+          },
+          {
+            "name": "literal",
+            "value": "'dark'"
+          },
+          {
+            "name": "literal",
+            "value": "'darker'"
+          }
+        ]
+      },
+      "description": "Section background color variant",
+      "defaultValue": {
+        "value": "'default'",
+        "computed": false
+      }
+    },
+    "type": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "'default' | 'nav' | 'subnav' | 'breadcrumb' | 'tabs' | 'wizard'",
+        "elements": [
+          {
+            "name": "literal",
+            "value": "'default'"
+          },
+          {
+            "name": "literal",
+            "value": "'nav'"
+          },
+          {
+            "name": "literal",
+            "value": "'subnav'"
+          },
+          {
+            "name": "literal",
+            "value": "'breadcrumb'"
+          },
+          {
+            "name": "literal",
+            "value": "'tabs'"
+          },
+          {
+            "name": "literal",
+            "value": "'wizard'"
+          }
+        ]
+      },
+      "description": "Section type variant",
+      "defaultValue": {
+        "value": "'default'",
+        "computed": false
+      }
+    },
+    "isFilled": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Enables the page section to fill the available vertical space"
+    },
+    "isWidthLimited": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Limits the width of the section",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "padding": {
+      "required": false,
+      "tsType": {
+        "name": "signature",
+        "type": "object",
+        "raw": "{\n  default?: 'padding' | 'noPadding';\n  sm?: 'padding' | 'noPadding';\n  md?: 'padding' | 'noPadding';\n  lg?: 'padding' | 'noPadding';\n  xl?: 'padding' | 'noPadding';\n  '2xl'?: 'padding' | 'noPadding';\n}",
+        "signature": {
+          "properties": [
+            {
+              "key": "default",
+              "value": {
+                "name": "union",
+                "raw": "'padding' | 'noPadding'",
+                "elements": [
+                  {
+                    "name": "literal",
+                    "value": "'padding'"
+                  },
+                  {
+                    "name": "literal",
+                    "value": "'noPadding'"
+                  }
+                ],
+                "required": false
+              }
+            },
+            {
+              "key": "sm",
+              "value": {
+                "name": "union",
+                "raw": "'padding' | 'noPadding'",
+                "elements": [
+                  {
+                    "name": "literal",
+                    "value": "'padding'"
+                  },
+                  {
+                    "name": "literal",
+                    "value": "'noPadding'"
+                  }
+                ],
+                "required": false
+              }
+            },
+            {
+              "key": "md",
+              "value": {
+                "name": "union",
+                "raw": "'padding' | 'noPadding'",
+                "elements": [
+                  {
+                    "name": "literal",
+                    "value": "'padding'"
+                  },
+                  {
+                    "name": "literal",
+                    "value": "'noPadding'"
+                  }
+                ],
+                "required": false
+              }
+            },
+            {
+              "key": "lg",
+              "value": {
+                "name": "union",
+                "raw": "'padding' | 'noPadding'",
+                "elements": [
+                  {
+                    "name": "literal",
+                    "value": "'padding'"
+                  },
+                  {
+                    "name": "literal",
+                    "value": "'noPadding'"
+                  }
+                ],
+                "required": false
+              }
+            },
+            {
+              "key": "xl",
+              "value": {
+                "name": "union",
+                "raw": "'padding' | 'noPadding'",
+                "elements": [
+                  {
+                    "name": "literal",
+                    "value": "'padding'"
+                  },
+                  {
+                    "name": "literal",
+                    "value": "'noPadding'"
+                  }
+                ],
+                "required": false
+              }
+            },
+            {
+              "key": "2xl",
+              "value": {
+                "name": "union",
+                "raw": "'padding' | 'noPadding'",
+                "elements": [
+                  {
+                    "name": "literal",
+                    "value": "'padding'"
+                  },
+                  {
+                    "name": "literal",
+                    "value": "'noPadding'"
+                  }
+                ],
+                "required": false
+              }
+            }
+          ]
+        }
+      },
+      "description": "Padding at various breakpoints."
+    },
+    "sticky": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "'top' | 'bottom'",
+        "elements": [
+          {
+            "name": "literal",
+            "value": "'top'"
+          },
+          {
+            "name": "literal",
+            "value": "'bottom'"
+          }
+        ]
+      },
+      "description": "Modifier indicating if PageSection is sticky to the top or bottom"
+    },
+    "hasShadowTop": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Modifier indicating if PageSection should have a shadow at the top",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "hasShadowBottom": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Modifier indicating if PageSection should have a shadow at the bottom",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "hasOverflowScroll": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Flag indicating if the PageSection has a scrolling overflow",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    }
+  }
+}

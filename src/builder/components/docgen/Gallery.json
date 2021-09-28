@@ -1,0 +1,183 @@
+{
+  "description": "",
+  "displayName": "Gallery",
+  "methods": [],
+  "props": {
+    "children": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "content rendered inside the Gallery layout",
+      "defaultValue": {
+        "value": "null",
+        "computed": false
+      }
+    },
+    "className": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "additional classes added to the Gallery layout",
+      "defaultValue": {
+        "value": "''",
+        "computed": false
+      }
+    },
+    "hasGutter": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds space between children.",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "minWidths": {
+      "required": false,
+      "tsType": {
+        "name": "signature",
+        "type": "object",
+        "raw": "{\n  default?: string;\n  sm?: string;\n  md?: string;\n  lg?: string;\n  xl?: string;\n  '2xl'?: string;\n}",
+        "signature": {
+          "properties": [
+            {
+              "key": "default",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "sm",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "md",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "lg",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "xl",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "2xl",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            }
+          ]
+        }
+      },
+      "description": "Minimum widths at various breakpoints."
+    },
+    "maxWidths": {
+      "required": false,
+      "tsType": {
+        "name": "signature",
+        "type": "object",
+        "raw": "{\n  default?: string;\n  sm?: string;\n  md?: string;\n  lg?: string;\n  xl?: string;\n  '2xl'?: string;\n}",
+        "signature": {
+          "properties": [
+            {
+              "key": "default",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "sm",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "md",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "lg",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "xl",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            },
+            {
+              "key": "2xl",
+              "value": {
+                "name": "string",
+                "required": false
+              }
+            }
+          ]
+        }
+      },
+      "description": "Maximum widths at various breakpoints."
+    },
+    "component": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "React.ElementType<any> | React.ComponentType<any>",
+        "elements": [
+          {
+            "name": "ReactElementType",
+            "raw": "React.ElementType<any>",
+            "elements": [
+              {
+                "name": "any"
+              }
+            ]
+          },
+          {
+            "name": "ReactComponentType",
+            "raw": "React.ComponentType<any>",
+            "elements": [
+              {
+                "name": "any"
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Sets the base component to render. defaults to div",
+      "defaultValue": {
+        "value": "'div'",
+        "computed": false
+      }
+    }
+  }
+}

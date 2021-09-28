@@ -1,1 +1,4 @@
-<Page><PageSection><Button>Button within a section</Button></PageSection></Page>
+<>
+<Page></Page>
+<Page header={null}></Page>
+</>

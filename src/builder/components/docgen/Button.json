@@ -1,0 +1,263 @@
+{
+  "description": "",
+  "displayName": "Button",
+  "methods": [],
+  "props": {
+    "children": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Content rendered inside the button"
+    },
+    "className": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Additional classes added to the button"
+    },
+    "component": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "React.ElementType<any> | React.ComponentType<any>",
+        "elements": [
+          {
+            "name": "ReactElementType",
+            "raw": "React.ElementType<any>",
+            "elements": [
+              {
+                "name": "any"
+              }
+            ]
+          },
+          {
+            "name": "ReactComponentType",
+            "raw": "React.ComponentType<any>",
+            "elements": [
+              {
+                "name": "any"
+              }
+            ]
+          }
+        ]
+      },
+      "description": "Sets the base component to render. defaults to button"
+    },
+    "isActive": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds active styling to button."
+    },
+    "isBlock": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds block styling to button"
+    },
+    "isDisabled": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds disabled styling and disables the button using the disabled html attribute"
+    },
+    "isAriaDisabled": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds disabled styling and communicates that the button is disabled using the aria-disabled html attribute"
+    },
+    "isLoading": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds progress styling to button"
+    },
+    "spinnerAriaValueText": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Aria-valuetext for the loading spinner"
+    },
+    "inoperableEvents": {
+      "required": false,
+      "tsType": {
+        "name": "Array",
+        "elements": [
+          {
+            "name": "string"
+          }
+        ],
+        "raw": "string[]"
+      },
+      "description": "Events to prevent when the button is in an aria-disabled state"
+    },
+    "isInline": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds inline styling to a link button"
+    },
+    "type": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "'button' | 'submit' | 'reset'",
+        "elements": [
+          {
+            "name": "literal",
+            "value": "'button'"
+          },
+          {
+            "name": "literal",
+            "value": "'submit'"
+          },
+          {
+            "name": "literal",
+            "value": "'reset'"
+          }
+        ]
+      },
+      "description": "Sets button type"
+    },
+    "variant": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "'primary' | 'secondary' | 'tertiary' | 'danger' | 'warning' | 'link' | 'plain' | 'control'",
+        "elements": [
+          {
+            "name": "literal",
+            "value": "'primary'"
+          },
+          {
+            "name": "literal",
+            "value": "'secondary'"
+          },
+          {
+            "name": "literal",
+            "value": "'tertiary'"
+          },
+          {
+            "name": "literal",
+            "value": "'danger'"
+          },
+          {
+            "name": "literal",
+            "value": "'warning'"
+          },
+          {
+            "name": "literal",
+            "value": "'link'"
+          },
+          {
+            "name": "literal",
+            "value": "'plain'"
+          },
+          {
+            "name": "literal",
+            "value": "'control'"
+          }
+        ]
+      },
+      "description": "Adds button variant styles"
+    },
+    "iconPosition": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "'left' | 'right'",
+        "elements": [
+          {
+            "name": "literal",
+            "value": "'left'"
+          },
+          {
+            "name": "literal",
+            "value": "'right'"
+          }
+        ]
+      },
+      "description": "Sets position of the link icon"
+    },
+    "aria-label": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Adds accessible text to the button."
+    },
+    "icon": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "React.ReactNode | null",
+        "elements": [
+          {
+            "name": "ReactReactNode",
+            "raw": "React.ReactNode"
+          },
+          {
+            "name": "null"
+          }
+        ]
+      },
+      "description": "Icon for the button. Usable by all variants except for plain."
+    },
+    "tabIndex": {
+      "required": false,
+      "tsType": {
+        "name": "number"
+      },
+      "description": "Sets the button tabindex."
+    },
+    "isSmall": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds small styling to the button"
+    },
+    "isLarge": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds large styling to the button"
+    },
+    "isDanger": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Adds danger styling to secondary or link button variants"
+    },
+    "innerRef": {
+      "required": false,
+      "tsType": {
+        "name": "ReactRef",
+        "raw": "React.Ref<any>",
+        "elements": [
+          {
+            "name": "any"
+          }
+        ]
+      },
+      "description": "Forwarded ref"
+    }
+  },
+  "composes": [
+    "Omit",
+    "OUIAProps"
+  ]
+}

@@ -20,6 +20,14 @@
   background-color: deepskyblue
 }
 
+.uib-preview.preview-mode {
+  position: absolute;
+  top: 100px;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+}
+
 .uib-preview.layout-mode .pf-c-page,
 .uib-preview.layout-mode .pf-c-page__main-section,
 .uib-preview.layout-mode .pf-c-card,
@@ -34,6 +42,7 @@
 /* Default no pointer events */
 .uib-preview.layout-mode {
   pointer-events: none;
+  margin-right: 442px;
 }
 
 /* Disable pointer events for children of the droppable target */
@@ -44,8 +53,50 @@
 .pf-c-data-list__item.pf-m-hide {
   display: none;
 }
+.pf-c-data-list__item.pf-m-child {
+  margin-left: 12px;
+}
 
 /* TODO: Override should not be needed to see the label */
-.pf-c-switch__label {
+.pf-builder-header .pf-c-switch__label {
   color: white !important;
+}
+
+.props-inspector {
+  pointer-events: all !important;
+  background-color: lightgray;
+}
+.props-inspector .pf-c-button {
+  padding: 6px 8px;
+}
+
+.wrapped-button {
+  display: flex;
+}
+
+.props-editor {
+  max-width: 418px;
+  overflow: auto;
+  height: calc(50vh - 76px);
+  /* border: var(--pf-c-code-editor__main--BorderWidth) solid; */
+  /* border-color: var(--pf-c-code-editor__main--BorderColor); */
+  border: 1px solid;
+  border-left: 0;
+  border-color: #d2d2d2;
+  margin-top: -1px;
+}
+.props-editor .props-title {
+  pointer-events: none;
+}
+.props-editor .pf-c-table {
+  margin: 0 !important;
+}
+
+.pf-builder-editor .pf-c-tabs__link {
+  padding-top: 0;
+}
+
+.pf-builder-editor {
+  position: absolute;
+  right: 24px;
 }
