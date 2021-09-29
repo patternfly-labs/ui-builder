@@ -11,11 +11,11 @@ import {
   visit,
 } from "./helpers/acorn";
 import { parse } from "./helpers/parse";
-import { components, componentDemos } from "./components/componentList";
+import { components, componentSnippets } from "./components/componentList";
 
 const componentsInfo = {
   ...components,
-  ...componentDemos,
+  ...componentSnippets,
 };
 
 const scope = {
@@ -34,7 +34,6 @@ const scope = {
     (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
   },
 } as any;
-debugger;
 
 const errorComponent = (err: Error | React.ErrorInfo) => (
   <pre>{err.toString()}</pre>
@@ -90,7 +89,6 @@ export const LiveRegion = ({ code, setCode }) => {
         if (node.type !== "JSXOpeningElement" || node.idCounter !== idCounter) {
           return;
         }
-        debugger;
         const parent = parents[parents.length - 1];
 
         const addAttribute = (prop, jsx, node) => {
@@ -124,7 +122,6 @@ export const LiveRegion = ({ code, setCode }) => {
         };
 
         if (componentsInfo[component]) {
-          debugger;
           if (componentsInfo[component].props) {
             componentsInfo[component].props.forEach((propObj) => {
               const { prop, jsx } = propObj;

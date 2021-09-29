@@ -42,7 +42,7 @@
 /* Default no pointer events */
 .uib-preview.layout-mode {
   pointer-events: none;
-  margin-right: 442px;
+  margin-right: 542px;
 }
 
 /* Disable pointer events for children of the droppable target */
@@ -75,7 +75,7 @@
 }
 
 .props-editor {
-  max-width: 418px;
+  max-width: 518px;
   overflow: auto;
   height: calc(50vh - 76px);
   /* border: var(--pf-c-code-editor__main--BorderWidth) solid; */

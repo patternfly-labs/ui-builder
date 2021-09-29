@@ -16,7 +16,7 @@ const PageProps = require("./Page.json");
 const GalleryProps = require("./Gallery.json");
 const GalleryItemProps = require("./GalleryItem.json");
 
-const parsedMap = {
+export const parsedPropsMap = {
   ButtonProps: parseJson(ButtonProps),
   PageSectionProps: parseJson(PageSectionProps),
   PageProps: parseJson(PageProps),
@@ -32,7 +32,7 @@ export const Props = ({ component, onChange, onClose }) => {
     { title: "Description", transforms: [] },
   ];
 
-  const parsed = parsedMap[`${component}Props`];
+  const parsed = parsedPropsMap[`${component}Props`];
   if (!parsed) {
     return <div>Props not found</div>;
   }

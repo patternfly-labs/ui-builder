@@ -26,13 +26,18 @@ import logo from "./logo.svg";
 import { LiveRegion } from "./liveRegion";
 import {
   components,
-  componentDemos,
+  componentSnippets,
   ComponentList,
 } from "./components/componentList";
 import { Base64 } from "js-base64";
 import { css } from "@patternfly/react-styles";
-import { Props } from "./components/docgen/Props";
-import { parse } from "./helpers/parse";
+import { Props, parsedPropsMap } from "./components/docgen/Props";
+import MonacoEditor from "react-monaco-editor";
+
+const componentsInfo = {
+  ...components,
+  ...componentSnippets,
+};
 
 export const App = ({ vscode, data, filePath }) => {
   const codeFromStorage = localStorage.getItem("pf-builder-code");
@@ -40,6 +45,21 @@ export const App = ({ vscode, data, filePath }) => {
   const [code, setCode] = React.useState(codeFromStorage || template);
   const [showCode, setShowCode] = React.useState(true);
   const [component, setComponent] = React.useState(null);
+  /* { title: 'PageHeaderSnippet', code: rawCodeString } */
+  const [additionalTabs, setAdditionalTabs] = React.useState<any[] | null>();
+
+  React.useEffect(() => {
+    const extraTabs = [];
+    for (const component in componentsInfo) {
+      if (code.search(`<${component}`) >= 0 && componentsInfo[component].code) {
+        extraTabs.push({
+          title: component,
+          code: componentsInfo[component].code,
+        });
+      }
+    }
+    setAdditionalTabs(extraTabs.length ? extraTabs : null);
+  }, [code]);
 
   React.useEffect(() => {
     if (data) {
@@ -47,7 +67,6 @@ export const App = ({ vscode, data, filePath }) => {
       console.log(filePath);
       const decodedData = Base64.decode(data);
       if (decodedData !== code) {
-        debugger;
         setCode(decodedData);
       }
     }
@@ -58,14 +77,19 @@ export const App = ({ vscode, data, filePath }) => {
     localStorage.setItem("pf-builder-code", code);
   }, [code]);
 
+  const cleanupCode = (code) => {
+    // replace extra line breaks, maybe this needs to be fixed in helpers/acorn.ts instead?
+    code = code.replace(/\n\s*\n/g, "\n");
+    // remove extra spaces between end tag and newline
+    code = code.replace(/>\s*\n/g, ">\n");
+    return code;
+  };
+
   const onChange = (newCode) => {
-    debugger;
     if (!newCode) {
       setTimeout(() => setCode(template), 1);
-    } /*else if (newCode.includes("PageHeader") && !newCode.includes("header=")) {
-      // cheating here... remove when LiveRegion onLiveRegionDrop can handle adding JSXAttributes
-      setCode(`<Page header={<PageHeader></PageHeader>}></Page>`);
-    } */ else {
+    } else {
+      newCode = cleanupCode(newCode);
       setCode(newCode);
     }
     vscode &&
@@ -79,15 +103,13 @@ export const App = ({ vscode, data, filePath }) => {
   const onEditorWillMount = (monaco) => {
     monaco.languages.registerHoverProvider("javascript", {
       provideHover: function (model, position) {
-        // Log the current word in the console, you probably want to do something else here.
-        // console.log(model.getWordAtPosition(position));
         return {
-          range: new monaco.Range(
-            1,
-            1,
-            model.getLineCount(),
-            model.getLineMaxColumn(model.getLineCount())
-          ),
+          // range: new monaco.Range(
+          //   1,
+          //   1,
+          //   model.getLineCount(),
+          //   model.getLineMaxColumn(model.getLineCount())
+          // ),
           contents: [{ value: "**SOURCE**" }, { value: "hello" }],
         };
       },
@@ -109,47 +131,13 @@ export const App = ({ vscode, data, filePath }) => {
       console.log(a);
 
       const possibleTag = a && a.word;
-      if (possibleTag && components[possibleTag]) {
-        // const offset = editor.getModel().getOffsetAt(editor.getPosition());
-        // const fullText = editor.getValue();
-        // // the character directly following after the cursor
-        // console.log(fullText[offset]);
-        // let startOffset = offset - 1;
-        // let endOffset = offset + 1;
-        // while (startOffset !== 0 && fullText[startOffset] !== "<") {
-        //   startOffset = startOffset - 1;
-        // }
-        // while (endOffset !== fullText.length && fullText[endOffset] !== ">") {
-        //   endOffset = endOffset + 1;
-        // }
-        // const tag =
-        //   fullText.substring(startOffset, endOffset + 1) + `</${possibleTag}>`;
-        // console.log(`full tag`);
-        // console.log(tag);
-        // const jsx = parse(tag);
-        // debugger;
-        // var position = editor.getPosition();
-        // var text = editor.getValue(position);
-        // var splitedText = text.split("\n");
-        // var line = splitedText[position.lineNumber - 1];
-        // var regex = /<(\w+)[^\/>]*$/;
-        // if (line.match(regex)) {
-        //   var content = "</" + line.match(regex)[1] + ">";
-        //   editor.trigger("bla", "type", { text: content });
-        //   editor.setPosition(position);
-        // }
-
-        // const asd = monaco;
-        // const bbb = editor;
-        // const m = editor.getModel();
-        // const a = m.getWordAtPosition(editor.getPosition());
-        // console.log(a);
-
+      if (possibleTag && componentsInfo[possibleTag]) {
         setComponent(possibleTag);
-        // console.log(components[possibleTag]);
       }
     });
   };
+
+  const showProps = component && parsedPropsMap[`${component}Props`];
 
   return (
     <Page
@@ -188,7 +176,10 @@ export const App = ({ vscode, data, filePath }) => {
         <Split style={{ height: "100%" }}>
           <SplitItem
             isFilled
-            className={css("uib-preview", showCode ? "layout-mode" : "preview-mode")}
+            className={css(
+              "uib-preview",
+              showCode ? "layout-mode" : "preview-mode"
+            )}
           >
             <LiveRegion code={code} setCode={onChange} />
           </SplitItem>
@@ -204,9 +195,9 @@ export const App = ({ vscode, data, filePath }) => {
                       <CodeEditor
                         language={Language.javascript}
                         height={`calc(${
-                          component ? "50vh - 96px" : "100vh - 174px"
+                          showProps ? "50vh - 96px" : "100vh - 174px"
                         })`}
-                        width="400px"
+                        width="500px"
                         code={code}
                         onChange={onChange}
                         isLineNumbersVisible
@@ -216,10 +207,59 @@ export const App = ({ vscode, data, filePath }) => {
                           automaticLayout: true,
                         }}
                       />
+                      {/* <MonacoEditor
+                        height={`calc(${
+                          showProps ? "50vh - 96px" : "100vh - 174px"
+                        })`}
+                        width="500px"
+                        language="javascript"
+                        value={code}
+                        onChange={onChange}
+                        editorDidMount={onEditorDidMount}
+                        options={{
+                          automaticLayout: true,
+                        }}
+                      /> */}
                     </Tab>
+                    {additionalTabs &&
+                      additionalTabs.map((tab, index) => (
+                        <Tab
+                          key={index + 1}
+                          eventKey={index + 1}
+                          title={<TabTitleText>{tab.title}</TabTitleText>}
+                        >
+                          {/* <pre style={{ width: "500px" }}>{tab.code}</pre> */}
+                          <CodeEditor
+                            key={`editor-${index + 1}`}
+                            language={Language.javascript}
+                            height={`calc(${
+                              showProps ? "50vh - 96px" : "100vh - 174px"
+                            })`}
+                            width="500px"
+                            code={tab.code}
+                            // onChange={onChange}
+                            isLineNumbersVisible
+                            // onEditorWillMount={onEditorWillMount}
+                            // onEditorDidMount={onEditorDidMount}
+                            options={{
+                              automaticLayout: true,
+                            }}
+                            isReadOnly
+                          />
+                          {/* <MonacoEditor
+                            height={`calc(${
+                              showProps ? "50vh - 96px" : "100vh - 174px"
+                            })`}
+                            width="500px"
+                            language="javascript"
+                            theme="vs-dark"
+                            value={code}
+                          /> */}
+                        </Tab>
+                      ))}
                   </Tabs>
                 </div>
-                {component && (
+                {showProps && (
                   <div className="props-editor">
                     <Props
                       component={component}

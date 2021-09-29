@@ -9,15 +9,21 @@ import {
   AccordionToggle,
   AccordionContent,
 } from "@patternfly/react-core";
+// @ts-ignore
+import PageHeaderSnippetRaw from '!!raw-loader!./snippets/PageHeaderSnippet';
 
 export const components = {
   Page: "<Page></Page>",
-  PageHeader: "<PageHeader></PageHeader>",
+  PageHeader: {
+    component: "Page",
+    prop: "header",
+    jsx: "<PageHeader></PageHeader>",
+  },
   PageSection: "<PageSection></PageSection>",
   Gallery: "<Gallery hasGutter={true}></Gallery>",
   GalleryItem: {
     parent: "Gallery",
-    jsx: "<GalleryItem></GalleryItem>",
+    jsx: `<GalleryItem className="pf-l-gallery__item"></GalleryItem>`,
   },
   Card: "<Card></Card>",
   CardBody: {
@@ -29,11 +35,12 @@ export const components = {
   Badge: "<Badge>5</Badge>",
 };
 
-export const componentDemos = {
-  PageHeader: {
+export const componentSnippets = {
+  PageHeaderSnippet: {
     component: "Page",
     prop: "header",
     jsx: "<PageHeaderSnippet></PageHeaderSnippet>",
+    code: PageHeaderSnippetRaw
   },
   PageNav: {
     component: "Page",
@@ -100,6 +107,7 @@ export const componentDemos = {
 export const allowableDropMap = {
   // Page: ["live-region"],
   PageHeader: ["pf-c-page"],
+  PageHeaderSnippet: ["pf-c-page"],
   PageNav: ["pf-c-page"],
   PageBreadcrumbs: ["pf-c-page"],
   PageGroupedContent: ["pf-c-page"],
@@ -252,7 +260,7 @@ export const ComponentList = ({ code }) => {
             role="list"
             aria-label="Basic data list example"
           >
-            {Object.entries(componentDemos).map((c) => ComponentItem(c, code))}
+            {Object.entries(componentSnippets).map((c) => ComponentItem(c, code))}
           </ul>
         </AccordionContent>
       </AccordionItem>
