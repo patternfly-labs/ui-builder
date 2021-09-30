@@ -33,6 +33,7 @@ import { Base64 } from "js-base64";
 import { css } from "@patternfly/react-styles";
 import { Props, parsedPropsMap } from "./components/docgen/Props";
 import MonacoEditor from "react-monaco-editor";
+import ErrorBoundary from "./ErrorBoundary";
 
 const componentsInfo = {
   ...components,
@@ -181,12 +182,14 @@ export const App = ({ vscode, data, filePath }) => {
               showCode ? "layout-mode" : "preview-mode"
             )}
           >
-            <LiveRegion code={code} setCode={onChange} />
+            <ErrorBoundary>
+              <LiveRegion code={code} setCode={onChange} />
+            </ErrorBoundary>
           </SplitItem>
           {showCode && (
             <>
               <SplitItem
-                style={{ display: !vscode ? "block" : "none" }}
+                // style={{ display: !vscode ? "block" : "none" }}
                 className="pf-builder-editor"
               >
                 <div>

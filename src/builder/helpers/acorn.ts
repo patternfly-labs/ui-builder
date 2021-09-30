@@ -224,7 +224,10 @@ const es2017GeneratorJSX = {
 export function visit(node: acorn.Node, callback: any, parents: any[] = []) {
   parents.push(node);
   Object.values(node).forEach(n => {
-    if (n.type) {
+    if (!n) {
+      return;
+    }
+    if (typeof n === 'object' && n.type) {
       callback(n, parents);
       visit(n, callback, parents);
     }
@@ -271,9 +274,18 @@ function injectProp(node: any, propName: string, propValue: string, idCounter: n
 
 export function parseComponent(code: string, injectFunction: boolean, injectInteractive: boolean, injectId: boolean) {
   const ast = parse(code);
+  console.log(ast);
   if (injectFunction) {
     // Modify AST for function creation
-    ast.body = ast.body.filter(node => !['ImportDeclaration', 'ExportAllDeclaration'].includes(node.type));
+    // The following nodes will be ignored
+    debugger;
+    ast.body = ast.body.filter((node, index) => {
+      // Ignore VariableDeclaration unless it's the last element
+      if (node.type === 'VariableDeclaration' && index !== ast.body.length - 1) {
+        return false;
+      }
+      return !['ImportDeclaration', 'ExportAllDeclaration'].includes(node.type)
+    });
     for (let i = 0; i < ast.body.length; i++) {
       if (['ExportNamedDeclaration', 'ExportDefaultDeclaration'].includes(ast.body[i].type)) {
         // Replace exports
@@ -291,7 +303,7 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
         throw new Error('The last example variable declaration must be a single expression.');
       }
       const declaration = declarations[0];
-      lastStatement = {
+      const expressionStatement = {
         type: 'ExpressionStatement',
         expression: {
           type: 'AssignmentExpression',
@@ -300,9 +312,28 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
           right: declaration.init
         }
       };
+      debugger;
+      lastStatement = {
+        type: 'FunctionDeclaration',
+        id: {
+          type: 'Identifier',
+          name: 'LivePreview'
+        },
+        body: {
+          type: 'BlockStatement',
+          body: [
+            ...ast.body.slice(0, ast.body.length - 1),
+            {
+              type: 'ReturnStatement',
+              argument: expressionStatement.expression.right.body
+            }
+          ]
+        }
+      };
     }
     // Convert `<InlineJSX />` or `Example = () => <InlineJSX />`
     // to `function LivePreview() { return <InlineJSX />; }`
+    console.log(lastStatement);
     if (lastStatement.type === 'ExpressionStatement' && lastStatement.expression.type === 'JSXElement') {
       ast.body = [{
         type: 'ReturnStatement',
@@ -339,6 +370,9 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
   if (injectInteractive || injectId) {
     let idCounter = 0; // When dropping we need to tie back to this AST
     visit(ast, (node: any) => {
+      if (!node || !node.type) {
+        debugger;
+      }
       if (node.type !== 'JSXOpeningElement') {
         return;
       }
@@ -364,7 +398,7 @@ export function stringifyAST(ast: any) {
 // ES2017 TSX w/class members -> ES2017 React Component
 export function convertToReactComponent(code: string, injectInteractive: boolean = true) {
   const ast = parseComponent(code, true, injectInteractive, injectInteractive);
-  //console.log(ast)
+  console.log(ast)
   code = generate(ast, { generator: es2017Generator }).trim();
   /*
   return function LivePreview() {

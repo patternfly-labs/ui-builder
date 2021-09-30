@@ -12,6 +12,7 @@ import {
 } from "./helpers/acorn";
 import { parse } from "./helpers/parse";
 import { components, componentSnippets } from "./components/componentList";
+import ErrorBoundary, { errorComponent } from './ErrorBoundary';
 
 const componentsInfo = {
   ...components,
@@ -34,42 +35,6 @@ const scope = {
     (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
   },
 } as any;
-
-const errorComponent = (err: Error | React.ErrorInfo) => (
-  <pre>{err.toString()}</pre>
-);
-
-interface ErrorBoundaryState {
-  error: Error;
-  errorInfo: React.ErrorInfo;
-}
-
-class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
-  constructor(props: any) {
-    super(props);
-    this.state = { error: null, errorInfo: null };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.setState({
-      error: error,
-      errorInfo: errorInfo,
-    });
-  }
-
-  componentDidUpdate(prevProps: { children?: React.ReactNode }) {
-    if (prevProps.children !== this.props.children) {
-      this.setState({ error: null, errorInfo: null });
-    }
-  }
-
-  render() {
-    if (this.state.errorInfo) {
-      return errorComponent(this.state.error);
-    }
-    return this.props.children;
-  }
-}
 
 export const LiveRegion = ({ code, setCode }) => {
   let livePreview = null;
@@ -147,6 +112,7 @@ export const LiveRegion = ({ code, setCode }) => {
 
     try {
       const { code: transformedCode } = convertToReactComponent(code);
+      debugger;
       const getPreviewComponent = new Function(
         "React",
         ...Object.keys(scope),
@@ -162,6 +128,8 @@ export const LiveRegion = ({ code, setCode }) => {
         </ErrorBoundary>
       );
     } catch (err) {
+      const asd = err;
+      debugger;
       livePreview = errorComponent(err);
     }
   }
