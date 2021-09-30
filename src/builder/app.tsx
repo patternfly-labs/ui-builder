@@ -34,6 +34,9 @@ import { css } from "@patternfly/react-styles";
 import { Props, parsedPropsMap } from "./components/docgen/Props";
 import MonacoEditor from "react-monaco-editor";
 import ErrorBoundary from "./ErrorBoundary";
+import babylon from "prettier/parser-babel";
+
+const prettier = require('prettier/standalone')
 
 const componentsInfo = {
   ...components,
@@ -79,10 +82,11 @@ export const App = ({ vscode, data, filePath }) => {
   }, [code]);
 
   const cleanupCode = (code) => {
-    // replace extra line breaks, maybe this needs to be fixed in helpers/acorn.ts instead?
-    code = code.replace(/\n\s*\n/g, "\n");
-    // remove extra spaces between end tag and newline
-    code = code.replace(/>\s*\n/g, ">\n");
+    // // replace extra line breaks, maybe this needs to be fixed in helpers/acorn.ts instead?
+    // code = code.replace(/\n\s*\n/g, "\n");
+    // // remove extra spaces between end tag and newline
+    // code = code.replace(/>\s*\n/g, ">\n");
+    code = prettier.format(code, { parser: "babel", plugins: [babylon] });
     return code;
   };
 

@@ -112,7 +112,6 @@ export const LiveRegion = ({ code, setCode }) => {
 
     try {
       const { code: transformedCode } = convertToReactComponent(code);
-      debugger;
       const getPreviewComponent = new Function(
         "React",
         ...Object.keys(scope),
@@ -128,8 +127,6 @@ export const LiveRegion = ({ code, setCode }) => {
         </ErrorBoundary>
       );
     } catch (err) {
-      const asd = err;
-      debugger;
       livePreview = errorComponent(err);
     }
   }

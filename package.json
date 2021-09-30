@@ -48,6 +48,7 @@
     "sub:update": "git submodule update --remote --merge"
   },
   "dependencies": {
+    "@babel/parser": "7.9.4",
     "@patternfly/patternfly": "4.122.2",
     "@patternfly/react-code-editor": "^4.2.92",
     "@patternfly/react-core": "^4.135.0",
@@ -60,6 +61,7 @@
     "js-base64": "^3.6.0",
     "monaco-editor": "~0.21.0",
     "monaco-editor-webpack-plugin": "^2.1.0",
+    "prettier": "2.0.4",
     "raw-loader": "^4.0.2",
     "react": "^17.0.2",
     "react-docgen": "5.3.1",

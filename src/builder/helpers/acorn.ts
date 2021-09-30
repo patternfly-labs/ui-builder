@@ -163,6 +163,11 @@ const es2017GeneratorJSX = {
   },
   // attr="something"
   JSXAttribute(node, state) {
+    /*
+    state.write(state.lineEnd);
+    state.write(state.indent.repeat(state.indentLevel));
+    state.indentLevel += 1;
+    */
     state.write(' ');
     this[node.name.type](node.name, state);
     if (node.value) {
@@ -218,6 +223,26 @@ const es2017GeneratorJSX = {
   // {} (not very kosher)
   JSXEmptyExpression(_node, state) {
     state.write('{}');
+  },
+  ReturnStatement(node, state) {
+    state.write('return');
+    if (node.argument) {
+      if (node.argument.type === 'JSXElement') {
+        state.write(' (');
+        state.write(state.lineEnd);
+        state.indentLevel -= 1;
+      }
+      state.write(' ');
+      this[node.argument.type](node.argument, state);
+      if (node.argument.type === 'JSXElement') {
+        state.indentLevel -= 1;
+        state.write(state.lineEnd);
+        state.write(state.indent.repeat(state.indentLevel));
+        state.write(')');
+      }
+    }
+
+    state.write(';');
   },
 };
 
@@ -278,7 +303,6 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
   if (injectFunction) {
     // Modify AST for function creation
     // The following nodes will be ignored
-    debugger;
     ast.body = ast.body.filter((node, index) => {
       // Ignore VariableDeclaration unless it's the last element
       if (node.type === 'VariableDeclaration' && index !== ast.body.length - 1) {
@@ -312,7 +336,6 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
           right: declaration.init
         }
       };
-      debugger;
       lastStatement = {
         type: 'FunctionDeclaration',
         id: {
@@ -333,6 +356,7 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
     }
     // Convert `<InlineJSX />` or `Example = () => <InlineJSX />`
     // to `function LivePreview() { return <InlineJSX />; }`
+    console.log(`lastStatement`);
     console.log(lastStatement);
     if (lastStatement.type === 'ExpressionStatement' && lastStatement.expression.type === 'JSXElement') {
       ast.body = [{
@@ -370,9 +394,6 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
   if (injectInteractive || injectId) {
     let idCounter = 0; // When dropping we need to tie back to this AST
     visit(ast, (node: any) => {
-      if (!node || !node.type) {
-        debugger;
-      }
       if (node.type !== 'JSXOpeningElement') {
         return;
       }

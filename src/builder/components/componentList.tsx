@@ -39,7 +39,7 @@ export const componentSnippets = {
   PageHeaderSnippet: {
     component: "Page",
     prop: "header",
-    jsx: "<PageHeaderSnippet></PageHeaderSnippet>",
+    jsx: "<PageHeaderSnippet />",
     code: PageHeaderSnippetRaw
   },
   PageNav: {

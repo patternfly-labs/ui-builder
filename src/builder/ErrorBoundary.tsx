@@ -37,7 +37,6 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
 
   render() {
     if (this.state.errorInfo) {
-      debugger;
       return errorComponent(this.state.error);
     }
     return this.props.children;
