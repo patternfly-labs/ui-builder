@@ -1,8 +1,7 @@
 // Largely from https://github.com/patternfly/patternfly-org/blob/main/packages/theme-patternfly-org/components/example/example.js
 import * as React from "react";
 import * as reactCoreModule from "@patternfly/react-core";
-import * as wrappedReactCoreModule from "./components";
-import * as wrappedReactCoreModuleDemos from "./components/snippets";
+import * as componentSnippetModules from "./components/snippets";
 import { ComponentAdder } from "./components/componentAdder";
 import {
   convertToReactComponent,
@@ -11,30 +10,68 @@ import {
   visit,
 } from "./helpers/acorn";
 import { parse } from "./helpers/parse";
-import { components, componentSnippets } from "./components/componentList";
-import ErrorBoundary, { errorComponent } from './ErrorBoundary';
+import { components, allItems } from "./components/componentList";
+import { componentSnippets } from "./components/snippets/snippets";
+import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
 
-const componentsInfo = {
-  ...components,
-  ...componentSnippets,
-};
+// const componentsInfo = {
+//   ...components,
+//   ...componentSnippets,
+// };
 
 const scope = {
   ...reactCoreModule,
-  ...wrappedReactCoreModule,
-  ...wrappedReactCoreModuleDemos,
+  // ...wrappedReactCoreModule,
+  ...componentSnippetModules,
   ComponentAdder,
   onLiveRegionDragEnter(ev: React.DragEvent<any>) {
     ev.preventDefault();
+    ev.stopPropagation();
     console.log(ev.target);
     (ev.target as HTMLElement).classList.add("pf-m-dropzone");
   },
   onLiveRegionDragLeave(ev: React.DragEvent<any>) {
     ev.preventDefault();
+    ev.stopPropagation();
     console.log(`removing dropzone`);
     (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
   },
 } as any;
+
+const addImport = (ast, component) => {
+  for (var i = 0; i < ast.body.length; i++) {
+    let node = ast.body[i];
+    if (node.type === "ImportDeclaration") {
+      // add the import for the dropped component
+      if (node.source.value !== "@patternfly/react-core") {
+        continue;
+      }
+      let importAdded = false;
+      for (var j = 0; j < node.specifiers.length; j++) {
+        if (node.specifiers[j].imported.name === component) {
+          importAdded = true;
+          break;
+        }
+      }
+      if (!importAdded) {
+        node.specifiers.push({
+          type: "ImportSpecifier",
+          imported: {
+            type: "Identifier",
+            name: component,
+          },
+          local: {
+            type: "Identifier",
+            name: component,
+          },
+        });
+        importAdded = true;
+        break;
+      }
+    }
+  }
+  return ast;
+};
 
 export const LiveRegion = ({ code, setCode }) => {
   let livePreview = null;
@@ -42,6 +79,7 @@ export const LiveRegion = ({ code, setCode }) => {
     scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number) => {
       ev.preventDefault();
       ev.stopPropagation();
+      debugger;
       console.log("onLiveRegionDrop", ev.target, idCounter);
       (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
       ev.dataTransfer.items[0].getAsString(function (s) {
@@ -49,7 +87,8 @@ export const LiveRegion = ({ code, setCode }) => {
       });
       const { component } = JSON.parse(ev.dataTransfer.getData("text/plain"));
       // const data = componentsInfo[component];
-      const ast = parseComponent(code, false, false, true);
+      let ast = parseComponent(code, false, false, true);
+      ast = addImport(ast, component);
       visit(ast, (node: any, parents: any[]) => {
         if (node.type !== "JSXOpeningElement" || node.idCounter !== idCounter) {
           return;
@@ -86,18 +125,19 @@ export const LiveRegion = ({ code, setCode }) => {
           }
         };
 
-        if (componentsInfo[component]) {
-          if (componentsInfo[component].props) {
-            componentsInfo[component].props.forEach((propObj) => {
+        const componentInfo: any = allItems[component];
+        if (componentInfo) {
+          if (componentInfo.props) {
+            componentInfo.props.forEach((propObj) => {
               const { prop, jsx } = propObj;
               addAttribute(prop, jsx, parent);
             });
-          } else if (componentsInfo[component].prop) {
-            const { prop, jsx } = componentsInfo[component];
+          } else if (componentInfo.prop) {
+            const { prop, jsx } = componentInfo;
             addAttribute(prop, jsx, parent);
           } else {
             // add as child
-            const componentValue = componentsInfo[component];
+            const componentValue = componentInfo;
             const jsxString =
               typeof componentValue === "string"
                 ? componentValue

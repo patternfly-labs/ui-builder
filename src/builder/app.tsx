@@ -20,50 +20,56 @@ import {
   Tab,
   Tabs,
   TabTitleText,
+  Button,
+  Form,
+  Tooltip,
 } from "@patternfly/react-core";
+import CodepenIcon from "@patternfly/react-icons/dist/esm/icons/codepen-icon";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import logo from "./logo.svg";
 import { LiveRegion } from "./liveRegion";
 import {
   components,
-  componentSnippets,
+  layouts,
   ComponentList,
+  allItems,
 } from "./components/componentList";
+import { componentSnippets } from "./components/snippets/snippets";
 import { Base64 } from "js-base64";
 import { css } from "@patternfly/react-styles";
 import { Props, parsedPropsMap } from "./components/docgen/Props";
 import MonacoEditor from "react-monaco-editor";
 import ErrorBoundary from "./ErrorBoundary";
 import babylon from "prettier/parser-babel";
+import NewFromTemplate from "./newFromTemplate";
+import { getReactParams } from "./helpers/codesandbox";
+import { getParameters } from "codesandbox/lib/api/define";
+// @ts-ignore
+import PageEmpty from "!!raw-loader!./components/templates/PageEmpty";
 
-const prettier = require('prettier/standalone')
+const prettier = require("prettier/standalone");
 
-const componentsInfo = {
-  ...components,
-  ...componentSnippets,
-};
-
-export const App = ({ vscode, data, filePath }) => {
+export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data, filePath }) => {
   const codeFromStorage = localStorage.getItem("pf-builder-code");
-  const template = components.Page;
-  const [code, setCode] = React.useState(codeFromStorage || template);
+  const template = PageEmpty;
+  const [code, setCode] = React.useState<string | unknown>(codeFromStorage || template);
   const [showCode, setShowCode] = React.useState(true);
   const [component, setComponent] = React.useState(null);
   /* { title: 'PageHeaderSnippet', code: rawCodeString } */
   const [additionalTabs, setAdditionalTabs] = React.useState<any[] | null>();
 
-  React.useEffect(() => {
-    const extraTabs = [];
-    for (const component in componentsInfo) {
-      if (code.search(`<${component}`) >= 0 && componentsInfo[component].code) {
-        extraTabs.push({
-          title: component,
-          code: componentsInfo[component].code,
-        });
-      }
-    }
-    setAdditionalTabs(extraTabs.length ? extraTabs : null);
-  }, [code]);
+  // React.useEffect(() => {
+  //   const extraTabs = [];
+  //   for (const component in componentsInfo) {
+  //     if (code.search(`<${component}`) >= 0 && componentsInfo[component].code) {
+  //       extraTabs.push({
+  //         title: component,
+  //         code: componentsInfo[component].code,
+  //       });
+  //     }
+  //   }
+  //   setAdditionalTabs(extraTabs.length ? extraTabs : null);
+  // }, [code]);
 
   React.useEffect(() => {
     if (data) {
@@ -78,21 +84,18 @@ export const App = ({ vscode, data, filePath }) => {
 
   React.useEffect(() => {
     // save to local storage on code change
-    localStorage.setItem("pf-builder-code", code);
+    localStorage.setItem("pf-builder-code", code as string);
   }, [code]);
 
   const cleanupCode = (code) => {
-    // // replace extra line breaks, maybe this needs to be fixed in helpers/acorn.ts instead?
-    // code = code.replace(/\n\s*\n/g, "\n");
-    // // remove extra spaces between end tag and newline
-    // code = code.replace(/>\s*\n/g, ">\n");
     code = prettier.format(code, { parser: "babel", plugins: [babylon] });
     return code;
   };
 
   const onChange = (newCode) => {
+    debugger;
     if (!newCode) {
-      setTimeout(() => setCode(template), 1);
+      setTimeout(() => setCode(template), 10);
     } else {
       newCode = cleanupCode(newCode);
       setCode(newCode);
@@ -136,7 +139,7 @@ export const App = ({ vscode, data, filePath }) => {
       console.log(a);
 
       const possibleTag = a && a.word;
-      if (possibleTag && componentsInfo[possibleTag]) {
+      if (possibleTag && allItems[possibleTag]) {
         setComponent(possibleTag);
       }
     });
@@ -155,6 +158,47 @@ export const App = ({ vscode, data, filePath }) => {
           logo={<Brand src={logo} alt="PatternFly Logo" />}
           headerTools={
             <PageHeaderTools>
+              <PageHeaderToolsGroup>
+                <PageHeaderToolsItem>
+                  {/* @ts-ignore */}
+                  <NewFromTemplate setCode={setCode} />
+                </PageHeaderToolsItem>
+              </PageHeaderToolsGroup>
+              <PageHeaderToolsGroup>
+                <PageHeaderToolsItem>
+                  <Tooltip
+                    trigger="mouseenter"
+                    content="Export to Codesandbox"
+                    exitDelay={300}
+                    entryDelay={300}
+                    position="bottom"
+                  >
+                    <Form
+                      // aria-label={codesandboxLabel}
+                      action="https://codesandbox.io/api/v1/sandboxes/define"
+                      method="POST"
+                      target="_blank"
+                      style={{ display: "inline-block" }}
+                    >
+                      <Button
+                        // aria-label={codesandboxLabel}
+                        variant="control"
+                        type="submit"
+                      >
+                        <input
+                          type="hidden"
+                          name="parameters"
+                          // @ts-ignore
+                          value={getParameters(
+                            getReactParams("Test title", code)
+                          )}
+                        />
+                        <CodepenIcon />
+                      </Button>
+                    </Form>
+                  </Tooltip>
+                </PageHeaderToolsItem>
+              </PageHeaderToolsGroup>
               <PageHeaderToolsGroup>
                 <PageHeaderToolsItem>
                   <Switch
@@ -183,7 +227,8 @@ export const App = ({ vscode, data, filePath }) => {
             isFilled
             className={css(
               "uib-preview",
-              showCode ? "layout-mode" : "preview-mode"
+              showCode ? "layout-mode" : "preview-mode",
+              vscode && "vscode"
             )}
           >
             <ErrorBoundary>
@@ -193,8 +238,10 @@ export const App = ({ vscode, data, filePath }) => {
           {showCode && (
             <>
               <SplitItem
-                // style={{ display: !vscode ? "block" : "none" }}
-                className="pf-builder-editor"
+                className={css(
+                  "pf-builder-editor",
+                  vscode && "vscode"
+                )}
               >
                 <div>
                   <Tabs defaultActiveKey={0}>
@@ -205,7 +252,7 @@ export const App = ({ vscode, data, filePath }) => {
                           showProps ? "50vh - 96px" : "100vh - 174px"
                         })`}
                         width="500px"
-                        code={code}
+                        code={code as string}
                         onChange={onChange}
                         isLineNumbersVisible
                         // onEditorWillMount={onEditorWillMount}
@@ -214,19 +261,6 @@ export const App = ({ vscode, data, filePath }) => {
                           automaticLayout: true,
                         }}
                       />
-                      {/* <MonacoEditor
-                        height={`calc(${
-                          showProps ? "50vh - 96px" : "100vh - 174px"
-                        })`}
-                        width="500px"
-                        language="javascript"
-                        value={code}
-                        onChange={onChange}
-                        editorDidMount={onEditorDidMount}
-                        options={{
-                          automaticLayout: true,
-                        }}
-                      /> */}
                     </Tab>
                     {additionalTabs &&
                       additionalTabs.map((tab, index) => (

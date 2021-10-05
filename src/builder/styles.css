@@ -11,8 +11,10 @@
   background-color: deepskyblue
 }
 
-.pf-m-droppable {
+.pf-m-droppable-bg {
   background-color: pink;
+}
+.pf-m-droppable {
   pointer-events: all !important;
 }
 
@@ -28,21 +30,28 @@
   bottom: 24px;
 }
 
-.uib-preview.layout-mode .pf-c-page,
-.uib-preview.layout-mode .pf-c-page__main-section,
-.uib-preview.layout-mode .pf-c-card,
-.uib-preview.layout-mode .pf-l-gallery,
-.uib-preview.layout-mode .pf-l-gallery div {
-  padding: 1rem;
-  border-width: 2px;
+.uib-preview.layout-mode [class^="pf-c-"]:not([class*="__"]),
+.uib-preview.layout-mode [class^="pf-l-"]:not([class*="__"]) {
+  padding: 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+  min-height: 20px;
+}
+.uib-preview.layout-mode [class^="pf-c-"][class*="__"],
+.uib-preview.layout-mode [class^="pf-l-"][class*="__"] {
+  padding: 0.5rem;
+  border-width: 1px;
   border-style: dashed;
-  min-height: 50px;
+  min-height: 20px;
 }
 
 /* Default no pointer events */
 .uib-preview.layout-mode {
   pointer-events: none;
   margin-right: 542px;
+}
+.uib-preview.layout-mode.vscode {
+  margin-right: 0;
 }
 
 /* Disable pointer events for children of the droppable target */
@@ -99,4 +108,49 @@
 .pf-builder-editor {
   position: absolute;
   right: 24px;
+  display: block;
+}
+.pf-builder-editor.vscode {
+  display: none;
+}
+
+.pf-builder-sidebar .pf-c-page__sidebar-body .pf-c-tabs {
+  position: absolute;
+  top: 0;
+}
+.pf-builder-sidebar .pf-c-page__sidebar-body .pf-c-tabs .pf-c-tabs__link {
+  padding: 8px 13px;
+}
+.pf-builder-sidebar .pf-c-page__sidebar-body .pf-c-tab-content {
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
+.pf-builder-sidebar .pf-c-expandable-section {
+  float: right;
+}
+.pf-builder-sidebar .pf-c-expandable-section .pf-c-expandable-section__toggle {
+  padding: 0;
+}
+
+.pf-builder-sidebar .pf-c-data-list__expandable-content-body {
+  padding: 0;
+}
+.pf-builder-sidebar .pf-c-data-list__item__child {
+  list-style-type: none;
+}
+.pf-builder-sidebar .pf-c-data-list__item__child .list-child {
+  width: 12px;
+  border-left: 1px solid;
+  border-bottom: 1px solid;
+  margin-left: 6px;
+  margin-top: -2px;
+  margin-bottom: 8px;
+  margin-right: 12px;
+}
+.pf-builder-sidebar .pf-c-data-list__item-control {
+  margin-right: 0;
 }
