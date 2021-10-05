@@ -93,7 +93,6 @@ export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data,
   };
 
   const onChange = (newCode) => {
-    debugger;
     if (!newCode) {
       setTimeout(() => setCode(template), 10);
     } else {
@@ -161,7 +160,7 @@ export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data,
               <PageHeaderToolsGroup>
                 <PageHeaderToolsItem>
                   {/* @ts-ignore */}
-                  <NewFromTemplate setCode={setCode} />
+                  <NewFromTemplate setCode={onChange} />
                 </PageHeaderToolsItem>
               </PageHeaderToolsGroup>
               <PageHeaderToolsGroup>

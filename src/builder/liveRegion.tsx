@@ -27,13 +27,13 @@ const scope = {
   onLiveRegionDragEnter(ev: React.DragEvent<any>) {
     ev.preventDefault();
     ev.stopPropagation();
-    console.log(ev.target);
+    // console.log(ev.target);
     (ev.target as HTMLElement).classList.add("pf-m-dropzone");
   },
   onLiveRegionDragLeave(ev: React.DragEvent<any>) {
     ev.preventDefault();
     ev.stopPropagation();
-    console.log(`removing dropzone`);
+    // console.log(`removing dropzone`);
     (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
   },
 } as any;
@@ -79,12 +79,11 @@ export const LiveRegion = ({ code, setCode }) => {
     scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number) => {
       ev.preventDefault();
       ev.stopPropagation();
-      debugger;
-      console.log("onLiveRegionDrop", ev.target, idCounter);
+      // console.log("onLiveRegionDrop", ev.target, idCounter);
       (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
-      ev.dataTransfer.items[0].getAsString(function (s) {
-        console.log("component = " + s);
-      });
+      // ev.dataTransfer.items[0].getAsString(function (s) {
+      //   console.log("component = " + s);
+      // });
       const { component } = JSON.parse(ev.dataTransfer.getData("text/plain"));
       // const data = componentsInfo[component];
       let ast = parseComponent(code, false, false, true);
