@@ -14,11 +14,6 @@ import { components, allItems } from "./components/componentList";
 import { componentSnippets } from "./components/snippets/snippets";
 import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
 
-// const componentsInfo = {
-//   ...components,
-//   ...componentSnippets,
-// };
-
 const scope = {
   ...reactCoreModule,
   // ...wrappedReactCoreModule,

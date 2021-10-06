@@ -26,7 +26,7 @@ export default class ViewLoader {
       this._panel = vscode.window.createWebviewPanel(
         "configView",
         "UI Builder",
-        vscode.ViewColumn.Two,
+        vscode.ViewColumn.Beside,
         {
           enableScripts: true,
           localResourceRoots: [

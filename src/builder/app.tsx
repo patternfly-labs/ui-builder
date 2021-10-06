@@ -23,6 +23,7 @@ import {
   Button,
   Form,
   Tooltip,
+  Title,
 } from "@patternfly/react-core";
 import CodepenIcon from "@patternfly/react-icons/dist/esm/icons/codepen-icon";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
@@ -49,10 +50,13 @@ import PageEmpty from "!!raw-loader!./components/templates/PageEmpty";
 
 const prettier = require("prettier/standalone");
 
-export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data, filePath }) => {
+/* vscode = { postMessage: (msg) => console.log(msg) } */
+export const App = ({ vscode, data, filePath }) => {
   const codeFromStorage = localStorage.getItem("pf-builder-code");
   const template = PageEmpty;
-  const [code, setCode] = React.useState<string | unknown>(codeFromStorage || template);
+  const [code, setCode] = React.useState<string | unknown>(
+    codeFromStorage || template
+  );
   const [showCode, setShowCode] = React.useState(true);
   const [component, setComponent] = React.useState(null);
   /* { title: 'PageHeaderSnippet', code: rawCodeString } */
@@ -154,7 +158,16 @@ export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data,
         <PageHeader
           className="pf-builder-header"
           showNavToggle
-          logo={<Brand src={logo} alt="PatternFly Logo" />}
+          logo={
+            vscode ? (
+              // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
+              <Title className={css("pf-c-brand")} headingLevel="h1" size="2xl">
+                PatternFly UI Builder
+              </Title>
+            ) : (
+              <Brand src={logo} alt="PatternFly Logo" />
+            )
+          }
           headerTools={
             <PageHeaderTools>
               <PageHeaderToolsGroup>
@@ -164,39 +177,41 @@ export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data,
                 </PageHeaderToolsItem>
               </PageHeaderToolsGroup>
               <PageHeaderToolsGroup>
-                <PageHeaderToolsItem>
-                  <Tooltip
-                    trigger="mouseenter"
-                    content="Export to Codesandbox"
-                    exitDelay={300}
-                    entryDelay={300}
-                    position="bottom"
-                  >
-                    <Form
-                      // aria-label={codesandboxLabel}
-                      action="https://codesandbox.io/api/v1/sandboxes/define"
-                      method="POST"
-                      target="_blank"
-                      style={{ display: "inline-block" }}
+                {!vscode && (
+                  <PageHeaderToolsItem>
+                    <Tooltip
+                      trigger="mouseenter"
+                      content="Export to Codesandbox"
+                      exitDelay={300}
+                      entryDelay={300}
+                      position="bottom"
                     >
-                      <Button
+                      <Form
                         // aria-label={codesandboxLabel}
-                        variant="control"
-                        type="submit"
+                        action="https://codesandbox.io/api/v1/sandboxes/define"
+                        method="POST"
+                        target="_blank"
+                        style={{ display: "inline-block" }}
                       >
-                        <input
-                          type="hidden"
-                          name="parameters"
-                          // @ts-ignore
-                          value={getParameters(
-                            getReactParams("Test title", code)
-                          )}
-                        />
-                        <CodepenIcon />
-                      </Button>
-                    </Form>
-                  </Tooltip>
-                </PageHeaderToolsItem>
+                        <Button
+                          // aria-label={codesandboxLabel}
+                          variant="control"
+                          type="submit"
+                        >
+                          <input
+                            type="hidden"
+                            name="parameters"
+                            // @ts-ignore
+                            value={getParameters(
+                              getReactParams("Test title", code)
+                            )}
+                          />
+                          <CodepenIcon />
+                        </Button>
+                      </Form>
+                    </Tooltip>
+                  </PageHeaderToolsItem>
+                )}
               </PageHeaderToolsGroup>
               <PageHeaderToolsGroup>
                 <PageHeaderToolsItem>
@@ -237,10 +252,7 @@ export const App = ({ vscode = { postMessage: (msg) => console.log(msg) }, data,
           {showCode && (
             <>
               <SplitItem
-                className={css(
-                  "pf-builder-editor",
-                  vscode && "vscode"
-                )}
+                className={css("pf-builder-editor", vscode && "vscode")}
               >
                 <div>
                   <Tabs defaultActiveKey={0}>

@@ -37,7 +37,7 @@
     "build:vs": "rm -rf out && npm run dev:compile",
     "build:ui": "rm -rf uiBuilder && webpack --mode=production",
     "start:ui": "webpack serve",
-    "vscode:prepublish": "npm run prod:compile",
+    "vscode:prepublish": "npm run build:all",
     "prod:compile": "npm run clean && npm-run-all prod:compile:*",
     "dev:compile": "npm-run-all dev:compile:*",
     "watch": "npm-run-all -p watch:*",

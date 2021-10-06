@@ -1,3 +1,7 @@
+body {
+  color: unset;
+}
+
 #root,
 .pf-builder-page {
   height: 100%;

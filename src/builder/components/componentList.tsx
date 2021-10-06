@@ -22,6 +22,7 @@ const {
   DragDrop,
   Draggable,
   Droppable,
+  SearchInput,
 } = coreComponents;
 
 const startsWithCapital = (word: string) =>
@@ -147,13 +148,14 @@ const parentChildLayouts = parentChild({
 
 export const allParentChildItems = {
   ...parentChildComponents,
-  ...parentChildLayouts
+  ...parentChildLayouts,
 };
 
 export const allItems = {
   ...components,
-  ...layouts
-}
+  ...layouts,
+  ...componentSnippets,
+};
 
 // restrict allowed drag targets
 export const allowableDropMap = {
@@ -178,7 +180,8 @@ export const allowableDropMap = {
 //      - AccordionContent
 //        - AccordionExpandedContentBody
 
-function ComponentItem([component, value], code) {
+// [component, value], code
+const ComponentItem = ({ component, code, showExpand = true }) => {
   const showAll = true;
   // const jsxString = typeof value === "string" ? value : value.jsx;
   const [isHidden, setHidden] = React.useState(showAll ? false : true);
@@ -320,7 +323,7 @@ function ComponentItem([component, value], code) {
           dataListCells={[
             <DataListCell>
               <span id={spanId}>{component}</span>
-              {componentObj && componentObj.children && (
+              {showExpand && componentObj && componentObj.children && (
                 <ExpandableSectionToggle
                   isExpanded={expanded === component}
                   onToggle={(isExpanded) => onToggle(isExpanded, component)}
@@ -343,29 +346,85 @@ function ComponentItem([component, value], code) {
       )}
     </DataListItem>
   );
-}
+};
+
+const ComponentSearch = ({ placeholder, onChange }) => {
+  const [value, setValue] = React.useState("");
+  return (
+    <SearchInput
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      onClear={() => onChange("")}
+    />
+  );
+};
 
 export const ComponentList = ({ code }) => {
+  const allComponentsList = Object.entries(parentChildComponents)
+    .sort()
+    .map((c) => <ComponentItem component={c[0]} code={code} />);
+  const allLayoutsList = Object.entries(parentChildLayouts)
+    .sort()
+    .map((c) => <ComponentItem component={c[0]} code={code} />);
+  const [componentsList, setComponentsList] = React.useState(allComponentsList);
+  const [layoutsList, setLayoutsList] = React.useState(allLayoutsList);
+  const onChangeComponents = (val: string) => {
+    if (!val) {
+      setComponentsList(allComponentsList);
+    } else {
+      setComponentsList(
+        Object.entries(components)
+          .filter(
+            ([key, value]) => key.toLowerCase().indexOf(val.toLowerCase()) > -1
+          )
+          .sort()
+          .map((c) => (
+            <ComponentItem component={c[0]} code={code} showExpand={false} />
+          ))
+      );
+    }
+  };
+  const onChangeLayouts = (val: string) => {
+    if (!val) {
+      setLayoutsList(allLayoutsList);
+    } else {
+      setLayoutsList(
+        Object.entries(layouts)
+          .filter(
+            ([key, value]) => key.toLowerCase().indexOf(val.toLowerCase()) > -1
+          )
+          .sort()
+          .map((c) => (
+            <ComponentItem component={c[0]} code={code} showExpand={false} />
+          ))
+      );
+    }
+  };
   return (
     <Tabs defaultActiveKey={0}>
       <Tab eventKey={0} title={<TabTitleText>Components</TabTitleText>}>
+        <ComponentSearch
+          placeholder="Find component"
+          onChange={onChangeComponents}
+        />
         <ul
           className="pf-c-data-list pf-m-compact"
           role="list"
           aria-label="Components"
         >
-          {Object.entries(parentChildComponents).sort().map((c) =>
-            ComponentItem(c, code)
-          )}
+          {/* {componentsList.map((c) => ComponentItem(c, code))} */}
+          {componentsList}
         </ul>
       </Tab>
       <Tab eventKey={1} title={<TabTitleText>Layouts</TabTitleText>}>
+        <ComponentSearch placeholder="Find layout" onChange={onChangeLayouts} />
         <ul
           className="pf-c-data-list pf-m-compact"
           role="list"
           aria-label="Layouts"
         >
-          {Object.entries(parentChildLayouts).sort().map((c) => ComponentItem(c, code))}
+          {layoutsList}
         </ul>
       </Tab>
       <Tab eventKey={2} title={<TabTitleText>Snippets</TabTitleText>}>
@@ -374,7 +433,11 @@ export const ComponentList = ({ code }) => {
           role="list"
           aria-label="Snippets"
         >
-          {Object.entries(componentSnippets).sort().map((c) => ComponentItem(c, code))}
+          {Object.entries(componentSnippets)
+            .sort()
+            .map((c) => (
+              <ComponentItem component={c[0]} code={code} />
+            ))}
         </ul>
       </Tab>
     </Tabs>
