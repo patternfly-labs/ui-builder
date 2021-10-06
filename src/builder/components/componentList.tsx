@@ -86,6 +86,7 @@ const componentOverrides = {
 const layoutOverrides = {
   Gallery: "<Gallery hasGutter={true}></Gallery>",
   GalleryItem: `<GalleryItem className="pf-l-gallery__item"></GalleryItem>`,
+  FlexItem: `<FlexItem className="pf-l-flex__item"></FlexItem>`
 };
 
 const parentChild = (components) => {

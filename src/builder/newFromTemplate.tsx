@@ -7,26 +7,26 @@ import {
   SelectVariant,
   SelectDirection,
 } from "@patternfly/react-core";
-import PageEmpty from "!!raw-loader!./components/templates/PageEmpty";
+import NewPage from "!!raw-loader!./components/templates/NewPage";
+import NewComponent from "!!raw-loader!./components/templates/NewComponent";
 import PageSticky from "!!raw-loader!./components/templates/PageSticky";
-// import AboutModal from "!!raw-loader!./components/templates/AboutModal";
 import Drawer from "!!raw-loader!./components/templates/Drawer";
 
 class NewFromTemplate extends React.Component {
   constructor(props) {
     super(props);
     this.options = [
-      <SelectOption key={0} value={PageEmpty}>
-        Empty page
+      <SelectOption key={0} value={NewComponent}>
+        New component
       </SelectOption>,
-      <SelectOption key={1} value={PageSticky}>
-        Page with sticky top
+      <SelectOption key={1} value={NewPage}>
+        New page
       </SelectOption>,
-      // <SelectOption key={2} value={AboutModal}>
-      //   About modal
-      // </SelectOption>,
-      <SelectOption key={2} value={Drawer}>
-        Drawer
+      <SelectOption key={2} value={PageSticky}>
+        New sticky top page
+      </SelectOption>,
+      <SelectOption key={3} value={Drawer}>
+        New drawer
       </SelectOption>,
     ];
 

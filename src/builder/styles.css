@@ -11,6 +11,28 @@ body {
   --pf-c-page__sidebar--BackgroundColor: none;
 }
 
+.preview-mode .pf-builder-sidebar {
+  display: none;
+}
+.pf-builder-sidebar {
+  margin-left: -16px;
+  margin-top: -16px;
+  margin-right: 16px;
+  height: calc(100vh - 100px);
+  overflow: auto;
+  min-width: 310px;
+}
+@media (min-width: 1200px) {
+  .pf-builder-sidebar {
+    margin-left: -24px;
+    margin-top: -24px;
+    margin-right: 24px;
+  }
+}
+.pf-builder-sidebar .pf-c-tabs__scroll-button {
+  display: none;
+}
+
 .pf-m-dropzone {
   background-color: deepskyblue
 }
@@ -26,7 +48,7 @@ body {
   background-color: deepskyblue
 }
 
-.uib-preview.preview-mode {
+.preview-mode .uib-preview {
   position: absolute;
   top: 100px;
   left: 24px;
@@ -34,15 +56,15 @@ body {
   bottom: 24px;
 }
 
-.uib-preview.layout-mode [class^="pf-c-"]:not([class*="__"]),
-.uib-preview.layout-mode [class^="pf-l-"]:not([class*="__"]) {
+.layout-mode .uib-preview [class^="pf-c-"]:not([class*="__"]),
+.layout-mode .uib-preview [class^="pf-l-"]:not([class*="__"]) {
   padding: 0.5rem;
   border-width: 1px;
   border-style: solid;
   min-height: 20px;
 }
-.uib-preview.layout-mode [class^="pf-c-"][class*="__"],
-.uib-preview.layout-mode [class^="pf-l-"][class*="__"] {
+.layout-mode .uib-preview [class^="pf-c-"][class*="__"],
+.layout-mode .uib-preview [class^="pf-l-"][class*="__"] {
   padding: 0.5rem;
   border-width: 1px;
   border-style: dashed;
@@ -50,11 +72,11 @@ body {
 }
 
 /* Default no pointer events */
-.uib-preview.layout-mode {
+.layout-mode .uib-preview {
   pointer-events: none;
   margin-right: 542px;
 }
-.uib-preview.layout-mode.vscode {
+.layout-mode .uib-preview.vscode {
   margin-right: 0;
 }
 

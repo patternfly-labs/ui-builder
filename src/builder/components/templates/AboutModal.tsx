@@ -54,3 +54,5 @@ class SimpleAboutModal extends React.Component {
     );
   }
 }
+
+export default SimpleAboutModal;

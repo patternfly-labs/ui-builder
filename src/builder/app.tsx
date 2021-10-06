@@ -46,14 +46,14 @@ import NewFromTemplate from "./newFromTemplate";
 import { getReactParams } from "./helpers/codesandbox";
 import { getParameters } from "codesandbox/lib/api/define";
 // @ts-ignore
-import PageEmpty from "!!raw-loader!./components/templates/PageEmpty";
+import NewPage from "!!raw-loader!./components/templates/NewPage";
 
 const prettier = require("prettier/standalone");
 
 /* vscode = { postMessage: (msg) => console.log(msg) } */
 export const App = ({ vscode, data, filePath }) => {
   const codeFromStorage = localStorage.getItem("pf-builder-code");
-  const template = PageEmpty;
+  const template = NewPage;
   const [code, setCode] = React.useState<string | unknown>(
     codeFromStorage || template
   );
@@ -152,22 +152,27 @@ export const App = ({ vscode, data, filePath }) => {
 
   return (
     <Page
-      className="pf-builder-page"
-      isManagedSidebar={showCode ? true : false}
+      className={css(
+        "pf-builder-page",
+        showCode ? "layout-mode" : "preview-mode"
+      )}
+      // isManagedSidebar={showCode ? true : false}
+      isManagedSidebar={false}
       header={
         <PageHeader
           className="pf-builder-header"
-          showNavToggle
+          /*showNavToggle*/
           logo={
             vscode ? (
               // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
-              <Title className={css("pf-c-brand")} headingLevel="h1" size="2xl">
+              <Title className={css("pf-c-brand")} headingLevel="h1" size="xl">
                 PatternFly UI Builder
               </Title>
             ) : (
               <Brand src={logo} alt="PatternFly Logo" />
             )
           }
+          logoComponent={vscode ? "div" : "a"}
           headerTools={
             <PageHeaderTools>
               <PageHeaderToolsGroup>
@@ -227,23 +232,22 @@ export const App = ({ vscode, data, filePath }) => {
           }
         />
       }
-      sidebar={
-        <PageSidebar
-          isNavOpen={showCode}
-          className="pf-builder-sidebar"
-          nav={<ComponentList code={code} />}
-        />
-      }
+      // sidebar={
+      //   <PageSidebar
+      //     isNavOpen={showCode}
+      //     className="pf-builder-sidebar"
+      //     nav={<ComponentList code={code} />}
+      //   />
+      // }
     >
       <PageSection>
         <Split style={{ height: "100%" }}>
+          <div className="pf-builder-sidebar">
+            <ComponentList code={code} />
+          </div>
           <SplitItem
             isFilled
-            className={css(
-              "uib-preview",
-              showCode ? "layout-mode" : "preview-mode",
-              vscode && "vscode"
-            )}
+            className={css("uib-preview", vscode && "vscode")}
           >
             <ErrorBoundary>
               <LiveRegion code={code} setCode={onChange} />

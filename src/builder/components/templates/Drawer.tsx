@@ -85,3 +85,5 @@ class ResizableDrawer extends React.Component {
     );
   }
 }
+
+export default ResizableDrawer;

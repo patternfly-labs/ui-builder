@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Avatar,
   Brand,
   Breadcrumb,
   BreadcrumbItem,
@@ -31,12 +30,7 @@ import {
   PageHeaderTools,
   PageHeaderToolsGroup,
   PageHeaderToolsItem,
-  Badge
 } from '@patternfly/react-core';
-// import CogIcon from '@patternfly/react-icons/dist/esm/icons/cog-icon';
-// import HelpIcon from '@patternfly/react-icons/dist/esm/icons/help-icon';
-// const imgBrand = "https://www.patternfly.org/v4/images/pfLogo.ffdafb0c74aa4c9c011251aa8f0c144c.svg";
-// const imgAvatar = "https://www.patternfly.org/v4/images/avatarImg.668560cdf25a4932ef9f711b4acad52d.svg";
 
 class PageLayoutGroupedAlt extends React.Component {
   constructor(props) {
@@ -214,3 +208,5 @@ class PageLayoutGroupedAlt extends React.Component {
     );
   }
 }
+
+export default PageLayoutGroupedAlt;
