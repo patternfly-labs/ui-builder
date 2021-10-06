@@ -32,6 +32,19 @@ body {
 .pf-builder-sidebar .pf-c-tabs__scroll-button {
   display: none;
 }
+.pf-builder-sidebar .pf-c-data-list__cell {
+  height: 29px;
+}
+.pf-builder-sidebar .cell-text {
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+.pf-builder-sidebar .cell-info {
+  float: right;
+}
 
 .pf-m-dropzone {
   background-color: deepskyblue
@@ -86,7 +99,8 @@ body {
 }
 
 .pf-c-data-list__item.pf-m-hide {
-  display: none;
+  /* display: none; */
+  color: lightgray;
 }
 .pf-c-data-list__item.pf-m-child {
   margin-left: 12px;

@@ -1,6 +1,7 @@
 import * as React from "react";
 import GripVerticalIcon from "@patternfly/react-icons/dist/js/icons/grip-vertical-icon";
 import ExternalLinkAltIcon from "@patternfly/react-icons/dist/js/icons/external-link-alt-icon";
+import InfoCircleIcon from "@patternfly/react-icons/dist/js/icons/info-circle-icon";
 import { css } from "@patternfly/react-styles";
 import * as coreComponents from "@patternfly/react-core/dist/esm/components";
 import * as coreLayouts from "@patternfly/react-core/dist/esm/layouts";
@@ -23,6 +24,8 @@ const {
   Draggable,
   Droppable,
   SearchInput,
+  Tooltip,
+  Title,
 } = coreComponents;
 
 const startsWithCapital = (word: string) =>
@@ -58,35 +61,36 @@ const mappedCoreLayouts = Object.fromEntries(
     ])
 );
 
+/**
+ * Rules
+ * By default, components are simply mapped from their name to a simple jsx tag, i.e. Card -> <Card></Card>
+ * If the tag should be different, that can be re-mapped here
+ * You can also add additional information, for example if a component needs to be added as a prop to a parent component,
+ * or if a component should come before or after a specific sibling component
+ */
 const componentOverrides = {
   AccordionItem: `<AccordionItem><div className="pf-c-accordion__item"></div></AccordionItem>`,
-  AccordionToggle: "<AccordionToggle isExpanded>Toggle</AccordionToggle>",
+  AccordionToggle: "<AccordionToggle isExpanded />Item</AccordionToggle>",
   AccordionContent: "<AccordionContent>Content</AccordionContent>",
-  Badge: {
-    jsx: "<Badge>5</Badge>",
+  AlertActionCloseButton: {
+    component: "Alert",
+    prop: "actionClose",
+    jsx: "<AlertActionCloseButton></AlertActionCloseButton>",
   },
-  Button: {
-    jsx: "<Button>Button</Button>",
-  },
-  Card: { jsx: "<Card></Card>" },
-  CardBody: {
-    parent: "Card",
-    jsx: "<CardBody>Card body</CardBody>",
-  },
-  DatePicker: { jsx: "<DatePicker></DatePicker>" },
-  Page: { jsx: "<Page></Page>" },
+  Badge: "<Badge>5</Badge>",
+  Button: "<Button>Button</Button>",
+  CardBody: "<CardBody>Card body</CardBody>",
   PageHeader: {
     component: "Page",
     prop: "header",
     jsx: "<PageHeader></PageHeader>",
   },
-  PageSection: { jsx: "<PageSection></PageSection>" },
 };
 
 const layoutOverrides = {
   Gallery: "<Gallery hasGutter={true}></Gallery>",
   GalleryItem: `<GalleryItem className="pf-l-gallery__item"></GalleryItem>`,
-  FlexItem: `<FlexItem className="pf-l-flex__item"></FlexItem>`
+  FlexItem: `<FlexItem className="pf-l-flex__item"></FlexItem>`,
 };
 
 const parentChild = (components) => {
@@ -175,6 +179,26 @@ export const allowableDropMap = {
   CardBody: [".pf-c-card"],
 };
 
+const getContent = (component, value) => {
+  let body = "";
+  if (value.prop) {
+    body = `Will be added as prop ${value.prop} to ${value.component} component`;
+  } else if (value.props) {
+    body = `Will add the following props to ${value.component} component:`;
+    value.props.forEach((p) => {
+      body += `\n${p.prop}`;
+    });
+  }
+  return (
+    <div>
+      <Title headingLevel="h3" size="lg">
+        {component}
+      </Title>
+      <div>{body}</div>
+    </div>
+  );
+};
+
 // Accordion
 //   - AccordionItem
 //      - AccordionToggle
@@ -182,90 +206,41 @@ export const allowableDropMap = {
 //        - AccordionExpandedContentBody
 
 // [component, value], code
-const ComponentItem = ({ component, code, showExpand = true }) => {
-  const showAll = true;
+const ComponentItem = ({ component, value, code, showExpand = true }) => {
+  console.log(value);
+  const showAll = false;
   // const jsxString = typeof value === "string" ? value : value.jsx;
   const [isHidden, setHidden] = React.useState(showAll ? false : true);
   const [expanded, setExpanded] = React.useState(null);
   React.useEffect(() => {
     if (!showAll) {
+      // let shouldBeHidden = true;
+      // const classTargets = allowableDropMap[component];
+      // if (classTargets) {
+      //   for (var i = 0; i < classTargets.length; i++) {
+      //     if (
+      //       document.querySelectorAll(`.uib-preview .${classTargets[i]}`).length
+      //     ) {
+      //       shouldBeHidden = false;
+      //       break;
+      //     }
+      //   }
+      //   isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
+      // } else {
+      //   shouldBeHidden = false;
+      // }
       let shouldBeHidden = true;
-      const classTargets = allowableDropMap[component];
-      if (classTargets) {
-        for (var i = 0; i < classTargets.length; i++) {
-          if (
-            document.querySelectorAll(`.uib-preview .${classTargets[i]}`).length
-          ) {
-            shouldBeHidden = false;
-            break;
-          }
+      if (value.parent) {
+        if (code.search(value.parent) > -1) {
+          shouldBeHidden = false;
         }
-        isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
       } else {
         shouldBeHidden = false;
       }
+      isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
     }
   }, [code]);
   const spanId = `component-list-${component}`;
-
-  const ListItemChild = ({ component }) => {
-    return (
-      <li
-        key={component}
-        className={css("pf-c-data-list__item__child", isHidden && "pf-m-hide")}
-        aria-labelledby={spanId}
-        draggable
-        onDragStart={(ev) => {
-          ev.stopPropagation();
-          console.log(`dragStart: ${component}`);
-          const classTargets = allowableDropMap[component];
-          if (classTargets) {
-            classTargets.forEach((className) => {
-              [
-                ...document.querySelectorAll(`.uib-preview ${className}`),
-              ].forEach((el) => {
-                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
-              });
-            });
-          } else {
-            // open up everything
-            [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
-              el.classList.add("pf-m-droppable");
-            });
-          }
-          ev.dataTransfer.setData(
-            "text/plain",
-            JSON.stringify({
-              component,
-            })
-          );
-          ev.dataTransfer.dropEffect = "copy";
-          // hack so that in dragEnter we know which component originated the drag
-          ev.dataTransfer.setData("component/" + component, component);
-        }}
-        onDragEnd={(ev) => {
-          ev.stopPropagation();
-          [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
-            el.classList.remove("pf-m-droppable", "pf-m-droppable-bg");
-          });
-        }}
-      >
-        <DataListItemRow>
-          <DataListControl>
-            <span className="list-child"></span>
-            <DataListDragButton />
-          </DataListControl>
-          <DataListItemCells
-            dataListCells={[
-              <DataListCell>
-                <span id={spanId}>{component}</span>
-              </DataListCell>,
-            ]}
-          />
-        </DataListItemRow>
-      </li>
-    );
-  };
 
   const componentObj: any = allParentChildItems[component];
   const onToggle = (shouldExpand, component) => {
@@ -322,13 +297,23 @@ const ComponentItem = ({ component, code, showExpand = true }) => {
         </DataListControl>
         <DataListItemCells
           dataListCells={[
-            <DataListCell>
-              <span id={spanId}>{component}</span>
+            <DataListCell key={`cell-parent-${component}`}>
+              <div id={spanId} className="cell-text" title={component}>
+                {component}
+              </div>
+
               {showExpand && componentObj && componentObj.children && (
                 <ExpandableSectionToggle
                   isExpanded={expanded === component}
                   onToggle={(isExpanded) => onToggle(isExpanded, component)}
                 />
+              )}
+              {value.prop && (
+                <Tooltip content={getContent(component, value)}>
+                  <span className="cell-info">
+                    <InfoCircleIcon />
+                  </span>
+                </Tooltip>
               )}
             </DataListCell>,
           ]}
@@ -340,11 +325,101 @@ const ComponentItem = ({ component, code, showExpand = true }) => {
             {componentObj &&
               componentObj.children &&
               componentObj.children.map((child) => {
-                return <ListItemChild component={Object.keys(child)[0]} />;
+                return (
+                  <ComponentItemChild
+                    component={Object.keys(child)[0]}
+                    value={Object.values(child)[0]}
+                    code={code}
+                  />
+                );
               })}
           </div>
         </section>
       )}
+    </DataListItem>
+  );
+};
+
+const ComponentItemChild = ({ component, value, code }) => {
+  const showAll = false;
+  const [isHidden, setHidden] = React.useState(showAll ? false : true);
+  React.useEffect(() => {
+    if (!showAll) {
+      let shouldBeHidden = true;
+      if (value.parent) {
+        if (code.search(value.parent) > -1) {
+          shouldBeHidden = false;
+        }
+      } else {
+        shouldBeHidden = false;
+      }
+      isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
+    }
+  }, [code]);
+  const spanId = `component-list-${component}`;
+  return (
+    <DataListItem
+      key={component}
+      className={css("pf-c-data-list__item__child", isHidden && "pf-m-hide")}
+      aria-labelledby={spanId}
+      draggable
+      onDragStart={(ev) => {
+        ev.stopPropagation();
+        console.log(`dragStart: ${component}`);
+        const classTargets = allowableDropMap[component];
+        if (classTargets) {
+          classTargets.forEach((className) => {
+            [...document.querySelectorAll(`.uib-preview ${className}`)].forEach(
+              (el) => {
+                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+              }
+            );
+          });
+        } else {
+          // open up everything
+          [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
+            el.classList.add("pf-m-droppable");
+          });
+        }
+        ev.dataTransfer.setData(
+          "text/plain",
+          JSON.stringify({
+            component,
+          })
+        );
+        ev.dataTransfer.dropEffect = "copy";
+        // hack so that in dragEnter we know which component originated the drag
+        ev.dataTransfer.setData("component/" + component, component);
+      }}
+      onDragEnd={(ev) => {
+        ev.stopPropagation();
+        [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
+          el.classList.remove("pf-m-droppable", "pf-m-droppable-bg");
+        });
+      }}
+    >
+      <DataListItemRow>
+        <DataListControl>
+          <span className="list-child"></span>
+          <DataListDragButton />
+        </DataListControl>
+        <DataListItemCells
+          dataListCells={[
+            <DataListCell key={`cell-child-${component}`}>
+              <div id={spanId} className="cell-text" title={component}>
+                {component}
+              </div>
+              {value.prop && (
+                <Tooltip content={getContent(component, value)}>
+                  <span className="cell-info">
+                    <InfoCircleIcon />
+                  </span>
+                </Tooltip>
+              )}
+            </DataListCell>,
+          ]}
+        />
+      </DataListItemRow>
     </DataListItem>
   );
 };
@@ -361,15 +436,44 @@ const ComponentSearch = ({ placeholder, onChange }) => {
   );
 };
 
+const getHash = (text: string) => {
+  var hash = 0, i, chr;
+  if (text.length === 0) return hash;
+  for (i = 0; i < text.length; i++) {
+    chr   = text.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
 export const ComponentList = ({ code }) => {
+  const hash = getHash(code);
   const allComponentsList = Object.entries(parentChildComponents)
     .sort()
-    .map((c) => <ComponentItem component={c[0]} code={code} />);
+    .map((c) => (
+      <ComponentItem
+        key={`parentChild-${c[0]}-${hash}`}
+        component={c[0]}
+        value={c[1]}
+        code={code}
+      />
+    ));
   const allLayoutsList = Object.entries(parentChildLayouts)
     .sort()
-    .map((c) => <ComponentItem component={c[0]} code={code} />);
+    .map((c) => (
+      <ComponentItem
+        key={`parentChild-${c[0]}-${hash}`}
+        component={c[0]}
+        value={c[1]}
+        code={code}
+      />
+    ));
   const [componentsList, setComponentsList] = React.useState(allComponentsList);
   const [layoutsList, setLayoutsList] = React.useState(allLayoutsList);
+  React.useEffect(() => {
+    console.log('new code');
+  }, [code]);
   const onChangeComponents = (val: string) => {
     if (!val) {
       setComponentsList(allComponentsList);
@@ -381,7 +485,13 @@ export const ComponentList = ({ code }) => {
           )
           .sort()
           .map((c) => (
-            <ComponentItem component={c[0]} code={code} showExpand={false} />
+            <ComponentItem
+              key={`flat-${c[0]}-${hash}`}
+              component={c[0]}
+              value={c[1]}
+              code={code}
+              showExpand={false}
+            />
           ))
       );
     }
@@ -397,7 +507,13 @@ export const ComponentList = ({ code }) => {
           )
           .sort()
           .map((c) => (
-            <ComponentItem component={c[0]} code={code} showExpand={false} />
+            <ComponentItem
+              key={`flat-${c[0]}-${hash}`}
+              component={c[0]}
+              value={c[1]}
+              code={code}
+              showExpand={false}
+            />
           ))
       );
     }
@@ -437,7 +553,12 @@ export const ComponentList = ({ code }) => {
           {Object.entries(componentSnippets)
             .sort()
             .map((c) => (
-              <ComponentItem component={c[0]} code={code} />
+              <ComponentItem
+                key={`flat-${c[0]}`}
+                component={c[0]}
+                value={c[1]}
+                code={code}
+              />
             ))}
         </ul>
       </Tab>
