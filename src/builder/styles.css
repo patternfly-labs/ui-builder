@@ -69,15 +69,15 @@ body {
   bottom: 24px;
 }
 
-.layout-mode .uib-preview [class^="pf-c-"]:not([class*="__"]),
-.layout-mode .uib-preview [class^="pf-l-"]:not([class*="__"]) {
+.layout-mode .uib-preview [class^="pf-c-"]:not([class*="__"]):not([class^="pf-c-background-image"]),
+.layout-mode .uib-preview [class^="pf-l-"]:not([class*="__"]):not([class^="pf-c-background-image"]) {
   padding: 0.5rem;
   border-width: 1px;
   border-style: solid;
   min-height: 20px;
 }
-.layout-mode .uib-preview [class^="pf-c-"][class*="__"],
-.layout-mode .uib-preview [class^="pf-l-"][class*="__"] {
+.layout-mode .uib-preview [class^="pf-c-"][class*="__"]:not([class^="pf-c-background-image"]),
+.layout-mode .uib-preview [class^="pf-l-"][class*="__"]:not([class^="pf-c-background-image"]) {
   padding: 0.5rem;
   border-width: 1px;
   border-style: dashed;
@@ -193,4 +193,29 @@ body {
 }
 .pf-builder-sidebar .pf-c-data-list__item-control {
   margin-right: 0;
+}
+
+/* AboutModal */
+.layout-mode .uib-preview.pf-c-backdrop__open {
+  overflow: unset;
+}
+.preview-mode .uib-preview .pf-c-backdrop {
+  top: 76px;
+}
+.layout-mode .uib-preview .pf-c-backdrop {
+  background-color: unset;
+  position: relative;
+}
+
+/* BackgroundImage */
+.layout-mode .uib-preview .pf-c-background-image::before {
+  top: 110px;
+  left: 344px;
+  right: 576px;
+  width: unset;
+  height: unset;
+  bottom: 34px;
+}
+.preview-mode .uib-preview .pf-c-background-image::before {
+  top: 76px;
 }

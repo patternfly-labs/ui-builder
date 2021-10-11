@@ -6,6 +6,9 @@ import { css } from "@patternfly/react-styles";
 import * as coreComponents from "@patternfly/react-core/dist/esm/components";
 import * as coreLayouts from "@patternfly/react-core/dist/esm/layouts";
 import { componentSnippets } from "./snippets/snippets";
+import { allowableDropMap, componentRules, layoutRules } from "./rules";
+import { AppContext } from "../app";
+import { componentToClassMap } from "./componentToClassMap";
 
 const {
   Tabs,
@@ -30,12 +33,22 @@ const {
 
 const startsWithCapital = (word: string) =>
   word.charAt(0) === word.charAt(0).toUpperCase();
-const filteredOut = ["AboutModal"];
+const filteredOut = [
+  "AboutModal",
+  "DropdownWithContext",
+  "TextAreaBase",
+  "MenuToggleBase",
+  "DragDrop",
+  "Draggable",
+  "Droppable",
+  "TextInputBase",
+];
 const filterFnc = ([key, value]) => {
   // filter out anything that isn't a component
   return (
     startsWithCapital(key) &&
-    typeof value === "function" &&
+    (typeof value === "function" ||
+      (typeof value === "object" && value.render)) &&
     filteredOut.indexOf(key) === -1
   );
 };
@@ -61,38 +74,26 @@ const mappedCoreLayouts = Object.fromEntries(
     ])
 );
 
-/**
- * Rules
- * By default, components are simply mapped from their name to a simple jsx tag, i.e. Card -> <Card></Card>
- * If the tag should be different, that can be re-mapped here
- * You can also add additional information, for example if a component needs to be added as a prop to a parent component,
- * or if a component should come before or after a specific sibling component
- */
-const componentOverrides = {
-  AccordionItem: `<AccordionItem><div className="pf-c-accordion__item"></div></AccordionItem>`,
-  AccordionToggle: "<AccordionToggle isExpanded />Item</AccordionToggle>",
-  AccordionContent: "<AccordionContent>Content</AccordionContent>",
-  AlertActionCloseButton: {
-    component: "Alert",
-    prop: "actionClose",
-    jsx: "<AlertActionCloseButton></AlertActionCloseButton>",
-  },
-  Badge: "<Badge>5</Badge>",
-  Button: "<Button>Button</Button>",
-  CardBody: "<CardBody>Card body</CardBody>",
-  PageHeader: {
-    component: "Page",
-    prop: "header",
-    jsx: "<PageHeader></PageHeader>",
-  },
+const isParent = [
+  "AlertGroup",
+  "ChipGroup",
+  "FormSelect",
+  "LabelGroup",
+  "MenuToggle",
+  "TextArea",
+  "TextInput",
+];
+const parentMap = {
+  FormSelectOptionGroup: "FormSelect",
+  KebabToggle: "Dropdown",
+  Tab: "Tabs",
+  TabContent: "Tabs",
+  TabTitleIcon: "Tabs",
+  TabTitleText: "Tabs",
+  TimeOption: "TimePicker",
+  ToggleTemplate: "Pagination",
+  ActionGroup: "Form",
 };
-
-const layoutOverrides = {
-  Gallery: "<Gallery hasGutter={true}></Gallery>",
-  GalleryItem: `<GalleryItem className="pf-l-gallery__item"></GalleryItem>`,
-  FlexItem: `<FlexItem className="pf-l-flex__item"></FlexItem>`,
-};
-
 const parentChild = (components) => {
   for (const [key, value] of Object.entries(components)) {
     let shadowedValue = value;
@@ -102,40 +103,61 @@ const parentChild = (components) => {
       };
       components[key] = shadowedValue;
     }
-    let parent = null;
-    const splitCamel = key
-      .replace(/([A-Z])/g, " $1")
-      .split(" ")
-      .filter((s: string) => s);
-    if (splitCamel.length > 1) {
-      for (var i = 1; i < splitCamel.length; i++) {
-        const possibleParent = splitCamel.slice(0, -1 * i).join("");
-        if (components[possibleParent]) {
-          (shadowedValue as any).parent = possibleParent;
-          parent = components[possibleParent];
-          if (Array.isArray(parent.children)) {
-            parent.children.push({
-              [key]: shadowedValue,
-            });
-          } else {
-            parent.children = [
-              {
+    let possibleParent = parentMap[key];
+    if (possibleParent && components[possibleParent]) {
+      (shadowedValue as any).parent = possibleParent;
+      let parent = components[possibleParent];
+      if (Array.isArray(parent.children)) {
+        parent.children.push({
+          [key]: shadowedValue,
+        });
+      } else {
+        parent.children = [
+          {
+            [key]: shadowedValue,
+          },
+        ];
+      }
+    } else {
+      const splitCamel =
+        isParent.indexOf(key) > -1
+          ? []
+          : key
+              .replace(/([A-Z])/g, " $1")
+              .split(" ")
+              .filter((s: string) => s);
+      if (splitCamel.length > 1) {
+        for (var i = 1; i < splitCamel.length; i++) {
+          const possibleParent = splitCamel.slice(0, -1 * i).join("");
+          if (components[possibleParent]) {
+            (shadowedValue as any).parent = possibleParent;
+            let parent = components[possibleParent];
+            if (Array.isArray(parent.children)) {
+              parent.children.push({
                 [key]: shadowedValue,
-              },
-            ];
+              });
+            } else {
+              parent.children = [
+                {
+                  [key]: shadowedValue,
+                },
+              ];
+            }
+            break;
           }
         }
       }
     }
+    components[key] = shadowedValue;
   }
   return Object.fromEntries(
-    Object.entries(components).filter(([key, value]) => !(value as any).parent)
+    Object.entries(components)/*.filter(([key, value]) => !(value as any).parent)*/
   );
 };
 
 export const components = {
   ...mappedCoreComponents,
-  ...componentOverrides,
+  ...componentRules,
 };
 
 const parentChildComponents = parentChild({
@@ -144,7 +166,7 @@ const parentChildComponents = parentChild({
 
 export const layouts = {
   ...mappedCoreLayouts,
-  ...layoutOverrides,
+  ...layoutRules,
 };
 
 const parentChildLayouts = parentChild({
@@ -160,23 +182,6 @@ export const allItems = {
   ...components,
   ...layouts,
   ...componentSnippets,
-};
-
-// restrict allowed drag targets
-export const allowableDropMap = {
-  AccordionItem: [".pf-c-accordion"],
-  AccordionContent: [".pf-c-accordion__item"],
-  AccordionExpandedContentBody: [".pf-c-accordion__expanded-content"],
-  AccordionToggle: [".pf-c-accordion__item"],
-  PageHeader: [".pf-c-page"],
-  PageHeaderSnippet: [".pf-c-page"],
-  PageNav: [".pf-c-page"],
-  PageBreadcrumbs: [".pf-c-page"],
-  PageGroupedContent: [".pf-c-page"],
-  PageSection: [".pf-c-page"],
-  // Gallery: [".pf-c-page__main-section"],
-  GalleryItem: [".pf-l-gallery"],
-  CardBody: [".pf-c-card"],
 };
 
 const getContent = (component, value) => {
@@ -206,42 +211,16 @@ const getContent = (component, value) => {
 //        - AccordionExpandedContentBody
 
 // [component, value], code
-const ComponentItem = ({ component, value, code, showExpand = true }) => {
-  console.log(value);
-  const showAll = false;
-  // const jsxString = typeof value === "string" ? value : value.jsx;
-  const [isHidden, setHidden] = React.useState(showAll ? false : true);
+const ComponentItem = ({
+  component,
+  value,
+  showExpand = true,
+  canPlace = true,
+}) => {
+  // console.log(value);
   const [expanded, setExpanded] = React.useState(null);
-  React.useEffect(() => {
-    if (!showAll) {
-      // let shouldBeHidden = true;
-      // const classTargets = allowableDropMap[component];
-      // if (classTargets) {
-      //   for (var i = 0; i < classTargets.length; i++) {
-      //     if (
-      //       document.querySelectorAll(`.uib-preview .${classTargets[i]}`).length
-      //     ) {
-      //       shouldBeHidden = false;
-      //       break;
-      //     }
-      //   }
-      //   isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
-      // } else {
-      //   shouldBeHidden = false;
-      // }
-      let shouldBeHidden = true;
-      if (value.parent) {
-        if (code.search(value.parent) > -1) {
-          shouldBeHidden = false;
-        }
-      } else {
-        shouldBeHidden = false;
-      }
-      isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
-    }
-  }, [code]);
   const spanId = `component-list-${component}`;
-
+  const { componentsInUse } = React.useContext(AppContext);
   const componentObj: any = allParentChildItems[component];
   const onToggle = (shouldExpand, component) => {
     if (!shouldExpand) {
@@ -255,25 +234,39 @@ const ComponentItem = ({ component, value, code, showExpand = true }) => {
     <DataListItem
       key={component}
       isExpanded={expanded === component}
-      className={css(isHidden && "pf-m-hide")}
+      className={css(!canPlace && "pf-m-hide")}
       aria-labelledby={spanId}
       draggable
       onDragStart={(ev) => {
         console.log(`dragStart: ${component}`);
-        const classTargets = allowableDropMap[component];
+        let classTargets =
+          allowableDropMap[component] &&
+          Object.values(allowableDropMap[component]);
         if (classTargets) {
           classTargets.forEach((className) => {
-            [...document.querySelectorAll(`.uib-preview ${className}`)].forEach(
-              (el) => {
-                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
-              }
-            );
+            [
+              ...document.querySelectorAll(`.uib-preview .${className}`),
+            ].forEach((el) => {
+              el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+            });
           });
         } else {
-          // open up everything
-          [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
-            el.classList.add("pf-m-droppable");
-          });
+          const componentInfo = allParentChildItems[component];
+          if ((componentInfo as any).parent) {
+            classTargets = [componentToClassMap[(componentInfo as any).parent as string]];
+            classTargets.forEach((className) => {
+              [
+                ...document.querySelectorAll(`.uib-preview .${className}`),
+              ].forEach((el) => {
+                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+              });
+            });
+          } else {
+            // open up everything
+            [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
+              el.classList.add("pf-m-droppable");
+            });
+          }
         }
         ev.dataTransfer.setData(
           "text/plain",
@@ -325,11 +318,17 @@ const ComponentItem = ({ component, value, code, showExpand = true }) => {
             {componentObj &&
               componentObj.children &&
               componentObj.children.map((child) => {
+                const childComponent = Object.keys(child)[0];
+                const childValue = Object.values(child)[0];
                 return (
                   <ComponentItemChild
-                    component={Object.keys(child)[0]}
-                    value={Object.values(child)[0]}
-                    code={code}
+                    key={`child-${childComponent}`}
+                    component={childComponent}
+                    value={childValue}
+                    canPlace={
+                      Boolean(componentsInUse[component]) &&
+                      placeable(childComponent, componentsInUse)
+                    }
                   />
                 );
               })}
@@ -340,46 +339,47 @@ const ComponentItem = ({ component, value, code, showExpand = true }) => {
   );
 };
 
-const ComponentItemChild = ({ component, value, code }) => {
-  const showAll = false;
-  const [isHidden, setHidden] = React.useState(showAll ? false : true);
-  React.useEffect(() => {
-    if (!showAll) {
-      let shouldBeHidden = true;
-      if (value.parent) {
-        if (code.search(value.parent) > -1) {
-          shouldBeHidden = false;
-        }
-      } else {
-        shouldBeHidden = false;
-      }
-      isHidden !== shouldBeHidden && setHidden(shouldBeHidden);
-    }
-  }, [code]);
+const ComponentItemChild = ({ component, value, canPlace = true }) => {
+  const { componentsInUse } = React.useContext(AppContext);
+  console.log(`${JSON.stringify(componentsInUse)}`);
   const spanId = `component-list-${component}`;
   return (
     <DataListItem
       key={component}
-      className={css("pf-c-data-list__item__child", isHidden && "pf-m-hide")}
+      className={css("pf-c-data-list__item__child", !canPlace && "pf-m-hide")}
       aria-labelledby={spanId}
       draggable
       onDragStart={(ev) => {
         ev.stopPropagation();
         console.log(`dragStart: ${component}`);
-        const classTargets = allowableDropMap[component];
+        let classTargets =
+          allowableDropMap[component] &&
+          Object.values(allowableDropMap[component]);
         if (classTargets) {
           classTargets.forEach((className) => {
-            [...document.querySelectorAll(`.uib-preview ${className}`)].forEach(
-              (el) => {
-                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
-              }
-            );
+            [
+              ...document.querySelectorAll(`.uib-preview .${className}`),
+            ].forEach((el) => {
+              el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+            });
           });
         } else {
-          // open up everything
-          [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
-            el.classList.add("pf-m-droppable");
-          });
+          const componentInfo = allParentChildItems[component];
+          if ((componentInfo as any).parent) {
+            classTargets = [componentToClassMap[(componentInfo as any).parent as string]];
+            classTargets.forEach((className) => {
+              [
+                ...document.querySelectorAll(`.uib-preview .${className}`),
+              ].forEach((el) => {
+                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+              });
+            });
+          } else {
+            // open up everything
+            [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
+              el.classList.add("pf-m-droppable");
+            });
+          }
         }
         ev.dataTransfer.setData(
           "text/plain",
@@ -437,43 +437,63 @@ const ComponentSearch = ({ placeholder, onChange }) => {
 };
 
 const getHash = (text: string) => {
-  var hash = 0, i, chr;
+  var hash = 0,
+    i,
+    chr;
   if (text.length === 0) return hash;
   for (i = 0; i < text.length; i++) {
-    chr   = text.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
+    chr = text.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
     hash |= 0; // Convert to 32bit integer
   }
   return hash;
-}
+};
+
+const placeable = (component, componentsInUse) => {
+  const placementRules = allowableDropMap[component]; // { Accordion: 'pf-c-accordion', SomethingElse: 'pf-c-something-else }
+  let canPlace = placementRules ? false : true;
+  if (placementRules) {
+    const elements = Object.keys(placementRules);
+    for (var i = 0; i < elements.length; i++) {
+      if (componentsInUse[elements[i]]) {
+        canPlace = true;
+        break;
+      }
+    }
+  }
+  return canPlace;
+};
 
 export const ComponentList = ({ code }) => {
-  const hash = getHash(code);
+  const [itemKey, setItemKey] = React.useState(0);
+  const { componentsInUse } = React.useContext(AppContext);
   const allComponentsList = Object.entries(parentChildComponents)
+    .filter(([key, value]) => !(value as any).parent)
     .sort()
     .map((c) => (
       <ComponentItem
-        key={`parentChild-${c[0]}-${hash}`}
+        key={`parentChild-${c[0]}-${itemKey}`}
         component={c[0]}
         value={c[1]}
-        code={code}
+        canPlace={placeable(c[0], componentsInUse)}
       />
     ));
   const allLayoutsList = Object.entries(parentChildLayouts)
+    .filter(([key, value]) => !(value as any).parent)
     .sort()
     .map((c) => (
       <ComponentItem
-        key={`parentChild-${c[0]}-${hash}`}
+        key={`parentChild-${c[0]}-${itemKey}`}
         component={c[0]}
         value={c[1]}
-        code={code}
+        canPlace={placeable(c[0], componentsInUse)}
       />
     ));
   const [componentsList, setComponentsList] = React.useState(allComponentsList);
   const [layoutsList, setLayoutsList] = React.useState(allLayoutsList);
-  React.useEffect(() => {
-    console.log('new code');
-  }, [code]);
+  // React.useEffect(() => {
+  //   console.log("ComponentList new code");
+  // }, [code]);
   const onChangeComponents = (val: string) => {
     if (!val) {
       setComponentsList(allComponentsList);
@@ -486,10 +506,10 @@ export const ComponentList = ({ code }) => {
           .sort()
           .map((c) => (
             <ComponentItem
-              key={`flat-${c[0]}-${hash}`}
+              key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              code={code}
+              canPlace={placeable(c[0], componentsInUse)}
               showExpand={false}
             />
           ))
@@ -508,10 +528,10 @@ export const ComponentList = ({ code }) => {
           .sort()
           .map((c) => (
             <ComponentItem
-              key={`flat-${c[0]}-${hash}`}
+              key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              code={code}
+              canPlace={placeable(c[0], componentsInUse)}
               showExpand={false}
             />
           ))
@@ -530,7 +550,6 @@ export const ComponentList = ({ code }) => {
           role="list"
           aria-label="Components"
         >
-          {/* {componentsList.map((c) => ComponentItem(c, code))} */}
           {componentsList}
         </ul>
       </Tab>
@@ -557,7 +576,7 @@ export const ComponentList = ({ code }) => {
                 key={`flat-${c[0]}`}
                 component={c[0]}
                 value={c[1]}
-                code={code}
+                canPlace={placeable(c[0], componentsInUse)}
               />
             ))}
         </ul>

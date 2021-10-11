@@ -299,7 +299,7 @@ function injectProp(node: any, propName: string, propValue: string, idCounter: n
 
 export function parseComponent(code: string, injectFunction: boolean, injectInteractive: boolean, injectId: boolean) {
   const ast = parse(code);
-  console.log(ast);
+  // console.log(ast);
   if (injectFunction) {
     // Modify AST for function creation
     // The following nodes will be ignored
@@ -356,8 +356,8 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
     }
     // Convert `<InlineJSX />` or `Example = () => <InlineJSX />`
     // to `function LivePreview() { return <InlineJSX />; }`
-    console.log(`lastStatement`);
-    console.log(lastStatement);
+    // console.log(`lastStatement`);
+    // console.log(lastStatement);
     if (lastStatement.type === 'ExpressionStatement' && lastStatement.expression.type === 'JSXElement') {
       ast.body = [{
         type: 'ReturnStatement',
@@ -390,6 +390,7 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
     }
   }
 
+  const componentsInUse = {};
   // Inject props needed for live editing
   if (injectInteractive || injectId) {
     let idCounter = 0; // When dropping we need to tie back to this AST
@@ -397,6 +398,7 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
       if (node.type !== 'JSXOpeningElement') {
         return;
       }
+      componentsInUse[node.name.name] = true;
       if (injectId) {
         node.idCounter = idCounter;
       }
@@ -409,7 +411,10 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
     });
   }
 
-  return ast;
+  return {
+    ast,
+    componentsInUse
+  };
 }
 
 export function stringifyAST(ast: any) {
@@ -418,15 +423,15 @@ export function stringifyAST(ast: any) {
 
 // ES2017 TSX w/class members -> ES2017 React Component
 export function convertToReactComponent(code: string, injectInteractive: boolean = true) {
-  const ast = parseComponent(code, true, injectInteractive, injectInteractive);
-  console.log(ast)
+  const { ast, componentsInUse } = parseComponent(code, true, injectInteractive, injectInteractive);
+  // console.log(ast)
   code = generate(ast, { generator: es2017Generator }).trim();
   /*
   return function LivePreview() {
     return React.createElement(Page,{"onDragEnter":ev => onLiveRegionDragEnter(ev, 0),"onDragLeave":ev => onLiveRegionDragLeave(ev, 0),"onDrop":ev => onLiveRegionDrop(ev, 0)});;
   };
   */
-  console.log(code)
-  return { code, hasTS: ast.sourceType === 'ts' };
+  // console.log(code)
+  return { code, hasTS: ast.sourceType === 'ts', componentsInUse };
 }
 

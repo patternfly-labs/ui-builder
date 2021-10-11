@@ -45,10 +45,16 @@ import babylon from "prettier/parser-babel";
 import NewFromTemplate from "./newFromTemplate";
 import { getReactParams } from "./helpers/codesandbox";
 import { getParameters } from "codesandbox/lib/api/define";
+import { shallowEqual } from "./helpers/shallowEqual";
 // @ts-ignore
 import NewPage from "!!raw-loader!./components/templates/NewPage";
 
 const prettier = require("prettier/standalone");
+
+export const AppContext = React.createContext({
+  componentsInUse: {},
+  setComponentsInUse: (comps) => {},
+});
 
 /* vscode = { postMessage: (msg) => console.log(msg) } */
 export const App = ({ vscode, data, filePath }) => {
@@ -61,6 +67,12 @@ export const App = ({ vscode, data, filePath }) => {
   const [component, setComponent] = React.useState(null);
   /* { title: 'PageHeaderSnippet', code: rawCodeString } */
   const [additionalTabs, setAdditionalTabs] = React.useState<any[] | null>();
+  const [componentsInUseState, setComponentsInUseState] = React.useState({});
+  const onSetComponentsInUse = (compsInUse) => {
+    if (!shallowEqual(compsInUse, componentsInUseState)) {
+      setComponentsInUseState(compsInUse);
+    }
+  };
 
   // React.useEffect(() => {
   //   const extraTabs = [];
@@ -151,158 +163,177 @@ export const App = ({ vscode, data, filePath }) => {
   const showProps = component && parsedPropsMap[`${component}Props`];
 
   return (
-    <Page
-      className={css(
-        "pf-builder-page",
-        showCode ? "layout-mode" : "preview-mode"
-      )}
-      // isManagedSidebar={showCode ? true : false}
-      isManagedSidebar={false}
-      header={
-        <PageHeader
-          className="pf-builder-header"
-          /*showNavToggle*/
-          logo={
-            vscode ? (
-              // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
-              <Title className={css("pf-c-brand")} headingLevel="h1" size="xl">
-                PatternFly UI Builder
-              </Title>
-            ) : (
-              <Brand src={logo} alt="PatternFly Logo" />
-            )
-          }
-          logoComponent={vscode ? "div" : "a"}
-          headerTools={
-            <PageHeaderTools>
-              <PageHeaderToolsGroup>
-                <PageHeaderToolsItem>
-                  {/* @ts-ignore */}
-                  <NewFromTemplate setCode={onChange} />
-                </PageHeaderToolsItem>
-              </PageHeaderToolsGroup>
-              <PageHeaderToolsGroup>
-                {!vscode && (
+    <AppContext.Provider value={{
+      componentsInUse: componentsInUseState,
+      setComponentsInUse: onSetComponentsInUse
+    }}>
+      <Page
+        className={css(
+          "pf-builder-page",
+          showCode ? "layout-mode" : "preview-mode"
+        )}
+        // isManagedSidebar={showCode ? true : false}
+        isManagedSidebar={false}
+        header={
+          <PageHeader
+            className="pf-builder-header"
+            /*showNavToggle*/
+            logo={
+              vscode ? (
+                // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
+                <Title
+                  className={css("pf-c-brand")}
+                  headingLevel="h1"
+                  size="xl"
+                >
+                  PatternFly UI Builder
+                </Title>
+              ) : (
+                <Brand src={logo} alt="PatternFly Logo" />
+              )
+            }
+            logoProps={{
+              href:
+                "https://www.patternfly.org/v4/developer-resources/release-notes#2021.12-release-notes-2021-09-15",
+              target: "_blank",
+            }}
+            logoComponent={vscode ? "div" : "a"}
+            headerTools={
+              <PageHeaderTools>
+                <PageHeaderToolsGroup>
                   <PageHeaderToolsItem>
-                    <Tooltip
-                      trigger="mouseenter"
-                      content="Export to Codesandbox"
-                      exitDelay={300}
-                      entryDelay={300}
-                      position="bottom"
-                    >
-                      <Form
-                        // aria-label={codesandboxLabel}
-                        action="https://codesandbox.io/api/v1/sandboxes/define"
-                        method="POST"
-                        target="_blank"
-                        style={{ display: "inline-block" }}
-                      >
-                        <Button
-                          // aria-label={codesandboxLabel}
-                          variant="control"
-                          type="submit"
-                        >
-                          <input
-                            type="hidden"
-                            name="parameters"
-                            // @ts-ignore
-                            value={getParameters(
-                              getReactParams("Test title", code)
-                            )}
-                          />
-                          <CodepenIcon />
-                        </Button>
-                      </Form>
-                    </Tooltip>
+                    {/* @ts-ignore */}
+                    <NewFromTemplate setCode={onChange} />
                   </PageHeaderToolsItem>
-                )}
-              </PageHeaderToolsGroup>
-              <PageHeaderToolsGroup>
-                <PageHeaderToolsItem>
-                  <Switch
-                    label="Layout mode"
-                    labelOff="Preview mode"
-                    isChecked={showCode}
-                    onChange={() => setShowCode(!showCode)}
-                  />
-                </PageHeaderToolsItem>
-              </PageHeaderToolsGroup>
-            </PageHeaderTools>
-          }
-        />
-      }
-      // sidebar={
-      //   <PageSidebar
-      //     isNavOpen={showCode}
-      //     className="pf-builder-sidebar"
-      //     nav={<ComponentList code={code} />}
-      //   />
-      // }
-    >
-      <PageSection>
-        <Split style={{ height: "100%" }}>
-          <div className="pf-builder-sidebar">
-            <ComponentList code={code} />
-          </div>
-          <SplitItem
-            isFilled
-            className={css("uib-preview", vscode && "vscode")}
-          >
-            <ErrorBoundary>
-              <LiveRegion code={code} setCode={onChange} />
-            </ErrorBoundary>
-          </SplitItem>
-          {showCode && (
-            <>
-              <SplitItem
-                className={css("pf-builder-editor", vscode && "vscode")}
-              >
-                <div>
-                  <Tabs defaultActiveKey={0}>
-                    <Tab eventKey={0} title={<TabTitleText>Main</TabTitleText>}>
-                      <CodeEditor
-                        language={Language.javascript}
-                        height={`calc(${
-                          showProps ? "50vh - 96px" : "100vh - 174px"
-                        })`}
-                        width="500px"
-                        code={code as string}
-                        onChange={onChange}
-                        isLineNumbersVisible
-                        // onEditorWillMount={onEditorWillMount}
-                        onEditorDidMount={onEditorDidMount}
-                        options={{
-                          automaticLayout: true,
-                        }}
-                      />
-                    </Tab>
-                    {additionalTabs &&
-                      additionalTabs.map((tab, index) => (
-                        <Tab
-                          key={index + 1}
-                          eventKey={index + 1}
-                          title={<TabTitleText>{tab.title}</TabTitleText>}
+                </PageHeaderToolsGroup>
+                <PageHeaderToolsGroup>
+                  {!vscode && (
+                    <PageHeaderToolsItem>
+                      <Tooltip
+                        trigger="mouseenter"
+                        content="Export to Codesandbox"
+                        exitDelay={300}
+                        entryDelay={300}
+                        position="bottom"
+                      >
+                        <Form
+                          // aria-label={codesandboxLabel}
+                          action="https://codesandbox.io/api/v1/sandboxes/define"
+                          method="POST"
+                          target="_blank"
+                          style={{ display: "inline-block" }}
                         >
-                          {/* <pre style={{ width: "500px" }}>{tab.code}</pre> */}
-                          <CodeEditor
-                            key={`editor-${index + 1}`}
-                            language={Language.javascript}
-                            height={`calc(${
-                              showProps ? "50vh - 96px" : "100vh - 174px"
-                            })`}
-                            width="500px"
-                            code={tab.code}
-                            // onChange={onChange}
-                            isLineNumbersVisible
-                            // onEditorWillMount={onEditorWillMount}
-                            // onEditorDidMount={onEditorDidMount}
-                            options={{
-                              automaticLayout: true,
-                            }}
-                            isReadOnly
-                          />
-                          {/* <MonacoEditor
+                          <Button
+                            // aria-label={codesandboxLabel}
+                            variant="control"
+                            type="submit"
+                          >
+                            <input
+                              type="hidden"
+                              name="parameters"
+                              // @ts-ignore
+                              value={getParameters(
+                                getReactParams("Test title", code)
+                              )}
+                            />
+                            <CodepenIcon />
+                          </Button>
+                        </Form>
+                      </Tooltip>
+                    </PageHeaderToolsItem>
+                  )}
+                </PageHeaderToolsGroup>
+                <PageHeaderToolsGroup>
+                  <PageHeaderToolsItem>
+                    <Switch
+                      label="Layout mode"
+                      labelOff="Preview mode"
+                      isChecked={showCode}
+                      onChange={() => setShowCode(!showCode)}
+                    />
+                  </PageHeaderToolsItem>
+                </PageHeaderToolsGroup>
+              </PageHeaderTools>
+            }
+          />
+        }
+        // sidebar={
+        //   <PageSidebar
+        //     isNavOpen={showCode}
+        //     className="pf-builder-sidebar"
+        //     nav={<ComponentList code={code} />}
+        //   />
+        // }
+      >
+        <PageSection>
+          <Split style={{ height: "100%" }}>
+            <div className="pf-builder-sidebar">
+              <ComponentList code={code} />
+            </div>
+            <SplitItem
+              isFilled
+              className={css("uib-preview", vscode && "vscode")}
+            >
+              <ErrorBoundary>
+                <LiveRegion
+                  code={code}
+                  setCode={onChange}
+                />
+              </ErrorBoundary>
+            </SplitItem>
+            {showCode && (
+              <>
+                <SplitItem
+                  className={css("pf-builder-editor", vscode && "vscode")}
+                >
+                  <div>
+                    <Tabs defaultActiveKey={0}>
+                      <Tab
+                        eventKey={0}
+                        title={<TabTitleText>Main</TabTitleText>}
+                      >
+                        <CodeEditor
+                          language={Language.javascript}
+                          height={`calc(${
+                            showProps ? "50vh - 96px" : "100vh - 174px"
+                          })`}
+                          width="500px"
+                          code={code as string}
+                          onChange={onChange}
+                          isLineNumbersVisible
+                          // onEditorWillMount={onEditorWillMount}
+                          onEditorDidMount={onEditorDidMount}
+                          options={{
+                            automaticLayout: true,
+                          }}
+                        />
+                      </Tab>
+                      {additionalTabs &&
+                        additionalTabs.map((tab, index) => (
+                          <Tab
+                            key={index + 1}
+                            eventKey={index + 1}
+                            title={<TabTitleText>{tab.title}</TabTitleText>}
+                          >
+                            {/* <pre style={{ width: "500px" }}>{tab.code}</pre> */}
+                            <CodeEditor
+                              key={`editor-${index + 1}`}
+                              language={Language.javascript}
+                              height={`calc(${
+                                showProps ? "50vh - 96px" : "100vh - 174px"
+                              })`}
+                              width="500px"
+                              code={tab.code}
+                              // onChange={onChange}
+                              isLineNumbersVisible
+                              // onEditorWillMount={onEditorWillMount}
+                              // onEditorDidMount={onEditorDidMount}
+                              options={{
+                                automaticLayout: true,
+                              }}
+                              isReadOnly
+                            />
+                            {/* <MonacoEditor
                             height={`calc(${
                               showProps ? "50vh - 96px" : "100vh - 174px"
                             })`}
@@ -311,24 +342,25 @@ export const App = ({ vscode, data, filePath }) => {
                             theme="vs-dark"
                             value={code}
                           /> */}
-                        </Tab>
-                      ))}
-                  </Tabs>
-                </div>
-                {showProps && (
-                  <div className="props-editor">
-                    <Props
-                      component={component}
-                      onChange={onChange}
-                      onClose={() => setComponent(null)}
-                    />
+                          </Tab>
+                        ))}
+                    </Tabs>
                   </div>
-                )}
-              </SplitItem>
-            </>
-          )}
-        </Split>
-      </PageSection>
-    </Page>
+                  {showProps && (
+                    <div className="props-editor">
+                      <Props
+                        component={component}
+                        onChange={onChange}
+                        onClose={() => setComponent(null)}
+                      />
+                    </div>
+                  )}
+                </SplitItem>
+              </>
+            )}
+          </Split>
+        </PageSection>
+      </Page>
+    </AppContext.Provider>
   );
 };

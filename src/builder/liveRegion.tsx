@@ -13,6 +13,7 @@ import { parse } from "./helpers/parse";
 import { components, allItems } from "./components/componentList";
 import { componentSnippets } from "./components/snippets/snippets";
 import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
+import { AppContext } from "./app";
 
 const scope = {
   ...reactCoreModule,
@@ -69,6 +70,7 @@ const addImport = (ast, component) => {
 };
 
 export const LiveRegion = ({ code, setCode }) => {
+  const { setComponentsInUse } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
     scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number) => {
@@ -81,7 +83,7 @@ export const LiveRegion = ({ code, setCode }) => {
       // });
       const { component } = JSON.parse(ev.dataTransfer.getData("text/plain"));
       // const data = componentsInfo[component];
-      let ast = parseComponent(code, false, false, true);
+      let { ast, componentsInUse } = parseComponent(code, false, false, true);
       ast = addImport(ast, component);
       visit(ast, (node: any, parents: any[]) => {
         if (node.type !== "JSXOpeningElement" || node.idCounter !== idCounter) {
@@ -142,10 +144,12 @@ export const LiveRegion = ({ code, setCode }) => {
         }
       });
       setCode(stringifyAST(ast));
+      setComponentsInUse(componentsInUse);
     };
 
     try {
-      const { code: transformedCode } = convertToReactComponent(code);
+      const { code: transformedCode, componentsInUse } = convertToReactComponent(code);
+      setComponentsInUse(componentsInUse);
       const getPreviewComponent = new Function(
         "React",
         ...Object.keys(scope),
