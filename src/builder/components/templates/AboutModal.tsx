@@ -2,7 +2,7 @@ import React from 'react';
 import { AboutModal, Button, TextContent, TextList, TextListItem } from '@patternfly/react-core';
 // const brandImg = "https://www.patternfly.org/v4/images/brandImg.cd87f4d68dcba8304cf9e3192715322f.svg";
 
-class SimpleAboutModal extends React.Component {
+class NewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -55,4 +55,4 @@ class SimpleAboutModal extends React.Component {
   }
 }
 
-export default SimpleAboutModal;
+export default NewComponent;

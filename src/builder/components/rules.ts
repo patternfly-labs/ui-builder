@@ -175,6 +175,7 @@ export const componentRules = {
     jsx: `<Popover bodyContent="Additional info"><DescriptionListTermHelpTextButton>Field</DescriptionListTermHelpTextButton></Popover>`,
     targets: ['DescriptionListTermHelpText']
   },
+  Divider: `<Divider />`,
   DropdownSeparator: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}"></DropdownSeparator>`,
   FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
   FormSelectOption: `<FormSelectOption className="${componentToClassMap.FormSelectOption}"></FormSelectOption>`,

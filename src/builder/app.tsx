@@ -233,7 +233,7 @@ export const App = ({ vscode, data, filePath }) => {
                               name="parameters"
                               // @ts-ignore
                               value={getParameters(
-                                getReactParams("Test title", code)
+                                getReactParams("NewComponent", code)
                               )}
                             />
                             <CodepenIcon />

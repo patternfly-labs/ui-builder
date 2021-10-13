@@ -10,7 +10,7 @@ import {
   Button,
 } from "@patternfly/react-core";
 
-class ResizableDrawer extends React.Component {
+class NewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -86,4 +86,4 @@ class ResizableDrawer extends React.Component {
   }
 }
 
-export default ResizableDrawer;
+export default NewComponent;

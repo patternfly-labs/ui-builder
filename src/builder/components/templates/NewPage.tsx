@@ -1,7 +1,7 @@
 import React from "react";
 import { Page } from "@patternfly/react-core";
 
-class NewPage extends React.Component {
+class NewComponent extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -15,4 +15,4 @@ class NewPage extends React.Component {
   }
 }
 
-export default NewPage;
+export default NewComponent;

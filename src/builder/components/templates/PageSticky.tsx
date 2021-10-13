@@ -32,7 +32,7 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
-class PageLayoutGroupedAlt extends React.Component {
+class NewComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -209,4 +209,4 @@ class PageLayoutGroupedAlt extends React.Component {
   }
 }
 
-export default PageLayoutGroupedAlt;
+export default NewComponent;

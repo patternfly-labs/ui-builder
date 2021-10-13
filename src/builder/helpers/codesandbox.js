@@ -136,16 +136,16 @@ function getReactParams(title, code, scope) {
     if (declaration.type === "ExpressionStatement") {
       if (!declaration.expression.left) {
         // () => <jsx />
-        code = prettyExampleCode(title, code, declaration);
+        // code = prettyExampleCode(title, code, declaration);
         toRender = getIdentifier(title);
       } else if (declaration.expression.type === "AssignmentExpression") {
         // Basic = () => <jsx />
-        code = prettyExampleCode(
-          title,
-          code,
-          declaration,
-          declaration.expression.left.name
-        );
+        // code = prettyExampleCode(
+        //   title,
+        //   code,
+        //   declaration,
+        //   declaration.expression.left.name
+        // );
         toRender = declaration.expression.left.name;
       }
     } else if (declaration.type === "VariableDeclaration") {
