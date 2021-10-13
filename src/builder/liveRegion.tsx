@@ -21,9 +21,9 @@ const scope = {
   ...componentSnippetModules,
   ComponentAdder,
   onLiveRegionMouseOver(ev, idCounter, name) {
-    // ev.preventDefault();
-    // ev.stopPropagation();
-    console.log(name);
+    ev.preventDefault();
+    ev.stopPropagation();
+    console.log(`${idCounter} ${name}`);
   },
   onLiveRegionDragEnter(ev: React.DragEvent<any>) {
     ev.preventDefault();
@@ -78,10 +78,7 @@ export const LiveRegion = ({ code, setCode }) => {
   const { setComponentsInUse } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
-    // scope.onLiveRegionMouseOver = (ev, idCounter) => {
-    //   console.log(idCounter);
-    // }
-    scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number) => {
+    scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number, componentName) => {
       ev.preventDefault();
       ev.stopPropagation();
       // console.log("onLiveRegionDrop", ev.target, idCounter);

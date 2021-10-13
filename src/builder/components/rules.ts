@@ -122,6 +122,59 @@ export const componentRules = {
     prop: "footer",
     jsx: `<ContextSelectorFooter><Button variant="link" isInline>Footer</Button></ContextSelectorFooter>`,
   },
+  DataListItemRow: {
+    targets: ['DataListItem']
+  },
+  DataListItemCells: {
+    jsx: `<DataListItemCells dataListCells={[]} />`,
+    targets: ['DataListItemRow']
+  },
+  DataListCell: {
+    component: 'DataListItemCells',
+    prop: 'dataListCells',
+    jsx: `<DataListCell>Cell</DataListCell>`,
+    targets: ['DataListItemCells']
+  },
+  DataListCheck: {
+    // also needs prop `otherControls` if inserted right after DataListDragButton
+    jsx: `<DataListCheck />`,
+    targets: ['DataListItemRow', 'DataListControl']
+  },
+  DataListAction: {
+    jsx: `<DataListAction><Button>Action</Button></DataListAction>`,
+    targets: ['DataListItemRow']
+  },
+  DataListToggle: {
+    // should also add prop isExpanded to DataListItem further up the tree
+    jsx: `<DataListToggle isExpanded />`,
+    targets: ['DataListItemRow']
+  },
+  DataListContent: {
+    jsx: `<DataListContent isHidden={false}>Content</DataListContent>`,
+    targets: ['DataListItem']
+  },
+  DataListControl: {
+    targets: ['DataListItemRow']
+  },
+  DataListDragButton: {
+    jsx: `<DataListDragButton />`,
+    targets: ['DataListControl']
+  },
+  DatePicker: `<DatePicker />`,
+  DescriptionListTerm: {
+    targets: ['DescriptionListGroup']
+  },
+  DescriptionListDescription: {
+    jsx: `<DescriptionListDescription>Description</DescriptionListDescription>`,
+    targets: ['DescriptionListGroup']
+  },
+  DescriptionListTermHelpText: {
+    targets: ['DescriptionListGroup']
+  },
+  DescriptionListTermHelpTextButton: {
+    jsx: `<Popover bodyContent="Additional info"><DescriptionListTermHelpTextButton>Field</DescriptionListTermHelpTextButton></Popover>`,
+    targets: ['DescriptionListTermHelpText']
+  },
   DropdownSeparator: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}"></DropdownSeparator>`,
   FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
   FormSelectOption: `<FormSelectOption className="${componentToClassMap.FormSelectOption}"></FormSelectOption>`,

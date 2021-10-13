@@ -32,6 +32,18 @@ const {
   Title,
 } = coreComponents;
 
+const filteredOut = [
+  "DropdownWithContext",
+  "TextAreaBase",
+  "MenuToggleBase",
+  "DragDrop",
+  "Draggable",
+  "Droppable",
+  "TextInputBase",
+  "ApplicationLauncherIcon",
+  "ApplicationLauncherText",
+  "DataListText"
+];
 const isParent = [
   "AlertGroup",
   "ChipGroup",
@@ -57,17 +69,7 @@ const parentMap = {
 
 const startsWithCapital = (word: string) =>
   word.charAt(0) === word.charAt(0).toUpperCase();
-const filteredOut = [
-  "DropdownWithContext",
-  "TextAreaBase",
-  "MenuToggleBase",
-  "DragDrop",
-  "Draggable",
-  "Droppable",
-  "TextInputBase",
-  "ApplicationLauncherIcon",
-  "ApplicationLauncherText",
-];
+
 const filterFnc = ([key, value]) => {
   // filter out anything that isn't a component
   return (
