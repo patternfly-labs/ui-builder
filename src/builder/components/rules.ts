@@ -29,22 +29,22 @@ export const componentRules = {
   ApplicationLauncherItem: {
     component: "ApplicationLauncher",
     prop: "items",
-    jsx: `<ApplicationLauncherItem>Item</ApplicationLauncherItem>`
+    jsx: `<ApplicationLauncherItem>Item</ApplicationLauncherItem>`,
   },
   ApplicationLauncherContent: {
     component: "ApplicationLauncherItem",
     prop: "component",
-    jsx: `<a href="#"><ApplicationLauncherContent>Link</ApplicationLauncherContent></a>`
+    jsx: `<a href="#"><ApplicationLauncherContent>Link</ApplicationLauncherContent></a>`,
   },
   ApplicationLauncherGroup: {
     component: "ApplicationLauncher",
     prop: "items",
-    jsx: `<ApplicationLauncherGroup></ApplicationLauncherGroup>`
+    jsx: `<ApplicationLauncherGroup></ApplicationLauncherGroup>`,
   },
   ApplicationLauncherSeparator: {
     component: "ApplicationLauncher",
     prop: "items",
-    jsx: `<ApplicationLauncherSeparator className="${componentToClassMap.ApplicationLauncherSeparator}" />`
+    jsx: `<ApplicationLauncherSeparator className="${componentToClassMap.ApplicationLauncherSeparator}" />`,
   },
   Avatar: `<Avatar alt="avatar" src="https://www.patternfly.org/v4/images/avatarImg.668560cdf25a4932ef9f711b4acad52d.svg" />`,
   BackgroundImage: `<BackgroundImage />`,
@@ -63,7 +63,32 @@ export const componentRules = {
   Checkbox: `<Checkbox />`,
   Chip: `<Chip>Chip</Chip>`,
   ChipGroup: `<ChipGroup categoryName="Category"><Chip>Chip</Chip></ChipGroup>`,
+  ClipboardCopy: `<ClipboardCopy>Clipboard copyable</ClipboardCopy>`,
+  ClipboardCopyAction: {
+    component: "ClipboardCopy",
+    props: [
+      {
+        prop: "additionalActions",
+        jsx: `<ClipboardCopyAction><Button variant="plain">Action</Button></ClipboardCopyAction>`,
+      },
+      {
+        prop: "variant",
+        jsx: `"inline-compact"`,
+      },
+    ],
+  },
   ClipboardCopyButton: `<ClipboardCopyButton className="${componentToClassMap.ClipboardCopyButton}" />`,
+  CodeBlockAction: {
+    component: "CodeBlock",
+    prop: "actions",
+    jsx: `<React.Fragment>
+    <CodeBlockAction>
+      <ClipboardCopyButton variant="plain">
+        Copy to clipboard
+      </ClipboardCopyButton>
+    </CodeBlockAction>
+  </React.Fragment>`,
+  },
   DropdownSeparator: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}"></DropdownSeparator>`,
   FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
   FormSelectOption: `<FormSelectOption className="${componentToClassMap.FormSelectOption}"></FormSelectOption>`,
@@ -98,29 +123,32 @@ export const layoutRules = {
 // restrict allowed drag targets
 export const allowableDropMap = {
   AccordionToggle: {
-    AccordionItem: '.' + componentToClassMap.AccordionItem
+    AccordionItem: "." + componentToClassMap.AccordionItem,
   },
   AccordionContent: {
-    AccordionItem: '.' + componentToClassMap.AccordionItem
+    AccordionItem: "." + componentToClassMap.AccordionItem,
   },
   AccordionExpandedContentBody: {
-    AccordionContent: '.' + componentToClassMap.AccordionContent
+    AccordionContent: "." + componentToClassMap.AccordionContent,
   },
   ActionListItem: {
-    ActionList: '.' + componentToClassMap.ActionList,
-    ActionListGroup: '.' + componentToClassMap.ActionListGroup
+    ActionList: "." + componentToClassMap.ActionList,
+    ActionListGroup: "." + componentToClassMap.ActionListGroup,
   },
   ApplicationLauncherContent: {
-    ApplicationLauncherItem: '.' + componentToClassMap.ApplicationLauncherItem
+    ApplicationLauncherItem: "." + componentToClassMap.ApplicationLauncherItem,
   },
   CardActions: {
-    CardHeader: '.' + componentToClassMap.CardHeader
+    CardHeader: "." + componentToClassMap.CardHeader,
   },
   CardHeaderMain: {
-    CardHeader: '.' + componentToClassMap.CardHeader
+    CardHeader: "." + componentToClassMap.CardHeader,
   },
   Chip: {
-    ChipGroup: '.' + componentToClassMap.ChipGroup + '__list',
-    '*': '*' 
-  }
+    ChipGroup: "." + componentToClassMap.ChipGroup + "__list",
+    "*": "*",
+  },
+  ClipboardCopyButton: {
+    "*": "*",
+  },
 };

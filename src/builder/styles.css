@@ -50,18 +50,20 @@ body {
 }
 
 .pf-m-dropzone {
-  background-color: deepskyblue
+  background-color: deepskyblue !important;
 }
 
 .pf-m-droppable-bg {
-  background-color: pink;
+  background-color: pink !important;
 }
 .pf-m-droppable {
   pointer-events: all !important;
 }
-
 .pf-m-droppable.pf-m-dropzone {
-  background-color: deepskyblue
+  background-color: deepskyblue !important;
+}
+.pf-m-droppable.pf-m-dropzone.pf-m-droppable-bg {
+  background-color: deepskyblue !important;
 }
 
 .preview-mode .uib-preview {
