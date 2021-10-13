@@ -23,6 +23,7 @@ const {
   DataListControl,
   DataListDragButton,
   DataListItemCells,
+  DataListToggle,
   DragDrop,
   Draggable,
   Droppable,
@@ -31,10 +32,33 @@ const {
   Title,
 } = coreComponents;
 
+const isParent = [
+  "AlertGroup",
+  "ChipGroup",
+  "FormSelect",
+  "LabelGroup",
+  "MenuToggle",
+  "TextArea",
+  "TextInput",
+];
+const parentMap = {
+  FormSelectOptionGroup: "FormSelect",
+  KebabToggle: "Dropdown",
+  Tab: "Tabs",
+  TabContent: "Tabs",
+  TabTitleIcon: "Tabs",
+  TabTitleText: "Tabs",
+  TimeOption: "TimePicker",
+  ToggleTemplate: "Pagination",
+  ActionGroup: "Form",
+  BadgeToggle: "Dropdown",
+  CardHeaderMain: "Card",
+  Chip: "ChipGroup"
+};
+
 const startsWithCapital = (word: string) =>
   word.charAt(0) === word.charAt(0).toUpperCase();
 const filteredOut = [
-  "AboutModal",
   "DropdownWithContext",
   "TextAreaBase",
   "MenuToggleBase",
@@ -42,6 +66,8 @@ const filteredOut = [
   "Draggable",
   "Droppable",
   "TextInputBase",
+  "ApplicationLauncherIcon",
+  "ApplicationLauncherText"
 ];
 const filterFnc = ([key, value]) => {
   // filter out anything that isn't a component
@@ -74,47 +100,28 @@ const mappedCoreLayouts = Object.fromEntries(
     ])
 );
 
-const isParent = [
-  "AlertGroup",
-  "ChipGroup",
-  "FormSelect",
-  "LabelGroup",
-  "MenuToggle",
-  "TextArea",
-  "TextInput",
-];
-const parentMap = {
-  FormSelectOptionGroup: "FormSelect",
-  KebabToggle: "Dropdown",
-  Tab: "Tabs",
-  TabContent: "Tabs",
-  TabTitleIcon: "Tabs",
-  TabTitleText: "Tabs",
-  TimeOption: "TimePicker",
-  ToggleTemplate: "Pagination",
-  ActionGroup: "Form",
-};
 const parentChild = (components) => {
+  // pre-process
   for (const [key, value] of Object.entries(components)) {
-    let shadowedValue = value;
     if (typeof value === "string") {
-      shadowedValue = {
+      components[key] = {
         jsx: value,
       };
-      components[key] = shadowedValue;
     }
+  };
+  for (const [key, value] of Object.entries(components)) {
     let possibleParent = parentMap[key];
     if (possibleParent && components[possibleParent]) {
-      (shadowedValue as any).parent = possibleParent;
+      (value as any).parent = possibleParent;
       let parent = components[possibleParent];
       if (Array.isArray(parent.children)) {
         parent.children.push({
-          [key]: shadowedValue,
+          [key]: value,
         });
       } else {
         parent.children = [
           {
-            [key]: shadowedValue,
+            [key]: value,
           },
         ];
       }
@@ -130,16 +137,16 @@ const parentChild = (components) => {
         for (var i = 1; i < splitCamel.length; i++) {
           const possibleParent = splitCamel.slice(0, -1 * i).join("");
           if (components[possibleParent]) {
-            (shadowedValue as any).parent = possibleParent;
+            (value as any).parent = possibleParent;
             let parent = components[possibleParent];
             if (Array.isArray(parent.children)) {
               parent.children.push({
-                [key]: shadowedValue,
+                [key]: value,
               });
             } else {
               parent.children = [
                 {
-                  [key]: shadowedValue,
+                  [key]: value,
                 },
               ];
             }
@@ -148,11 +155,8 @@ const parentChild = (components) => {
         }
       }
     }
-    components[key] = shadowedValue;
   }
-  return Object.fromEntries(
-    Object.entries(components)/*.filter(([key, value]) => !(value as any).parent)*/
-  );
+  return Object.fromEntries(Object.entries(components));
 };
 
 export const components = {
@@ -184,22 +188,29 @@ export const allItems = {
   ...componentSnippets,
 };
 
-const getContent = (component, value) => {
+const getContent = (component, value, canPlace = true) => {
+  const placementRules = allowableDropMap[component];
   let body = "";
+  if (placementRules) {
+    body += `Should be nested within ${Object.keys(placementRules)}<br />`;
+  } else if (!canPlace && value.parent) {
+    body += `Should be nested within ${value.parent}<br />`;
+  }
   if (value.prop) {
-    body = `Will be added as prop ${value.prop} to ${value.component} component`;
+    body += `Will be added to ${value.component}'s prop ${value.prop}<br />`;
   } else if (value.props) {
-    body = `Will add the following props to ${value.component} component:`;
+    body += `Will add the following props to ${value.component}:<br />`;
     value.props.forEach((p) => {
-      body += `\n${p.prop}`;
+      body += `${p.prop}<br />`;
     });
   }
+  const bodyHtml = { __html: body };
   return (
     <div>
-      <Title headingLevel="h3" size="lg">
+      {/* <Title headingLevel="h3" size="lg">
         {component}
-      </Title>
-      <div>{body}</div>
+      </Title> */}
+      <div dangerouslySetInnerHTML={bodyHtml} />
     </div>
   );
 };
@@ -222,9 +233,9 @@ const ComponentItem = ({
   const spanId = `component-list-${component}`;
   const { componentsInUse } = React.useContext(AppContext);
   const componentObj: any = allParentChildItems[component];
-  const onToggle = (shouldExpand, component) => {
-    if (!shouldExpand) {
-      // collapse
+  const hasChildren = componentObj && componentObj.children;
+  const onToggle = (component) => {
+    if (expanded) {
       setExpanded(null);
     } else {
       setExpanded(component);
@@ -234,9 +245,9 @@ const ComponentItem = ({
     <DataListItem
       key={component}
       isExpanded={expanded === component}
-      className={css(!canPlace && "pf-m-hide")}
+      className={css(!canPlace && "pf-m-hide", !hasChildren && "pf-m-grab")}
       aria-labelledby={spanId}
-      draggable
+      draggable={!hasChildren}
       onDragStart={(ev) => {
         console.log(`dragStart: ${component}`);
         let classTargets =
@@ -245,20 +256,24 @@ const ComponentItem = ({
         if (classTargets) {
           classTargets.forEach((className) => {
             [
-              ...document.querySelectorAll(`.uib-preview .${className}`),
+              ...document.querySelectorAll(`.uib-preview ${className}`),
             ].forEach((el) => {
-              el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+              el.classList.add("pf-m-droppable");
+              className !== '*' && el.classList.add("pf-m-droppable-bg");
             });
           });
         } else {
           const componentInfo = allParentChildItems[component];
-          if ((componentInfo as any).parent) {
-            classTargets = [componentToClassMap[(componentInfo as any).parent as string]];
+          if (componentInfo && (componentInfo as any).parent) {
+            classTargets = [
+              '.' + componentToClassMap[(componentInfo as any).parent as string],
+            ];
             classTargets.forEach((className) => {
               [
-                ...document.querySelectorAll(`.uib-preview .${className}`),
+                ...document.querySelectorAll(`.uib-preview ${className}`),
               ].forEach((el) => {
-                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+                el.classList.add("pf-m-droppable");
+                className !== '*' && el.classList.add("pf-m-droppable-bg");
               });
             });
           } else {
@@ -285,24 +300,31 @@ const ComponentItem = ({
       }}
     >
       <DataListItemRow>
-        <DataListControl>
-          <DataListDragButton />
-        </DataListControl>
+        {!hasChildren && (
+          <DataListControl>
+            <DataListDragButton />
+          </DataListControl>
+        )}
+        {showExpand && hasChildren && (
+          <DataListToggle
+            id={`cell-parent-${component}`}
+            isExpanded={expanded === component}
+            onClick={() => onToggle(component)}
+            className="cell-expand"
+          />
+        )}
         <DataListItemCells
           dataListCells={[
             <DataListCell key={`cell-parent-${component}`}>
               <div id={spanId} className="cell-text" title={component}>
                 {component}
               </div>
-
-              {showExpand && componentObj && componentObj.children && (
-                <ExpandableSectionToggle
-                  isExpanded={expanded === component}
-                  onToggle={(isExpanded) => onToggle(isExpanded, component)}
-                />
-              )}
               {value.prop && (
-                <Tooltip content={getContent(component, value)}>
+                <Tooltip
+                  content={getContent(component, value, canPlace)}
+                  isContentLeftAligned
+                  position="right"
+                >
                   <span className="cell-info">
                     <InfoCircleIcon />
                   </span>
@@ -315,8 +337,12 @@ const ComponentItem = ({
       {expanded && (
         <section className="pf-c-data-list__expandable-content">
           <div className="pf-c-data-list__expandable-content-body">
-            {componentObj &&
-              componentObj.children &&
+            <ComponentItemChild
+              component={component}
+              value={value}
+              canPlace={placeable(component, componentsInUse)}
+            />
+            {hasChildren &&
               componentObj.children.map((child) => {
                 const childComponent = Object.keys(child)[0];
                 const childValue = Object.values(child)[0];
@@ -326,7 +352,7 @@ const ComponentItem = ({
                     component={childComponent}
                     value={childValue}
                     canPlace={
-                      Boolean(componentsInUse[component]) &&
+                      Boolean(allowableDropMap[childComponent] ? true : componentsInUse[component]) &&
                       placeable(childComponent, componentsInUse)
                     }
                   />
@@ -339,14 +365,23 @@ const ComponentItem = ({
   );
 };
 
-const ComponentItemChild = ({ component, value, canPlace = true }) => {
+const ComponentItemChild = ({
+  component,
+  value,
+  canPlace = true,
+  showExpand = true,
+}) => {
   const { componentsInUse } = React.useContext(AppContext);
-  console.log(`${JSON.stringify(componentsInUse)}`);
+  // console.log(`${JSON.stringify(componentsInUse)}`);
   const spanId = `component-list-${component}`;
   return (
     <DataListItem
       key={component}
-      className={css("pf-c-data-list__item__child", !canPlace && "pf-m-hide")}
+      className={css(
+        "pf-c-data-list__item__child",
+        !canPlace && "pf-m-hide",
+        "pf-m-grab"
+      )}
       aria-labelledby={spanId}
       draggable
       onDragStart={(ev) => {
@@ -358,20 +393,24 @@ const ComponentItemChild = ({ component, value, canPlace = true }) => {
         if (classTargets) {
           classTargets.forEach((className) => {
             [
-              ...document.querySelectorAll(`.uib-preview .${className}`),
+              ...document.querySelectorAll(`.uib-preview ${className}`),
             ].forEach((el) => {
-              el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+              el.classList.add("pf-m-droppable");
+              className !== '*' && el.classList.add("pf-m-droppable-bg");
             });
           });
         } else {
           const componentInfo = allParentChildItems[component];
           if ((componentInfo as any).parent) {
-            classTargets = [componentToClassMap[(componentInfo as any).parent as string]];
+            classTargets = [
+              '.' + componentToClassMap[(componentInfo as any).parent as string],
+            ];
             classTargets.forEach((className) => {
               [
-                ...document.querySelectorAll(`.uib-preview .${className}`),
+                ...document.querySelectorAll(`.uib-preview ${className}`),
               ].forEach((el) => {
-                el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+                el.classList.add("pf-m-droppable");
+                className !== '*' && el.classList.add("pf-m-droppable-bg");
               });
             });
           } else {
@@ -400,17 +439,33 @@ const ComponentItemChild = ({ component, value, canPlace = true }) => {
     >
       <DataListItemRow>
         <DataListControl>
-          <span className="list-child"></span>
+          {showExpand && <span className="list-child"></span>}
           <DataListDragButton />
         </DataListControl>
         <DataListItemCells
           dataListCells={[
             <DataListCell key={`cell-child-${component}`}>
-              <div id={spanId} className="cell-text" title={component}>
-                {component}
-              </div>
+              {!canPlace ? (
+                <Tooltip
+                  content={getContent(component, value, canPlace)}
+                  isContentLeftAligned
+                  position="right"
+                >
+                  <div id={spanId} className="cell-text">
+                    {component}
+                  </div>
+                </Tooltip>
+              ) : (
+                <div id={spanId} className="cell-text" title={component}>
+                  {component}
+                </div>
+              )}
               {value.prop && (
-                <Tooltip content={getContent(component, value)}>
+                <Tooltip
+                  content={getContent(component, value)}
+                  isContentLeftAligned
+                  position="right"
+                >
                   <span className="cell-info">
                     <InfoCircleIcon />
                   </span>
@@ -449,13 +504,17 @@ const getHash = (text: string) => {
   return hash;
 };
 
-const placeable = (component, componentsInUse) => {
+const placeable = (component, componentsInUse, parent = null) => {
   const placementRules = allowableDropMap[component]; // { Accordion: 'pf-c-accordion', SomethingElse: 'pf-c-something-else }
-  let canPlace = placementRules ? false : true;
+  let canPlace = placementRules
+    ? false
+    : parent
+    ? Boolean(componentsInUse[parent])
+    : true;
   if (placementRules) {
     const elements = Object.keys(placementRules);
     for (var i = 0; i < elements.length; i++) {
-      if (componentsInUse[elements[i]]) {
+      if (elements[i] === '*' || componentsInUse[elements[i]]) {
         canPlace = true;
         break;
       }
@@ -499,17 +558,21 @@ export const ComponentList = ({ code }) => {
       setComponentsList(allComponentsList);
     } else {
       setComponentsList(
-        Object.entries(components)
+        Object.entries(parentChildComponents)
           .filter(
             ([key, value]) => key.toLowerCase().indexOf(val.toLowerCase()) > -1
           )
           .sort()
           .map((c) => (
-            <ComponentItem
+            <ComponentItemChild
               key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              canPlace={placeable(c[0], componentsInUse)}
+              canPlace={
+                !(c[1] as any).parent
+                  ? true
+                  : placeable(c[0], componentsInUse, (c[1] as any).parent)
+              }
               showExpand={false}
             />
           ))
@@ -521,17 +584,21 @@ export const ComponentList = ({ code }) => {
       setLayoutsList(allLayoutsList);
     } else {
       setLayoutsList(
-        Object.entries(layouts)
+        Object.entries(parentChildLayouts)
           .filter(
             ([key, value]) => key.toLowerCase().indexOf(val.toLowerCase()) > -1
           )
           .sort()
           .map((c) => (
-            <ComponentItem
+            <ComponentItemChild
               key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              canPlace={placeable(c[0], componentsInUse)}
+              canPlace={
+                !(c[1] as any).parent
+                  ? true
+                  : placeable(c[0], componentsInUse, (c[1] as any).parent)
+              }
               showExpand={false}
             />
           ))

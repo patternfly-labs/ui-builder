@@ -45,6 +45,9 @@ body {
 .pf-builder-sidebar .cell-info {
   float: right;
 }
+.pf-builder-sidebar .cell-expand .pf-c-button {
+  padding-left: 7px;
+}
 
 .pf-m-dropzone {
   background-color: deepskyblue
@@ -101,6 +104,9 @@ body {
 .pf-c-data-list__item.pf-m-hide {
   /* display: none; */
   color: lightgray;
+}
+.pf-c-data-list__item.pf-m-grab {
+  cursor: grab;
 }
 .pf-c-data-list__item.pf-m-child {
   margin-left: 12px;

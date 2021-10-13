@@ -20,6 +20,11 @@ const scope = {
   // ...wrappedReactCoreModule,
   ...componentSnippetModules,
   ComponentAdder,
+  onLiveRegionMouseOver(ev, idCounter, name) {
+    // ev.preventDefault();
+    // ev.stopPropagation();
+    console.log(name);
+  },
   onLiveRegionDragEnter(ev: React.DragEvent<any>) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -73,6 +78,9 @@ export const LiveRegion = ({ code, setCode }) => {
   const { setComponentsInUse } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
+    // scope.onLiveRegionMouseOver = (ev, idCounter) => {
+    //   console.log(idCounter);
+    // }
     scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -90,8 +98,7 @@ export const LiveRegion = ({ code, setCode }) => {
           return;
         }
         const parent = parents[parents.length - 1];
-
-        const addAttribute = (prop, jsx, node) => {
+        const addAttribute = (prop, jsx, parent, node) => {
           const expression = parse(jsx).body[0].expression;
           const attr = {
             type: "JSXAttribute",
@@ -104,21 +111,30 @@ export const LiveRegion = ({ code, setCode }) => {
               expression,
             },
           };
-          let replace = false;
+
+          // let replace = false;
           let index = 0;
-          for (var i = 0; i < node.openingElement.attributes.length; i++) {
-            const { name } = node.openingElement.attributes[i].name;
-            if (name === prop) {
-              replace = true;
+          let foundAttr = false;
+          for (var i = 0; i < parent.openingElement.attributes.length; i++) {
+            const attribute = parent.openingElement.attributes[i];
+            if (attribute.name.name === prop) {
+              foundAttr = true;
               index = i;
+              if (attribute.value.expression && attribute.value.expression.type === "ArrayExpression") {
+                // append
+                attribute.value.expression.elements.push(expression);
+              } else {
+                // replace
+                parent.openingElement.attributes[index] = attr;
+              }
               break;
             }
           }
-          if (replace) {
-            node.openingElement.attributes[index] = attr;
-          } else {
-            node.openingElement.attributes.push(attr);
-          }
+          if (!foundAttr) {
+            parent.openingElement.attributes.push(attr);
+          }/* else {
+            parent.openingElement.attributes[index] = attr;
+          }*/
         };
 
         const componentInfo: any = allItems[component];
@@ -126,11 +142,11 @@ export const LiveRegion = ({ code, setCode }) => {
           if (componentInfo.props) {
             componentInfo.props.forEach((propObj) => {
               const { prop, jsx } = propObj;
-              addAttribute(prop, jsx, parent);
+              addAttribute(prop, jsx, parent, node);
             });
           } else if (componentInfo.prop) {
             const { prop, jsx } = componentInfo;
-            addAttribute(prop, jsx, parent);
+            addAttribute(prop, jsx, parent, node);
           } else {
             // add as child
             const componentValue = componentInfo;
@@ -148,7 +164,10 @@ export const LiveRegion = ({ code, setCode }) => {
     };
 
     try {
-      const { code: transformedCode, componentsInUse } = convertToReactComponent(code);
+      const {
+        code: transformedCode,
+        componentsInUse,
+      } = convertToReactComponent(code);
       setComponentsInUse(componentsInUse);
       const getPreviewComponent = new Function(
         "React",
@@ -175,6 +194,7 @@ export const LiveRegion = ({ code, setCode }) => {
       onDragEnter={scope.onLiveRegionDragEnter}
       onDragLeave={scope.onLiveRegionDragLeave}
       onDrop={scope.onLiveRegionDrop}
+      // onMouseOver={scope.onLiveRegionMouseOver}
     >
       {livePreview}
     </div>

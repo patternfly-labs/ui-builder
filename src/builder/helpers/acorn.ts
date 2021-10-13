@@ -263,7 +263,7 @@ export function visit(node: acorn.Node, callback: any, parents: any[] = []) {
 }
 
 // propValues are injected into live scope
-function injectProp(node: any, propName: string, propValue: string, idCounter: number) {
+function injectProp(node: any, propName: string, propValue: string, idCounter: number, componentName: string) {
   let injectedProp = node.attributes.find(attr => attr.name.name === propName);
   if (!injectedProp) {
     injectedProp = {
@@ -290,7 +290,8 @@ function injectProp(node: any, propName: string, propValue: string, idCounter: n
         },
         arguments: [
           { type: 'Identifier', name: 'ev' },
-          { type: 'Literal', value: idCounter }
+          { type: 'Literal', value: idCounter },
+          { type: 'Literal', value: componentName }
         ]
       }
     }
@@ -403,9 +404,10 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
         node.idCounter = idCounter;
       }
       if (injectInteractive) {
-        injectProp(node, 'onDragEnter', 'onLiveRegionDragEnter', idCounter);
-        injectProp(node, 'onDragLeave', 'onLiveRegionDragLeave', idCounter);
-        injectProp(node, 'onDrop', 'onLiveRegionDrop', idCounter);
+        injectProp(node, 'onDragEnter', 'onLiveRegionDragEnter', idCounter, node.name.name);
+        injectProp(node, 'onDragLeave', 'onLiveRegionDragLeave', idCounter, node.name.name);
+        injectProp(node, 'onDrop', 'onLiveRegionDrop', idCounter, node.name.name);
+        injectProp(node, 'onMouseOver', 'onLiveRegionMouseOver', idCounter, node.name.name);
       }
       idCounter += 1;
     });
@@ -431,7 +433,7 @@ export function convertToReactComponent(code: string, injectInteractive: boolean
     return React.createElement(Page,{"onDragEnter":ev => onLiveRegionDragEnter(ev, 0),"onDragLeave":ev => onLiveRegionDragLeave(ev, 0),"onDrop":ev => onLiveRegionDrop(ev, 0)});;
   };
   */
-  // console.log(code)
+  console.log(code)
   return { code, hasTS: ast.sourceType === 'ts', componentsInUse };
 }
 

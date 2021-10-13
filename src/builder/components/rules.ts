@@ -14,19 +14,55 @@ export const componentRules = {
   AccordionToggle: "<AccordionToggle isExpanded>Item</AccordionToggle>",
   AccordionContent: "<AccordionContent>Content</AccordionContent>",
   ActionListItem: `<ActionListItem className="${componentToClassMap.ActionListItem}">Action</ActionListItem>`,
+  Alert: `<Alert title="Alert"></Alert>`,
   AlertActionCloseButton: {
     component: "Alert",
     prop: "actionClose",
     jsx: `<AlertActionCloseButton className="${componentToClassMap.AlertActionCloseButton}"></AlertActionCloseButton>`,
   },
-  AlertActionLink: `<AlertActionLink className="${componentToClassMap.AlertActionLink}"></AlertActionLink>`,
-  ApplicationLauncherSeparator: `<ApplicationLauncherSeparator className="${componentToClassMap.ApplicationLauncherSeparator}" />`,
+  AlertActionLink: {
+    component: "Alert",
+    prop: "actionLinks",
+    jsx: `<AlertActionLink className="${componentToClassMap.AlertActionLink}">Action link</AlertActionLink>`,
+  },
+  ApplicationLauncher: `<ApplicationLauncher items={[]} isOpen />`,
+  ApplicationLauncherItem: {
+    component: "ApplicationLauncher",
+    prop: "items",
+    jsx: `<ApplicationLauncherItem>Item</ApplicationLauncherItem>`
+  },
+  ApplicationLauncherContent: {
+    component: "ApplicationLauncherItem",
+    prop: "component",
+    jsx: `<a href="#"><ApplicationLauncherContent>Link</ApplicationLauncherContent></a>`
+  },
+  ApplicationLauncherGroup: {
+    component: "ApplicationLauncher",
+    prop: "items",
+    jsx: `<ApplicationLauncherGroup></ApplicationLauncherGroup>`
+  },
+  ApplicationLauncherSeparator: {
+    component: "ApplicationLauncher",
+    prop: "items",
+    jsx: `<ApplicationLauncherSeparator className="${componentToClassMap.ApplicationLauncherSeparator}" />`
+  },
+  Avatar: `<Avatar alt="avatar" src="https://www.patternfly.org/v4/images/avatarImg.668560cdf25a4932ef9f711b4acad52d.svg" />`,
   BackgroundImage: `<BackgroundImage />`,
   Badge: "<Badge>5</Badge>",
   BadgeToggle: `<BadgeToggle className="${componentToClassMap.BadgeToggle}"></BadgeToggle>`,
+  Banner: `<Banner>Banner</Banner>`,
+  Brand: `<Brand alt="PatternFly logo" src="https://www.patternfly.org/v4/images/pfLogo.ffdafb0c74aa4c9c011251aa8f0c144c.svg" />`,
+  BreadcrumbItem: `<BreadcrumbItem to="#">Item</BreadcrumbItem>`,
+  BreadcrumbHeading: `<BreadcrumbHeading>Heading</BreadcrumbHeading>`,
   Button: "<Button>Button</Button>",
-  CardBody: "<CardBody>Card body</CardBody>",
+  CalendarMonth: `<CalendarMonth />`,
+  CardBody: `<CardBody>Body</CardBody>`,
+  CardFooter: `<CardFooter>Footer</CardFooter>`,
   CardHeaderMain: `<CardHeaderMain className="${componentToClassMap.CardHeaderMain}"></CardHeaderMain>`,
+  CardTitle: `<CardTitle>Title</CardTitle>`,
+  Checkbox: `<Checkbox />`,
+  Chip: `<Chip>Chip</Chip>`,
+  ChipGroup: `<ChipGroup categoryName="Category"><Chip>Chip</Chip></ChipGroup>`,
   ClipboardCopyButton: `<ClipboardCopyButton className="${componentToClassMap.ClipboardCopyButton}" />`,
   DropdownSeparator: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}"></DropdownSeparator>`,
   FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
@@ -62,27 +98,29 @@ export const layoutRules = {
 // restrict allowed drag targets
 export const allowableDropMap = {
   AccordionToggle: {
-    AccordionItem: componentToClassMap.AccordionItem
+    AccordionItem: '.' + componentToClassMap.AccordionItem
   },
   AccordionContent: {
-    AccordionItem: componentToClassMap.AccordionItem
+    AccordionItem: '.' + componentToClassMap.AccordionItem
   },
   AccordionExpandedContentBody: {
-    AccordionContent: componentToClassMap.AccordionContent
+    AccordionContent: '.' + componentToClassMap.AccordionContent
   },
   ActionListItem: {
-    ActionList: componentToClassMap.ActionList,
-    ActionListGroup: componentToClassMap.ActionListGroup
+    ActionList: '.' + componentToClassMap.ActionList,
+    ActionListGroup: '.' + componentToClassMap.ActionListGroup
+  },
+  ApplicationLauncherContent: {
+    ApplicationLauncherItem: '.' + componentToClassMap.ApplicationLauncherItem
+  },
+  CardActions: {
+    CardHeader: '.' + componentToClassMap.CardHeader
+  },
+  CardHeaderMain: {
+    CardHeader: '.' + componentToClassMap.CardHeader
+  },
+  Chip: {
+    ChipGroup: '.' + componentToClassMap.ChipGroup + '__list',
+    '*': '*' 
   }
-  //   AccordionExpandedContentBody: [".pf-c-accordion__expanded-content"],
-  //   AccordionToggle: [".pf-c-accordion__item"],
-  //   PageHeader: [".pf-c-page"],
-  //   PageHeaderSnippet: [".pf-c-page"],
-  //   PageNav: [".pf-c-page"],
-  //   PageBreadcrumbs: [".pf-c-page"],
-  //   PageGroupedContent: [".pf-c-page"],
-  //   PageSection: [".pf-c-page"],
-  //   // Gallery: [".pf-c-page__main-section"],
-  //   GalleryItem: [".pf-l-gallery"],
-  //   CardBody: [".pf-c-card"],
 };
