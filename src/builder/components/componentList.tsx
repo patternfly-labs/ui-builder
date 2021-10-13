@@ -6,7 +6,7 @@ import { css } from "@patternfly/react-styles";
 import * as coreComponents from "@patternfly/react-core/dist/esm/components";
 import * as coreLayouts from "@patternfly/react-core/dist/esm/layouts";
 import { componentSnippets } from "./snippets/snippets";
-import { allowableDropMap, componentRules, layoutRules } from "./rules";
+import { componentRules, layoutRules } from "./rules";
 import { AppContext } from "../app";
 import { componentToClassMap } from "./componentToClassMap";
 
@@ -52,8 +52,7 @@ const parentMap = {
   ToggleTemplate: "Pagination",
   ActionGroup: "Form",
   BadgeToggle: "Dropdown",
-  CardHeaderMain: "Card",
-  Chip: "ChipGroup"
+  Chip: "ChipGroup",
 };
 
 const startsWithCapital = (word: string) =>
@@ -67,7 +66,7 @@ const filteredOut = [
   "Droppable",
   "TextInputBase",
   "ApplicationLauncherIcon",
-  "ApplicationLauncherText"
+  "ApplicationLauncherText",
 ];
 const filterFnc = ([key, value]) => {
   // filter out anything that isn't a component
@@ -99,16 +98,46 @@ const mappedCoreLayouts = Object.fromEntries(
       },
     ])
 );
+const mappedComponentRules = Object.fromEntries(
+  Object.entries(componentRules)
+    .map(([key, value]) => {
+      if (typeof value === "string") {
+        return [
+          key,
+          {
+            jsx: value,
+          },
+        ]
+      } else if (!(value as any).jsx) {
+        return [key, {
+          ...(value as any),
+          jsx: `<${key}></${key}>`
+        }];
+      }
+      return [key, value];
+    })
+);
+const mappedLayoutRules = Object.fromEntries(
+  Object.entries(layoutRules)
+    .map(([key, value]) => {
+      if (typeof value === "string") {
+        return [
+          key,
+          {
+            jsx: value,
+          },
+        ]
+      } else if (!(value as any).jsx) {
+        return [key, {
+          ...(value as any),
+          jsx: `<${key}></${key}>`
+        }];
+      }
+      return [key, value];
+    })
+);
 
 const parentChild = (components) => {
-  // pre-process
-  for (const [key, value] of Object.entries(components)) {
-    if (typeof value === "string") {
-      components[key] = {
-        jsx: value,
-      };
-    }
-  };
   for (const [key, value] of Object.entries(components)) {
     let possibleParent = parentMap[key];
     if (possibleParent && components[possibleParent]) {
@@ -137,6 +166,10 @@ const parentChild = (components) => {
         for (var i = 1; i < splitCamel.length; i++) {
           const possibleParent = splitCamel.slice(0, -1 * i).join("");
           if (components[possibleParent]) {
+            if (components[possibleParent].parent) {
+              // not a parent item
+              continue;
+            }
             (value as any).parent = possibleParent;
             let parent = components[possibleParent];
             if (Array.isArray(parent.children)) {
@@ -161,7 +194,7 @@ const parentChild = (components) => {
 
 export const components = {
   ...mappedCoreComponents,
-  ...componentRules,
+  ...mappedComponentRules,
 };
 
 const parentChildComponents = parentChild({
@@ -170,7 +203,7 @@ const parentChildComponents = parentChild({
 
 export const layouts = {
   ...mappedCoreLayouts,
-  ...layoutRules,
+  ...mappedLayoutRules,
 };
 
 const parentChildLayouts = parentChild({
@@ -189,10 +222,13 @@ export const allItems = {
 };
 
 const getContent = (component, value, canPlace = true) => {
-  const placementRules = allowableDropMap[component];
+  const placementTargets =
+    componentRules[component] && componentRules[component].targets;
   let body = "";
-  if (placementRules) {
-    body += `Should be nested within ${Object.keys(placementRules)}<br />`;
+  if (placementTargets) {
+    body += `Should be nested within ${componentRules[component].targets.join(
+      ", "
+    )}<br />`;
   } else if (!canPlace && value.parent) {
     body += `Should be nested within ${value.parent}<br />`;
   }
@@ -215,13 +251,58 @@ const getContent = (component, value, canPlace = true) => {
   );
 };
 
-// Accordion
-//   - AccordionItem
-//      - AccordionToggle
-//      - AccordionContent
-//        - AccordionExpandedContentBody
+const onDragStart = (ev, component) => {
+  ev.stopPropagation();
+  console.log(`dragStart: ${component}`);
+  let classTargets =
+    componentRules[component] && componentRules[component].targets;
+  if (classTargets) {
+    classTargets.forEach((className) => {
+      const selector =
+        className !== "*" ? `.${componentToClassMap[className]}` : className;
+      [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
+        (el) => {
+          el.classList.add("pf-m-droppable");
+          selector !== "*" && el.classList.add("pf-m-droppable-bg");
+        }
+      );
+    });
+  } else {
+    // by default, target the parent as a drop target
+    const componentInfo = allParentChildItems[component];
+    if (componentInfo && (componentInfo as any).parent) {
+      const className =
+        "." + componentToClassMap[(componentInfo as any).parent as string];
+      [...document.querySelectorAll(`.uib-preview ${className}`)].forEach(
+        (el) => {
+          el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+        }
+      );
+    } else {
+      // does not have specific targets set and does not have a parent item: open up everything
+      [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
+        el.classList.add("pf-m-droppable");
+      });
+    }
+  }
+  ev.dataTransfer.setData(
+    "text/plain",
+    JSON.stringify({
+      component,
+    })
+  );
+  ev.dataTransfer.dropEffect = "copy";
+  // hack so that in dragEnter we know which component originated the drag
+  ev.dataTransfer.setData("component/" + component, component);
+};
 
-// [component, value], code
+const onDragEnd = (ev) => {
+  ev.stopPropagation();
+  [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
+    el.classList.remove("pf-m-droppable", "pf-m-droppable-bg");
+  });
+};
+
 const ComponentItem = ({
   component,
   value,
@@ -248,56 +329,8 @@ const ComponentItem = ({
       className={css(!canPlace && "pf-m-hide", !hasChildren && "pf-m-grab")}
       aria-labelledby={spanId}
       draggable={!hasChildren}
-      onDragStart={(ev) => {
-        console.log(`dragStart: ${component}`);
-        let classTargets =
-          allowableDropMap[component] &&
-          Object.values(allowableDropMap[component]);
-        if (classTargets) {
-          classTargets.forEach((className) => {
-            [
-              ...document.querySelectorAll(`.uib-preview ${className}`),
-            ].forEach((el) => {
-              el.classList.add("pf-m-droppable");
-              className !== '*' && el.classList.add("pf-m-droppable-bg");
-            });
-          });
-        } else {
-          const componentInfo = allParentChildItems[component];
-          if (componentInfo && (componentInfo as any).parent) {
-            classTargets = [
-              '.' + componentToClassMap[(componentInfo as any).parent as string],
-            ];
-            classTargets.forEach((className) => {
-              [
-                ...document.querySelectorAll(`.uib-preview ${className}`),
-              ].forEach((el) => {
-                el.classList.add("pf-m-droppable");
-                className !== '*' && el.classList.add("pf-m-droppable-bg");
-              });
-            });
-          } else {
-            // open up everything
-            [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
-              el.classList.add("pf-m-droppable");
-            });
-          }
-        }
-        ev.dataTransfer.setData(
-          "text/plain",
-          JSON.stringify({
-            component,
-          })
-        );
-        ev.dataTransfer.dropEffect = "copy";
-        // hack so that in dragEnter we know which component originated the drag
-        ev.dataTransfer.setData("component/" + component, component);
-      }}
-      onDragEnd={(ev) => {
-        [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
-          el.classList.remove("pf-m-droppable", "pf-m-droppable-bg");
-        });
-      }}
+      onDragStart={(ev) => onDragStart(ev, component)}
+      onDragEnd={onDragEnd}
     >
       <DataListItemRow>
         {!hasChildren && (
@@ -352,8 +385,12 @@ const ComponentItem = ({
                     component={childComponent}
                     value={childValue}
                     canPlace={
-                      Boolean(allowableDropMap[childComponent] ? true : componentsInUse[component]) &&
-                      placeable(childComponent, componentsInUse)
+                      Boolean(
+                        componentRules[childComponent] &&
+                          componentRules[childComponent].targets
+                          ? true
+                          : componentsInUse[component]
+                      ) && placeable(childComponent, componentsInUse)
                     }
                   />
                 );
@@ -384,58 +421,8 @@ const ComponentItemChild = ({
       )}
       aria-labelledby={spanId}
       draggable
-      onDragStart={(ev) => {
-        ev.stopPropagation();
-        console.log(`dragStart: ${component}`);
-        let classTargets =
-          allowableDropMap[component] &&
-          Object.values(allowableDropMap[component]);
-        if (classTargets) {
-          classTargets.forEach((className) => {
-            [
-              ...document.querySelectorAll(`.uib-preview ${className}`),
-            ].forEach((el) => {
-              el.classList.add("pf-m-droppable");
-              className !== '*' && el.classList.add("pf-m-droppable-bg");
-            });
-          });
-        } else {
-          const componentInfo = allParentChildItems[component];
-          if ((componentInfo as any).parent) {
-            classTargets = [
-              '.' + componentToClassMap[(componentInfo as any).parent as string],
-            ];
-            classTargets.forEach((className) => {
-              [
-                ...document.querySelectorAll(`.uib-preview ${className}`),
-              ].forEach((el) => {
-                el.classList.add("pf-m-droppable");
-                className !== '*' && el.classList.add("pf-m-droppable-bg");
-              });
-            });
-          } else {
-            // open up everything
-            [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
-              el.classList.add("pf-m-droppable");
-            });
-          }
-        }
-        ev.dataTransfer.setData(
-          "text/plain",
-          JSON.stringify({
-            component,
-          })
-        );
-        ev.dataTransfer.dropEffect = "copy";
-        // hack so that in dragEnter we know which component originated the drag
-        ev.dataTransfer.setData("component/" + component, component);
-      }}
-      onDragEnd={(ev) => {
-        ev.stopPropagation();
-        [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
-          el.classList.remove("pf-m-droppable", "pf-m-droppable-bg");
-        });
-      }}
+      onDragStart={(ev) => onDragStart(ev, component)}
+      onDragEnd={onDragEnd}
     >
       <DataListItemRow>
         <DataListControl>
@@ -505,16 +492,15 @@ const getHash = (text: string) => {
 };
 
 const placeable = (component, componentsInUse, parent = null) => {
-  const placementRules = allowableDropMap[component]; // { Accordion: 'pf-c-accordion', SomethingElse: 'pf-c-something-else }
+  const placementRules = componentRules[component] && componentRules[component].targets;
   let canPlace = placementRules
     ? false
     : parent
     ? Boolean(componentsInUse[parent])
     : true;
   if (placementRules) {
-    const elements = Object.keys(placementRules);
-    for (var i = 0; i < elements.length; i++) {
-      if (elements[i] === '*' || componentsInUse[elements[i]]) {
+    for (var i = 0; i < placementRules.length; i++) {
+      if (placementRules[i] === "*" || componentsInUse[placementRules[i]]) {
         canPlace = true;
         break;
       }

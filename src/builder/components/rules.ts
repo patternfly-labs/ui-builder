@@ -11,9 +11,21 @@ export const componentRules = {
   // AboutModal: FocusTrap steals focus on each change in the editor
   AboutModal: `<AboutModal className="${componentToClassMap.AboutModal}" isOpen appendTo={() => document.querySelector('.live-region .pf-c-page__main')}></AboutModal>`,
   AccordionItem: `<AccordionItem><div className="${componentToClassMap.AccordionItem}"></div></AccordionItem>`,
-  AccordionToggle: "<AccordionToggle isExpanded>Item</AccordionToggle>",
-  AccordionContent: "<AccordionContent>Content</AccordionContent>",
-  ActionListItem: `<ActionListItem className="${componentToClassMap.ActionListItem}">Action</ActionListItem>`,
+  AccordionToggle: {
+    jsx: "<AccordionToggle isExpanded>Item</AccordionToggle>",
+    targets: ["AccordionItem"],
+  },
+  AccordionContent: {
+    jsx: "<AccordionContent>Content</AccordionContent>",
+    targets: ["AccordionItem"],
+  },
+  AccordionExpandedContentBody: {
+    targets: ["AccordionContent"],
+  },
+  ActionListItem: {
+    jsx: `<ActionListItem className="${componentToClassMap.ActionListItem}">Action</ActionListItem>`,
+    targets: ["ActionList", "ActionListGroup"],
+  },
   Alert: `<Alert title="Alert"></Alert>`,
   AlertActionCloseButton: {
     component: "Alert",
@@ -35,6 +47,7 @@ export const componentRules = {
     component: "ApplicationLauncherItem",
     prop: "component",
     jsx: `<a href="#"><ApplicationLauncherContent>Link</ApplicationLauncherContent></a>`,
+    targets: ["ApplicationLauncherItem"],
   },
   ApplicationLauncherGroup: {
     component: "ApplicationLauncher",
@@ -56,12 +69,21 @@ export const componentRules = {
   BreadcrumbHeading: `<BreadcrumbHeading>Heading</BreadcrumbHeading>`,
   Button: "<Button>Button</Button>",
   CalendarMonth: `<CalendarMonth />`,
+  CardActions: {
+    targets: ["CardHeader"],
+  },
   CardBody: `<CardBody>Body</CardBody>`,
   CardFooter: `<CardFooter>Footer</CardFooter>`,
-  CardHeaderMain: `<CardHeaderMain className="${componentToClassMap.CardHeaderMain}"></CardHeaderMain>`,
+  CardHeaderMain: {
+    jsx: `<CardHeaderMain className="${componentToClassMap.CardHeaderMain}"></CardHeaderMain>`,
+    targets: ["CardHeader"],
+  },
   CardTitle: `<CardTitle>Title</CardTitle>`,
   Checkbox: `<Checkbox />`,
-  Chip: `<Chip>Chip</Chip>`,
+  Chip: {
+    jsx: `<Chip>Chip</Chip>`,
+    targets: ["ChipGroupList", "*"],
+  },
   ChipGroup: `<ChipGroup categoryName="Category"><Chip>Chip</Chip></ChipGroup>`,
   ClipboardCopy: `<ClipboardCopy>Clipboard copyable</ClipboardCopy>`,
   ClipboardCopyAction: {
@@ -77,7 +99,10 @@ export const componentRules = {
       },
     ],
   },
-  ClipboardCopyButton: `<ClipboardCopyButton className="${componentToClassMap.ClipboardCopyButton}" />`,
+  ClipboardCopyButton: {
+    jsx: `<ClipboardCopyButton className="${componentToClassMap.ClipboardCopyButton}" />`,
+    targets: ["*"],
+  },
   CodeBlockAction: {
     component: "CodeBlock",
     prop: "actions",
@@ -88,6 +113,14 @@ export const componentRules = {
       </ClipboardCopyButton>
     </CodeBlockAction>
   </React.Fragment>`,
+  },
+  CodeBlockCode: `<CodeBlockCode>const msg = "Hello world!";</CodeBlockCode>`,
+  ContextSelector: `<ContextSelector isOpen toggleText="Selected item"></ContextSelector>`,
+  ContextSelectorItem: `<ContextSelectorItem>Item</ContextSelectorItem>`,
+  ContextSelectorFooter: {
+    component: "ContextSelector",
+    prop: "footer",
+    jsx: `<ContextSelectorFooter><Button variant="link" isInline>Footer</Button></ContextSelectorFooter>`,
   },
   DropdownSeparator: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}"></DropdownSeparator>`,
   FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
@@ -103,8 +136,7 @@ export const componentRules = {
   OverflowMenuDropdownItem: `<OverflowMenuDropdownItem className="${componentToClassMap.OverflowMenuDropdownItem}"></OverflowMenuDropdownItem>`,
   PageHeader: {
     component: "Page",
-    prop: "header",
-    jsx: "<PageHeader></PageHeader>",
+    prop: "header"
   },
   PageSection: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,
@@ -118,37 +150,4 @@ export const layoutRules = {
   Gallery: "<Gallery hasGutter={true}></Gallery>",
   GalleryItem: `<GalleryItem className="pf-l-gallery__item"></GalleryItem>`,
   FlexItem: `<FlexItem className="pf-l-flex__item"></FlexItem>`,
-};
-
-// restrict allowed drag targets
-export const allowableDropMap = {
-  AccordionToggle: {
-    AccordionItem: "." + componentToClassMap.AccordionItem,
-  },
-  AccordionContent: {
-    AccordionItem: "." + componentToClassMap.AccordionItem,
-  },
-  AccordionExpandedContentBody: {
-    AccordionContent: "." + componentToClassMap.AccordionContent,
-  },
-  ActionListItem: {
-    ActionList: "." + componentToClassMap.ActionList,
-    ActionListGroup: "." + componentToClassMap.ActionListGroup,
-  },
-  ApplicationLauncherContent: {
-    ApplicationLauncherItem: "." + componentToClassMap.ApplicationLauncherItem,
-  },
-  CardActions: {
-    CardHeader: "." + componentToClassMap.CardHeader,
-  },
-  CardHeaderMain: {
-    CardHeader: "." + componentToClassMap.CardHeader,
-  },
-  Chip: {
-    ChipGroup: "." + componentToClassMap.ChipGroup + "__list",
-    "*": "*",
-  },
-  ClipboardCopyButton: {
-    "*": "*",
-  },
 };

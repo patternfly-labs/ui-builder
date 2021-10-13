@@ -117,6 +117,7 @@ export const componentToClassMap = {
   Checkbox: Checkbox.check,
   Chip: Chip.chip,
   ChipGroup: ChipGroup.chipGroup,
+  ChipGroupList: `${ChipGroup.chipGroup}__list`,
   ClipboardCopy: ClipboardCopy.clipboardCopy,
   ClipboardCopyAction: ClipboardCopy.clipboardCopyActions,
   ClipboardCopyButton: "pf-c-clipboard-copy__button",

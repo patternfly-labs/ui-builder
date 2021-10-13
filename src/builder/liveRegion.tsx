@@ -86,11 +86,7 @@ export const LiveRegion = ({ code, setCode }) => {
       ev.stopPropagation();
       // console.log("onLiveRegionDrop", ev.target, idCounter);
       (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
-      // ev.dataTransfer.items[0].getAsString(function (s) {
-      //   console.log("component = " + s);
-      // });
       const { component } = JSON.parse(ev.dataTransfer.getData("text/plain"));
-      // const data = componentsInfo[component];
       let { ast, componentsInUse } = parseComponent(code, false, false, true);
       ast = addImport(ast, component);
       visit(ast, (node: any, parents: any[]) => {
@@ -112,7 +108,6 @@ export const LiveRegion = ({ code, setCode }) => {
             },
           };
 
-          // let replace = false;
           let index = 0;
           let foundAttr = false;
           for (var i = 0; i < parent.openingElement.attributes.length; i++) {
