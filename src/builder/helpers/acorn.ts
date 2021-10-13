@@ -163,6 +163,11 @@ const es2017GeneratorJSX = {
   },
   // attr="something"
   JSXAttribute(node, state) {
+    /*
+    state.write(state.lineEnd);
+    state.write(state.indent.repeat(state.indentLevel));
+    state.indentLevel += 1;
+    */
     state.write(' ');
     this[node.name.type](node.name, state);
     if (node.value) {
@@ -219,12 +224,35 @@ const es2017GeneratorJSX = {
   JSXEmptyExpression(_node, state) {
     state.write('{}');
   },
+  ReturnStatement(node, state) {
+    state.write('return');
+    if (node.argument) {
+      if (node.argument.type === 'JSXElement') {
+        state.write(' (');
+        state.write(state.lineEnd);
+        state.indentLevel -= 1;
+      }
+      state.write(' ');
+      this[node.argument.type](node.argument, state);
+      if (node.argument.type === 'JSXElement') {
+        state.indentLevel -= 1;
+        state.write(state.lineEnd);
+        state.write(state.indent.repeat(state.indentLevel));
+        state.write(')');
+      }
+    }
+
+    state.write(';');
+  },
 };
 
 export function visit(node: acorn.Node, callback: any, parents: any[] = []) {
   parents.push(node);
   Object.values(node).forEach(n => {
-    if (n.type) {
+    if (!n) {
+      return;
+    }
+    if (typeof n === 'object' && n.type) {
       callback(n, parents);
       visit(n, callback, parents);
     }
@@ -235,7 +263,7 @@ export function visit(node: acorn.Node, callback: any, parents: any[] = []) {
 }
 
 // propValues are injected into live scope
-function injectProp(node: any, propName: string, propValue: string, idCounter: number) {
+function injectProp(node: any, propName: string, propValue: string, idCounter: number, componentName: string) {
   let injectedProp = node.attributes.find(attr => attr.name.name === propName);
   if (!injectedProp) {
     injectedProp = {
@@ -262,7 +290,8 @@ function injectProp(node: any, propName: string, propValue: string, idCounter: n
         },
         arguments: [
           { type: 'Identifier', name: 'ev' },
-          { type: 'Literal', value: idCounter }
+          { type: 'Literal', value: idCounter },
+          { type: 'Literal', value: componentName }
         ]
       }
     }
@@ -271,9 +300,17 @@ function injectProp(node: any, propName: string, propValue: string, idCounter: n
 
 export function parseComponent(code: string, injectFunction: boolean, injectInteractive: boolean, injectId: boolean) {
   const ast = parse(code);
+  // console.log(ast);
   if (injectFunction) {
     // Modify AST for function creation
-    ast.body = ast.body.filter(node => !['ImportDeclaration', 'ExportAllDeclaration'].includes(node.type));
+    // The following nodes will be ignored
+    ast.body = ast.body.filter((node, index) => {
+      // Ignore VariableDeclaration unless it's the last element
+      if (node.type === 'VariableDeclaration' && index !== ast.body.length - 1) {
+        return false;
+      }
+      return !['ImportDeclaration', 'ExportAllDeclaration'].includes(node.type)
+    });
     for (let i = 0; i < ast.body.length; i++) {
       if (['ExportNamedDeclaration', 'ExportDefaultDeclaration'].includes(ast.body[i].type)) {
         // Replace exports
@@ -291,7 +328,7 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
         throw new Error('The last example variable declaration must be a single expression.');
       }
       const declaration = declarations[0];
-      lastStatement = {
+      const expressionStatement = {
         type: 'ExpressionStatement',
         expression: {
           type: 'AssignmentExpression',
@@ -300,9 +337,28 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
           right: declaration.init
         }
       };
+      lastStatement = {
+        type: 'FunctionDeclaration',
+        id: {
+          type: 'Identifier',
+          name: 'LivePreview'
+        },
+        body: {
+          type: 'BlockStatement',
+          body: [
+            ...ast.body.slice(0, ast.body.length - 1),
+            {
+              type: 'ReturnStatement',
+              argument: expressionStatement.expression.right.body
+            }
+          ]
+        }
+      };
     }
     // Convert `<InlineJSX />` or `Example = () => <InlineJSX />`
     // to `function LivePreview() { return <InlineJSX />; }`
+    // console.log(`lastStatement`);
+    // console.log(lastStatement);
     if (lastStatement.type === 'ExpressionStatement' && lastStatement.expression.type === 'JSXElement') {
       ast.body = [{
         type: 'ReturnStatement',
@@ -335,6 +391,7 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
     }
   }
 
+  const componentsInUse = {};
   // Inject props needed for live editing
   if (injectInteractive || injectId) {
     let idCounter = 0; // When dropping we need to tie back to this AST
@@ -342,19 +399,24 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
       if (node.type !== 'JSXOpeningElement') {
         return;
       }
+      componentsInUse[node.name.name] = true;
       if (injectId) {
         node.idCounter = idCounter;
       }
       if (injectInteractive) {
-        injectProp(node, 'onDragEnter', 'onLiveRegionDragEnter', idCounter);
-        injectProp(node, 'onDragLeave', 'onLiveRegionDragLeave', idCounter);
-        injectProp(node, 'onDrop', 'onLiveRegionDrop', idCounter);
+        injectProp(node, 'onDragEnter', 'onLiveRegionDragEnter', idCounter, node.name.name);
+        injectProp(node, 'onDragLeave', 'onLiveRegionDragLeave', idCounter, node.name.name);
+        injectProp(node, 'onDrop', 'onLiveRegionDrop', idCounter, node.name.name);
+        injectProp(node, 'onMouseOver', 'onLiveRegionMouseOver', idCounter, node.name.name);
       }
       idCounter += 1;
     });
   }
 
-  return ast;
+  return {
+    ast,
+    componentsInUse
+  };
 }
 
 export function stringifyAST(ast: any) {
@@ -363,8 +425,8 @@ export function stringifyAST(ast: any) {
 
 // ES2017 TSX w/class members -> ES2017 React Component
 export function convertToReactComponent(code: string, injectInteractive: boolean = true) {
-  const ast = parseComponent(code, true, injectInteractive, injectInteractive);
-  //console.log(ast)
+  const { ast, componentsInUse } = parseComponent(code, true, injectInteractive, injectInteractive);
+  // console.log(ast)
   code = generate(ast, { generator: es2017Generator }).trim();
   /*
   return function LivePreview() {
@@ -372,6 +434,6 @@ export function convertToReactComponent(code: string, injectInteractive: boolean
   };
   */
   console.log(code)
-  return { code, hasTS: ast.sourceType === 'ts' };
+  return { code, hasTS: ast.sourceType === 'ts', componentsInUse };
 }
 

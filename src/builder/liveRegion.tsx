@@ -1,7 +1,7 @@
 // Largely from https://github.com/patternfly/patternfly-org/blob/main/packages/theme-patternfly-org/components/example/example.js
 import * as React from "react";
 import * as reactCoreModule from "@patternfly/react-core";
-import * as wrappedReactCoreModule from "./components";
+import * as componentSnippetModules from "./components/snippets";
 import { ComponentAdder } from "./components/componentAdder";
 import {
   convertToReactComponent,
@@ -10,93 +10,157 @@ import {
   visit,
 } from "./helpers/acorn";
 import { parse } from "./helpers/parse";
+import { components, allItems } from "./components/componentList";
+import { componentSnippets } from "./components/snippets/snippets";
+import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
+import { AppContext } from "./app";
 
 const scope = {
   ...reactCoreModule,
-  ...wrappedReactCoreModule,
+  // ...wrappedReactCoreModule,
+  ...componentSnippetModules,
   ComponentAdder,
+  onLiveRegionMouseOver(ev, idCounter, name) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    console.log(`${idCounter} ${name}`);
+  },
   onLiveRegionDragEnter(ev: React.DragEvent<any>) {
     ev.preventDefault();
-    console.log(ev.target);
+    ev.stopPropagation();
+    // console.log(ev.target);
     (ev.target as HTMLElement).classList.add("pf-m-dropzone");
   },
   onLiveRegionDragLeave(ev: React.DragEvent<any>) {
     ev.preventDefault();
-    console.log(`removing dropzone`);
+    ev.stopPropagation();
+    // console.log(`removing dropzone`);
     (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
   },
 } as any;
 
-const errorComponent = (err: Error | React.ErrorInfo) => (
-  <pre>{err.toString()}</pre>
-);
-
-interface ErrorBoundaryState {
-  error: Error;
-  errorInfo: React.ErrorInfo;
-}
-
-class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
-  constructor(props: any) {
-    super(props);
-    this.state = { error: null, errorInfo: null };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    this.setState({
-      error: error,
-      errorInfo: errorInfo,
-    });
-  }
-
-  componentDidUpdate(prevProps: { children?: React.ReactNode }) {
-    if (prevProps.children !== this.props.children) {
-      this.setState({ error: null, errorInfo: null });
+const addImport = (ast, component) => {
+  for (var i = 0; i < ast.body.length; i++) {
+    let node = ast.body[i];
+    if (node.type === "ImportDeclaration") {
+      // add the import for the dropped component
+      if (node.source.value !== "@patternfly/react-core") {
+        continue;
+      }
+      let importAdded = false;
+      for (var j = 0; j < node.specifiers.length; j++) {
+        if (node.specifiers[j].imported.name === component) {
+          importAdded = true;
+          break;
+        }
+      }
+      if (!importAdded) {
+        node.specifiers.push({
+          type: "ImportSpecifier",
+          imported: {
+            type: "Identifier",
+            name: component,
+          },
+          local: {
+            type: "Identifier",
+            name: component,
+          },
+        });
+        importAdded = true;
+        break;
+      }
     }
   }
-
-  render() {
-    if (this.state.errorInfo) {
-      return errorComponent(this.state.error);
-    }
-    return this.props.children;
-  }
-}
+  return ast;
+};
 
 export const LiveRegion = ({ code, setCode }) => {
+  const { setComponentsInUse } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
-    scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number) => {
+    scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number, componentName) => {
       ev.preventDefault();
       ev.stopPropagation();
-      console.log("onLiveRegionDrop", ev.target, idCounter);
+      // console.log("onLiveRegionDrop", ev.target, idCounter);
       (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
-      ev.dataTransfer.items[0].getAsString(function (s) {
-        console.log("component = " + s);
-      });
-      const { component, code: data } = JSON.parse(
-        ev.dataTransfer.getData("text/plain")
-      );
-      const ast = parseComponent(code, false, false, true);
+      const { component } = JSON.parse(ev.dataTransfer.getData("text/plain"));
+      let { ast, componentsInUse } = parseComponent(code, false, false, true);
+      ast = addImport(ast, component);
       visit(ast, (node: any, parents: any[]) => {
         if (node.type !== "JSXOpeningElement" || node.idCounter !== idCounter) {
           return;
         }
-        if (false && data.includes('PageHeader')) {
-          // TODO: add as JSXAttribute so that it transforms to
-          // <Page header={<PageHeader></PageHeader>}></Page>
-          node.attributes.push({})
-        } else {
-          const parent = parents[parents.length - 1];
-          const expression = parse(data).body[0].expression;
-          parent.children.push(expression);
+        const parent = parents[parents.length - 1];
+        const addAttribute = (prop, jsx, parent, node) => {
+          const expression = parse(jsx).body[0].expression;
+          const attr = {
+            type: "JSXAttribute",
+            name: {
+              type: "JSXIdentifier",
+              name: prop,
+            },
+            value: {
+              type: "JSXExpressionContainer",
+              expression,
+            },
+          };
+
+          let index = 0;
+          let foundAttr = false;
+          for (var i = 0; i < parent.openingElement.attributes.length; i++) {
+            const attribute = parent.openingElement.attributes[i];
+            if (attribute.name.name === prop) {
+              foundAttr = true;
+              index = i;
+              if (attribute.value.expression && attribute.value.expression.type === "ArrayExpression") {
+                // append
+                attribute.value.expression.elements.push(expression);
+              } else {
+                // replace
+                parent.openingElement.attributes[index] = attr;
+              }
+              break;
+            }
+          }
+          if (!foundAttr) {
+            parent.openingElement.attributes.push(attr);
+          }/* else {
+            parent.openingElement.attributes[index] = attr;
+          }*/
+        };
+
+        const componentInfo: any = allItems[component];
+        if (componentInfo) {
+          if (componentInfo.props) {
+            componentInfo.props.forEach((propObj) => {
+              const { prop, jsx } = propObj;
+              addAttribute(prop, jsx, parent, node);
+            });
+          } else if (componentInfo.prop) {
+            const { prop, jsx } = componentInfo;
+            addAttribute(prop, jsx, parent, node);
+          } else {
+            // add as child
+            const componentValue = componentInfo;
+            const jsxString =
+              typeof componentValue === "string"
+                ? componentValue
+                : componentValue.jsx;
+            const expression = parse(jsxString).body[0].expression;
+            parent.children.push(expression);
+          }
         }
       });
       setCode(stringifyAST(ast));
+      setComponentsInUse(componentsInUse);
     };
 
     try {
-      const { code: transformedCode } = convertToReactComponent(code);
+      const {
+        code: transformedCode,
+        componentsInUse,
+      } = convertToReactComponent(code);
+      setComponentsInUse(componentsInUse);
       const getPreviewComponent = new Function(
         "React",
         ...Object.keys(scope),
@@ -117,7 +181,13 @@ export const LiveRegion = ({ code, setCode }) => {
   }
 
   return (
-    <div className="pf-u-h-100" style={{ marginRight: "24px" }}>
+    <div
+      className="pf-u-h-100 live-region"
+      onDragEnter={scope.onLiveRegionDragEnter}
+      onDragLeave={scope.onLiveRegionDragLeave}
+      onDrop={scope.onLiveRegionDrop}
+      // onMouseOver={scope.onLiveRegionMouseOver}
+    >
       {livePreview}
     </div>
   );

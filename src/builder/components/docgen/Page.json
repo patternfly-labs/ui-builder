@@ -1,0 +1,279 @@
+{
+  "description": "",
+  "displayName": "Page",
+  "methods": [
+    {
+      "name": "getWindowWidth",
+      "docblock": null,
+      "modifiers": [],
+      "params": [],
+      "returns": null
+    },
+    {
+      "name": "isMobile",
+      "docblock": null,
+      "modifiers": [],
+      "params": [],
+      "returns": null
+    },
+    {
+      "name": "resize",
+      "docblock": null,
+      "modifiers": [],
+      "params": [],
+      "returns": null
+    },
+    {
+      "name": "handleMainClick",
+      "docblock": null,
+      "modifiers": [],
+      "params": [],
+      "returns": null
+    },
+    {
+      "name": "onNavToggleMobile",
+      "docblock": null,
+      "modifiers": [],
+      "params": [],
+      "returns": null
+    },
+    {
+      "name": "onNavToggleDesktop",
+      "docblock": null,
+      "modifiers": [],
+      "params": [],
+      "returns": null
+    }
+  ],
+  "props": {
+    "children": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Content rendered inside the main section of the page layout (e.g. <PageSection />)"
+    },
+    "className": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Additional classes added to the page layout"
+    },
+    "header": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Header component (e.g. <PageHeader />)"
+    },
+    "sidebar": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Sidebar component for a side nav (e.g. <PageSidebar />)"
+    },
+    "notificationDrawer": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Notification drawer component for an optional notification drawer (e.g. <NotificationDrawer />)"
+    },
+    "isNotificationDrawerExpanded": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Flag indicating Notification drawer in expanded",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "isBreadcrumbWidthLimited": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Flag indicating if breadcrumb width should be limited",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "onNotificationDrawerExpand": {
+      "required": false,
+      "tsType": {
+        "name": "signature",
+        "type": "function",
+        "raw": "() => void",
+        "signature": {
+          "arguments": [],
+          "return": {
+            "name": "void"
+          }
+        }
+      },
+      "description": "Callback when notification drawer panel is finished expanding.",
+      "defaultValue": {
+        "value": "() => null",
+        "computed": false
+      }
+    },
+    "skipToContent": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactElement",
+        "raw": "React.ReactElement"
+      },
+      "description": "Skip to content component for the page"
+    },
+    "role": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Sets the value for role on the <main> element"
+    },
+    "mainContainerId": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "an id to use for the [role=\"main\"] element"
+    },
+    "mainTabIndex": {
+      "required": false,
+      "tsType": {
+        "name": "union",
+        "raw": "number | null",
+        "elements": [
+          {
+            "name": "number"
+          },
+          {
+            "name": "null"
+          }
+        ]
+      },
+      "description": "tabIndex to use for the [role=\"main\"] element, null to unset it",
+      "defaultValue": {
+        "value": "-1",
+        "computed": false
+      }
+    },
+    "isManagedSidebar": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "If true, manages the sidebar open/close state and there is no need to pass the isNavOpen boolean into\nthe sidebar component or add a callback onNavToggle function into the PageHeader component",
+      "defaultValue": {
+        "value": "false",
+        "computed": false
+      }
+    },
+    "isTertiaryNavWidthLimited": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Flag indicating if tertiary nav width should be limited"
+    },
+    "defaultManagedSidebarIsOpen": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "If true, the managed sidebar is initially open for desktop view",
+      "defaultValue": {
+        "value": "true",
+        "computed": false
+      }
+    },
+    "onPageResize": {
+      "required": false,
+      "tsType": {
+        "name": "signature",
+        "type": "function",
+        "raw": "(object: any) => void",
+        "signature": {
+          "arguments": [
+            {
+              "name": "object",
+              "type": {
+                "name": "any"
+              }
+            }
+          ],
+          "return": {
+            "name": "void"
+          }
+        }
+      },
+      "description": "Can add callback to be notified when resize occurs, for example to set the sidebar isNav prop to false for a width < 768px\nReturns object { mobileView: boolean, windowSize: number }",
+      "defaultValue": {
+        "value": "(): void => null",
+        "computed": false
+      }
+    },
+    "breadcrumb": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Breadcrumb component for the page"
+    },
+    "tertiaryNav": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Tertiary nav component for the page"
+    },
+    "mainAriaLabel": {
+      "required": false,
+      "tsType": {
+        "name": "string"
+      },
+      "description": "Accessible label, can be used to name main section"
+    },
+    "isTertiaryNavGrouped": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Flag indicating if the tertiaryNav should be in a group"
+    },
+    "isBreadcrumbGrouped": {
+      "required": false,
+      "tsType": {
+        "name": "boolean"
+      },
+      "description": "Flag indicating if the breadcrumb should be in a group"
+    },
+    "additionalGroupedContent": {
+      "required": false,
+      "tsType": {
+        "name": "ReactReactNode",
+        "raw": "React.ReactNode"
+      },
+      "description": "Additional content of the group"
+    },
+    "groupProps": {
+      "required": false,
+      "tsType": {
+        "name": "PageGroupProps"
+      },
+      "description": "Additional props of the group"
+    }
+  }
+}

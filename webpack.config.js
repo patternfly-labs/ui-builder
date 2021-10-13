@@ -87,7 +87,7 @@ module.exports = {
       ],
     }),
     new MonacoWebpackPlugin({
-      languages: ['javascript', 'typescript']
+      languages: ['javascript', 'typescript', 'html', 'xml']
     }),
     new MiniCssExtractPlugin()
   ]
