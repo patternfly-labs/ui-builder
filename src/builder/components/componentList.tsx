@@ -42,7 +42,7 @@ const filteredOut = [
   "TextInputBase",
   "ApplicationLauncherIcon",
   "ApplicationLauncherText",
-  "DataListText"
+  "DataListText",
 ];
 const isParent = [
   "AlertGroup",
@@ -101,42 +101,46 @@ const mappedCoreLayouts = Object.fromEntries(
     ])
 );
 const mappedComponentRules = Object.fromEntries(
-  Object.entries(componentRules)
-    .map(([key, value]) => {
-      if (typeof value === "string") {
-        return [
-          key,
-          {
-            jsx: value,
-          },
-        ]
-      } else if (!(value as any).jsx) {
-        return [key, {
+  Object.entries(componentRules).map(([key, value]) => {
+    if (typeof value === "string") {
+      return [
+        key,
+        {
+          jsx: value,
+        },
+      ];
+    } else if (!(value as any).jsx) {
+      return [
+        key,
+        {
           ...(value as any),
-          jsx: `<${key}></${key}>`
-        }];
-      }
-      return [key, value];
-    })
+          jsx: `<${key}></${key}>`,
+        },
+      ];
+    }
+    return [key, value];
+  })
 );
 const mappedLayoutRules = Object.fromEntries(
-  Object.entries(layoutRules)
-    .map(([key, value]) => {
-      if (typeof value === "string") {
-        return [
-          key,
-          {
-            jsx: value,
-          },
-        ]
-      } else if (!(value as any).jsx) {
-        return [key, {
+  Object.entries(layoutRules).map(([key, value]) => {
+    if (typeof value === "string") {
+      return [
+        key,
+        {
+          jsx: value,
+        },
+      ];
+    } else if (!(value as any).jsx) {
+      return [
+        key,
+        {
           ...(value as any),
-          jsx: `<${key}></${key}>`
-        }];
-      }
-      return [key, value];
-    })
+          jsx: `<${key}></${key}>`,
+        },
+      ];
+    }
+    return [key, value];
+  })
 );
 
 const parentChild = (components) => {
@@ -407,12 +411,22 @@ const ComponentItem = ({
 const ComponentItemChild = ({
   component,
   value,
-  canPlace = true,
+  canPlace: canPlaceProp,
   showExpand = true,
+}: {
+  component: string;
+  value: any;
+  canPlace?: boolean;
+  showExpand?: boolean;
 }) => {
   const { componentsInUse } = React.useContext(AppContext);
   // console.log(`${JSON.stringify(componentsInUse)}`);
   const spanId = `component-list-${component}`;
+  const canPlace =
+    canPlaceProp ||
+    (!value.parent
+      ? true
+      : placeable(component, componentsInUse, value.parent));
   return (
     <DataListItem
       key={component}
@@ -494,7 +508,8 @@ const getHash = (text: string) => {
 };
 
 const placeable = (component, componentsInUse, parent = null) => {
-  const placementRules = componentRules[component] && componentRules[component].targets;
+  const placementRules =
+    componentRules[component] && componentRules[component].targets;
   let canPlace = placementRules
     ? false
     : parent
@@ -556,11 +571,6 @@ export const ComponentList = ({ code }) => {
               key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              canPlace={
-                !(c[1] as any).parent
-                  ? true
-                  : placeable(c[0], componentsInUse, (c[1] as any).parent)
-              }
               showExpand={false}
             />
           ))
@@ -582,11 +592,6 @@ export const ComponentList = ({ code }) => {
               key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              canPlace={
-                !(c[1] as any).parent
-                  ? true
-                  : placeable(c[0], componentsInUse, (c[1] as any).parent)
-              }
               showExpand={false}
             />
           ))

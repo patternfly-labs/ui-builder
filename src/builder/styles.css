@@ -227,3 +227,9 @@ body {
 .preview-mode .uib-preview .pf-c-background-image::before {
   top: 76px;
 }
+
+.logo-text {
+  text-decoration: none;
+  color: white;
+  font-size: larger;
+}

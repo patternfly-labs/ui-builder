@@ -204,4 +204,5 @@ export const layoutRules = {
   Gallery: "<Gallery hasGutter={true}></Gallery>",
   GalleryItem: `<GalleryItem className="pf-l-gallery__item"></GalleryItem>`,
   FlexItem: `<FlexItem className="pf-l-flex__item"></FlexItem>`,
+  LevelItem: `<LevelItem className="pf-l-level__item"></LevelItem>`,
 };

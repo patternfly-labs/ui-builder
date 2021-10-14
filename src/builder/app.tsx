@@ -27,7 +27,8 @@ import {
 } from "@patternfly/react-core";
 import CodepenIcon from "@patternfly/react-icons/dist/esm/icons/codepen-icon";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import logo from "./logo.svg";
+// @ts-ignore
+import logo from "./logo.png";
 import { LiveRegion } from "./liveRegion";
 import {
   components,
@@ -163,10 +164,12 @@ export const App = ({ vscode, data, filePath }) => {
   const showProps = component && parsedPropsMap[`${component}Props`];
 
   return (
-    <AppContext.Provider value={{
-      componentsInUse: componentsInUseState,
-      setComponentsInUse: onSetComponentsInUse
-    }}>
+    <AppContext.Provider
+      value={{
+        componentsInUse: componentsInUseState,
+        setComponentsInUse: onSetComponentsInUse,
+      }}
+    >
       <Page
         className={css(
           "pf-builder-page",
@@ -189,17 +192,32 @@ export const App = ({ vscode, data, filePath }) => {
                   PatternFly UI Builder
                 </Title>
               ) : (
+                <>
                 <Brand src={logo} alt="PatternFly Logo" />
+                <span className="logo-text">PatternFly Labs_ UI Builder</span>
+                </>
               )
             }
             logoProps={{
               href:
-                "https://www.patternfly.org/v4/developer-resources/release-notes#2021.12-release-notes-2021-09-15",
+                "https://github.com/patternfly-labs/ui-builder",
               target: "_blank",
             }}
             logoComponent={vscode ? "div" : "a"}
             headerTools={
               <PageHeaderTools>
+                <PageHeaderToolsGroup>
+                  <PageHeaderToolsItem>
+                    <Button
+                      variant="plain"
+                      component="a"
+                      href="https://github.com/patternfly-labs/ui-builder/issues"
+                      target="_blank"
+                    >
+                      Feedback
+                    </Button>
+                  </PageHeaderToolsItem>
+                </PageHeaderToolsGroup>
                 <PageHeaderToolsGroup>
                   <PageHeaderToolsItem>
                     {/* @ts-ignore */}
@@ -275,10 +293,7 @@ export const App = ({ vscode, data, filePath }) => {
               className={css("uib-preview", vscode && "vscode")}
             >
               <ErrorBoundary>
-                <LiveRegion
-                  code={code}
-                  setCode={onChange}
-                />
+                <LiveRegion code={code} setCode={onChange} />
               </ErrorBoundary>
             </SplitItem>
             {showCode && (

@@ -74,6 +74,13 @@ import Button from "@patternfly/react-styles/css/components/Button/button";
 import BackToTop from "@patternfly/react-styles/css/components/BackToTop/back-to-top";
 import SearchInput from "@patternfly/react-styles/css/components/SearchInput/search-input";
 import AboutModalBox from "@patternfly/react-styles/css/components/AboutModalBox/about-modal-box";
+import Gallery from "@patternfly/react-styles/css/layouts/Gallery/gallery";
+import Bullseye from "@patternfly/react-styles/css/layouts/Bullseye/bullseye";
+import Flex from "@patternfly/react-styles/css/layouts/Flex/flex";
+import Grid from "@patternfly/react-styles/css/layouts/Grid/grid";
+import Level from "@patternfly/react-styles/css/layouts/Level/level";
+import Split from "@patternfly/react-styles/css/layouts/Split/split";
+import Stack from "@patternfly/react-styles/css/layouts/Stack/stack";
 
 export const componentToClassMap = {
   AboutModal: AboutModalBox.aboutModalBox,
@@ -337,4 +344,18 @@ export const componentToClassMap = {
   Tab: Tabs.tabsItem,
   TextArea: FormControl.formControl,
   TextInput: FormControl.formControl,
+
+  Bullseye: Bullseye.bullseye,
+  Flex: Flex.flex,
+  FlexItem: `${Flex.flex}__item`,
+  Gallery: Gallery.gallery,
+  GalleryItem: `${Gallery.gallery}__item`,
+  Grid: Grid.grid,
+  GridItem: Grid.gridItem,
+  Level: Level.level,
+  LevelItem: `${Level.level}__item`,
+  Split: Split.split,
+  SplitItem: Split.splitItem,
+  Stack: Stack.stack,
+  StackItem: Stack.stackItem,
 };
