@@ -9,7 +9,7 @@ class NewComponent extends React.Component {
   render() {
     return (
       <Page>
-        <PageSection variant="light"></PageSection>
+        <PageSection variant="default"></PageSection>
       </Page>
     );
   }

@@ -68,10 +68,11 @@ body {
 
 .preview-mode .uib-preview {
   position: absolute;
-  top: 100px;
-  left: 24px;
-  right: 24px;
-  bottom: 24px;
+  top: 76px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  border: 3px solid black;
 }
 
 .layout-mode .uib-preview [class^="pf-c-"]:not([class*="__"]):not([class^="pf-c-background-image"]),
@@ -232,4 +233,8 @@ body {
   text-decoration: none;
   color: white;
   font-size: larger;
+}
+
+.preview-mode .pf-builder-section {
+  padding: 0;
 }

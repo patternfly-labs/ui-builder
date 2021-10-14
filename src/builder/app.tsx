@@ -283,7 +283,7 @@ export const App = ({ vscode, data, filePath }) => {
         //   />
         // }
       >
-        <PageSection>
+        <PageSection className="pf-builder-section">
           <Split style={{ height: "100%" }}>
             <div className="pf-builder-sidebar">
               <ComponentList code={code} />
