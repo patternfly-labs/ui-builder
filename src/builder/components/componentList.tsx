@@ -42,7 +42,7 @@ const filteredOut = [
   "TextInputBase",
   "ApplicationLauncherIcon",
   "ApplicationLauncherText",
-  "DataListText"
+  "DataListText",
 ];
 const isParent = [
   "AlertGroup",
@@ -65,6 +65,7 @@ const parentMap = {
   ActionGroup: "Form",
   BadgeToggle: "Dropdown",
   Chip: "ChipGroup",
+  DrilldownMenu: "Menu",
 };
 
 const startsWithCapital = (word: string) =>
@@ -101,42 +102,46 @@ const mappedCoreLayouts = Object.fromEntries(
     ])
 );
 const mappedComponentRules = Object.fromEntries(
-  Object.entries(componentRules)
-    .map(([key, value]) => {
-      if (typeof value === "string") {
-        return [
-          key,
-          {
-            jsx: value,
-          },
-        ]
-      } else if (!(value as any).jsx) {
-        return [key, {
+  Object.entries(componentRules).map(([key, value]) => {
+    if (typeof value === "string") {
+      return [
+        key,
+        {
+          jsx: value,
+        },
+      ];
+    } else if (!(value as any).jsx) {
+      return [
+        key,
+        {
           ...(value as any),
-          jsx: `<${key}></${key}>`
-        }];
-      }
-      return [key, value];
-    })
+          jsx: `<${key}></${key}>`,
+        },
+      ];
+    }
+    return [key, value];
+  })
 );
 const mappedLayoutRules = Object.fromEntries(
-  Object.entries(layoutRules)
-    .map(([key, value]) => {
-      if (typeof value === "string") {
-        return [
-          key,
-          {
-            jsx: value,
-          },
-        ]
-      } else if (!(value as any).jsx) {
-        return [key, {
+  Object.entries(layoutRules).map(([key, value]) => {
+    if (typeof value === "string") {
+      return [
+        key,
+        {
+          jsx: value,
+        },
+      ];
+    } else if (!(value as any).jsx) {
+      return [
+        key,
+        {
           ...(value as any),
-          jsx: `<${key}></${key}>`
-        }];
-      }
-      return [key, value];
-    })
+          jsx: `<${key}></${key}>`,
+        },
+      ];
+    }
+    return [key, value];
+  })
 );
 
 const parentChild = (components) => {
@@ -256,18 +261,42 @@ const getContent = (component, value, canPlace = true) => {
 const onDragStart = (ev, component) => {
   ev.stopPropagation();
   console.log(`dragStart: ${component}`);
+  const rule = componentRules[component];
   let classTargets =
-    componentRules[component] && componentRules[component].targets;
+    (rule && rule.targets) || (rule && rule.component && [rule.component]);
   if (classTargets) {
     classTargets.forEach((className) => {
-      const selector =
-        className !== "*" ? `.${componentToClassMap[className]}` : className;
-      [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
-        (el) => {
-          el.classList.add("pf-m-droppable");
-          selector !== "*" && el.classList.add("pf-m-droppable-bg");
+      if (className.indexOf("|") > -1) {
+        // priority syntax, higher priority from left to right
+        // i.e. targets: ['DropdownToggleAction | DropdownToggle']
+        // means target 'DropdownToggleAction', and only if it doesn't exist target 'DropdownToggle'
+        const prioritizedClassNames = className.split("|");
+        let selector;
+        for (let i = 0; i < prioritizedClassNames.length; i++) {
+          selector = prioritizedClassNames[i].trim();
+          selector =
+            selector !== "*" ? `.${componentToClassMap[selector]}` : selector;
+          if (document.querySelector(`.uib-preview ${selector}`)) {
+            // exists
+            [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
+              (el) => {
+                el.classList.add("pf-m-droppable");
+                selector !== "*" && el.classList.add("pf-m-droppable-bg");
+              }
+            );
+            break;
+          }
         }
-      );
+      } else {
+        const selector =
+          className !== "*" ? `.${componentToClassMap[className]}` : className;
+        [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
+          (el) => {
+            el.classList.add("pf-m-droppable");
+            selector !== "*" && el.classList.add("pf-m-droppable-bg");
+          }
+        );
+      }
     });
   } else {
     // by default, target the parent as a drop target
@@ -407,12 +436,22 @@ const ComponentItem = ({
 const ComponentItemChild = ({
   component,
   value,
-  canPlace = true,
+  canPlace: canPlaceProp,
   showExpand = true,
+}: {
+  component: string;
+  value: any;
+  canPlace?: boolean;
+  showExpand?: boolean;
 }) => {
   const { componentsInUse } = React.useContext(AppContext);
   // console.log(`${JSON.stringify(componentsInUse)}`);
   const spanId = `component-list-${component}`;
+  const canPlace =
+    canPlaceProp ||
+    (!value.parent
+      ? true
+      : placeable(component, componentsInUse, value.parent));
   return (
     <DataListItem
       key={component}
@@ -494,7 +533,8 @@ const getHash = (text: string) => {
 };
 
 const placeable = (component, componentsInUse, parent = null) => {
-  const placementRules = componentRules[component] && componentRules[component].targets;
+  const placementRules =
+    componentRules[component] && componentRules[component].targets;
   let canPlace = placementRules
     ? false
     : parent
@@ -502,7 +542,24 @@ const placeable = (component, componentsInUse, parent = null) => {
     : true;
   if (placementRules) {
     for (var i = 0; i < placementRules.length; i++) {
-      if (placementRules[i] === "*" || componentsInUse[placementRules[i]]) {
+      if (placementRules[i].indexOf("|") > -1) {
+        // priority syntax, higher priority from left to right
+        // i.e. targets: ['DropdownToggleAction | DropdownToggle']
+        // means target 'DropdownToggleAction', and only if it doesn't exist target 'DropdownToggle'
+        const prioritizedClassNames = placementRules[i].split("|");
+        for (let i = 0; i < prioritizedClassNames.length; i++) {
+          if (
+            prioritizedClassNames[i].trim() === "*" ||
+            componentsInUse[prioritizedClassNames[i].trim()]
+          ) {
+            canPlace = true;
+            break;
+          }
+        }
+      } else if (
+        placementRules[i] === "*" ||
+        componentsInUse[placementRules[i]]
+      ) {
         canPlace = true;
         break;
       }
@@ -556,11 +613,6 @@ export const ComponentList = ({ code }) => {
               key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              canPlace={
-                !(c[1] as any).parent
-                  ? true
-                  : placeable(c[0], componentsInUse, (c[1] as any).parent)
-              }
               showExpand={false}
             />
           ))
@@ -582,11 +634,6 @@ export const ComponentList = ({ code }) => {
               key={`flat-${c[0]}-${itemKey}`}
               component={c[0]}
               value={c[1]}
-              canPlace={
-                !(c[1] as any).parent
-                  ? true
-                  : placeable(c[0], componentsInUse, (c[1] as any).parent)
-              }
               showExpand={false}
             />
           ))

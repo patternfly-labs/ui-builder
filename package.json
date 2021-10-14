@@ -68,7 +68,8 @@
     "react": "^17.0.2",
     "react-docgen": "5.3.1",
     "react-dom": "^17.0.2",
-    "react-monaco-editor": "^0.41.2"
+    "react-monaco-editor": "^0.41.2",
+    "unique-selector": "^0.5.0"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",

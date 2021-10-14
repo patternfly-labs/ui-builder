@@ -128,8 +128,13 @@ function prettyExampleCode(title, code, declaration, identifier) {
   }
 }
 
+function transformAppendTo(code) {
+  return code.replace(/appendTo={(.|\s)+?}/g, `appendTo={() => document.body}`);
+}
+
 // TODO: Make React examples work and use a template that has our assets.
 function getReactParams(title, code, scope) {
+  code = transformAppendTo(code);
   let toRender = null;
   try {
     let declaration = getExampleDeclaration(code);

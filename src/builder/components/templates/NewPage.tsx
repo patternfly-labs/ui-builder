@@ -1,5 +1,5 @@
 import React from "react";
-import { Page } from "@patternfly/react-core";
+import { Page, PageSection } from "@patternfly/react-core";
 
 class NewComponent extends React.Component {
   constructor(props) {
@@ -9,7 +9,7 @@ class NewComponent extends React.Component {
   render() {
     return (
       <Page>
-
+        <PageSection variant="default"></PageSection>
       </Page>
     );
   }

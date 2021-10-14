@@ -1,6 +1,6 @@
 /**
  * Override PF component because it does not forward props
- * https://github.com/patternfly/patternfly-react/blob/main/packages/react-core/src/components/DescriptionList/DescriptionListGroup.tsx
+ * https://github.com/patternfly/patternfly-react/issues/6455
  */
 
 import * as React from 'react';
