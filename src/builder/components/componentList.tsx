@@ -65,6 +65,7 @@ const parentMap = {
   ActionGroup: "Form",
   BadgeToggle: "Dropdown",
   Chip: "ChipGroup",
+  DrilldownMenu: "Menu",
 };
 
 const startsWithCapital = (word: string) =>
@@ -260,18 +261,42 @@ const getContent = (component, value, canPlace = true) => {
 const onDragStart = (ev, component) => {
   ev.stopPropagation();
   console.log(`dragStart: ${component}`);
+  const rule = componentRules[component];
   let classTargets =
-    componentRules[component] && componentRules[component].targets;
+    (rule && rule.targets) || (rule && rule.component && [rule.component]);
   if (classTargets) {
     classTargets.forEach((className) => {
-      const selector =
-        className !== "*" ? `.${componentToClassMap[className]}` : className;
-      [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
-        (el) => {
-          el.classList.add("pf-m-droppable");
-          selector !== "*" && el.classList.add("pf-m-droppable-bg");
+      if (className.indexOf("|") > -1) {
+        // priority syntax, higher priority from left to right
+        // i.e. targets: ['DropdownToggleAction | DropdownToggle']
+        // means target 'DropdownToggleAction', and only if it doesn't exist target 'DropdownToggle'
+        const prioritizedClassNames = className.split("|");
+        let selector;
+        for (let i = 0; i < prioritizedClassNames.length; i++) {
+          selector = prioritizedClassNames[i].trim();
+          selector =
+            selector !== "*" ? `.${componentToClassMap[selector]}` : selector;
+          if (document.querySelector(`.uib-preview ${selector}`)) {
+            // exists
+            [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
+              (el) => {
+                el.classList.add("pf-m-droppable");
+                selector !== "*" && el.classList.add("pf-m-droppable-bg");
+              }
+            );
+            break;
+          }
         }
-      );
+      } else {
+        const selector =
+          className !== "*" ? `.${componentToClassMap[className]}` : className;
+        [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
+          (el) => {
+            el.classList.add("pf-m-droppable");
+            selector !== "*" && el.classList.add("pf-m-droppable-bg");
+          }
+        );
+      }
     });
   } else {
     // by default, target the parent as a drop target
@@ -517,7 +542,24 @@ const placeable = (component, componentsInUse, parent = null) => {
     : true;
   if (placementRules) {
     for (var i = 0; i < placementRules.length; i++) {
-      if (placementRules[i] === "*" || componentsInUse[placementRules[i]]) {
+      if (placementRules[i].indexOf("|") > -1) {
+        // priority syntax, higher priority from left to right
+        // i.e. targets: ['DropdownToggleAction | DropdownToggle']
+        // means target 'DropdownToggleAction', and only if it doesn't exist target 'DropdownToggle'
+        const prioritizedClassNames = placementRules[i].split("|");
+        for (let i = 0; i < prioritizedClassNames.length; i++) {
+          if (
+            prioritizedClassNames[i].trim() === "*" ||
+            componentsInUse[prioritizedClassNames[i].trim()]
+          ) {
+            canPlace = true;
+            break;
+          }
+        }
+      } else if (
+        placementRules[i] === "*" ||
+        componentsInUse[placementRules[i]]
+      ) {
         canPlace = true;
         break;
       }

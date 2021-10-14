@@ -14,6 +14,7 @@ import { components, allItems } from "./components/componentList";
 import { componentSnippets } from "./components/snippets/snippets";
 import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
 import { AppContext } from "./app";
+import unique from "unique-selector";
 
 const scope = {
   ...reactCoreModule,
@@ -74,11 +75,33 @@ const addImport = (ast, component) => {
   return ast;
 };
 
+function getSelector(node) {
+  // Optional Options
+  const options = {
+    // Array of selector types based on which the unique selector will generate
+    selectorTypes: ["ID", "Class", "Tag", "NthChild"],
+    // attributesToIgnore: []
+  };
+
+  return unique(node, options);
+}
+
+const jsxTransforms = (ev: any, jsx: string) => {
+  const { target } = ev;
+  const sel = getSelector(target);
+  jsx = jsx.replace("APPEND_TO_SELECTOR", `document.querySelector('${sel}')`);
+  return jsx;
+};
+
 export const LiveRegion = ({ code, setCode }) => {
   const { setComponentsInUse } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
-    scope.onLiveRegionDrop = (ev: React.DragEvent<any>, idCounter: number, componentName) => {
+    scope.onLiveRegionDrop = (
+      ev: React.DragEvent<any>,
+      idCounter: number,
+      componentName
+    ) => {
       ev.preventDefault();
       ev.stopPropagation();
       // console.log("onLiveRegionDrop", ev.target, idCounter);
@@ -112,7 +135,10 @@ export const LiveRegion = ({ code, setCode }) => {
             if (attribute.name.name === prop) {
               foundAttr = true;
               index = i;
-              if (attribute.value.expression && attribute.value.expression.type === "ArrayExpression") {
+              if (
+                attribute.value.expression &&
+                attribute.value.expression.type === "ArrayExpression"
+              ) {
                 // append
                 attribute.value.expression.elements.push(expression);
               } else {
@@ -124,28 +150,30 @@ export const LiveRegion = ({ code, setCode }) => {
           }
           if (!foundAttr) {
             parent.openingElement.attributes.push(attr);
-          }/* else {
+          } /* else {
             parent.openingElement.attributes[index] = attr;
           }*/
         };
 
         const componentInfo: any = allItems[component];
         if (componentInfo) {
-          if (componentInfo.props) {
+          const componentToAddPropToMatches = componentInfo.component && componentInfo.component === componentName;
+          if (componentToAddPropToMatches && componentInfo.props) {
             componentInfo.props.forEach((propObj) => {
               const { prop, jsx } = propObj;
               addAttribute(prop, jsx, parent, node);
             });
-          } else if (componentInfo.prop) {
+          } else if (componentToAddPropToMatches && componentInfo.prop) {
             const { prop, jsx } = componentInfo;
             addAttribute(prop, jsx, parent, node);
           } else {
             // add as child
             const componentValue = componentInfo;
-            const jsxString =
+            let jsxString =
               typeof componentValue === "string"
                 ? componentValue
                 : componentValue.jsx;
+            jsxString = jsxTransforms(ev, jsxString);
             const expression = parse(jsxString).body[0].expression;
             parent.children.push(expression);
           }
@@ -182,7 +210,7 @@ export const LiveRegion = ({ code, setCode }) => {
 
   return (
     <div
-      className="pf-u-h-100 live-region"
+      className="live-region pf-u-h-100"
       onDragEnter={scope.onLiveRegionDragEnter}
       onDragLeave={scope.onLiveRegionDragLeave}
       onDrop={scope.onLiveRegionDrop}

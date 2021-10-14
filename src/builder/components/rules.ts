@@ -9,7 +9,7 @@ import { componentToClassMap } from "./componentToClassMap";
  */
 export const componentRules = {
   // AboutModal: FocusTrap steals focus on each change in the editor
-  AboutModal: `<AboutModal className="${componentToClassMap.AboutModal}" isOpen appendTo={() => document.querySelector('.live-region .pf-c-page__main')}></AboutModal>`,
+  AboutModal: `<AboutModal className="${componentToClassMap.AboutModal}" isOpen appendTo={() => APPEND_TO_SELECTOR}></AboutModal>`,
   AccordionItem: `<AccordionItem><div className="${componentToClassMap.AccordionItem}"></div></AccordionItem>`,
   AccordionToggle: {
     jsx: "<AccordionToggle isExpanded>Item</AccordionToggle>",
@@ -42,6 +42,7 @@ export const componentRules = {
     component: "ApplicationLauncher",
     prop: "items",
     jsx: `<ApplicationLauncherItem>Item</ApplicationLauncherItem>`,
+    targets: ['ApplicationLauncher', 'ApplicationLauncherGroup']
   },
   ApplicationLauncherContent: {
     component: "ApplicationLauncherItem",
@@ -52,17 +53,16 @@ export const componentRules = {
   ApplicationLauncherGroup: {
     component: "ApplicationLauncher",
     prop: "items",
-    jsx: `<ApplicationLauncherGroup></ApplicationLauncherGroup>`,
   },
   ApplicationLauncherSeparator: {
     component: "ApplicationLauncher",
     prop: "items",
+    targets: ['ApplicationLauncher', 'ApplicationLauncherGroup'],
     jsx: `<ApplicationLauncherSeparator className="${componentToClassMap.ApplicationLauncherSeparator}" />`,
   },
   Avatar: `<Avatar alt="avatar" src="https://www.patternfly.org/v4/images/avatarImg.668560cdf25a4932ef9f711b4acad52d.svg" />`,
   BackgroundImage: `<BackgroundImage />`,
   Badge: "<Badge>5</Badge>",
-  BadgeToggle: `<BadgeToggle className="${componentToClassMap.BadgeToggle}"></BadgeToggle>`,
   Banner: `<Banner>Banner</Banner>`,
   Brand: `<Brand alt="PatternFly logo" src="https://www.patternfly.org/v4/images/pfLogo.ffdafb0c74aa4c9c011251aa8f0c144c.svg" />`,
   BreadcrumbItem: `<BreadcrumbItem to="#">Item</BreadcrumbItem>`,
@@ -123,64 +123,156 @@ export const componentRules = {
     jsx: `<ContextSelectorFooter><Button variant="link" isInline>Footer</Button></ContextSelectorFooter>`,
   },
   DataListItemRow: {
-    targets: ['DataListItem']
+    targets: ["DataListItem"],
   },
   DataListItemCells: {
     jsx: `<DataListItemCells dataListCells={[]} />`,
-    targets: ['DataListItemRow']
+    targets: ["DataListItemRow"],
   },
   DataListCell: {
-    component: 'DataListItemCells',
-    prop: 'dataListCells',
+    component: "DataListItemCells",
+    prop: "dataListCells",
     jsx: `<DataListCell>Cell</DataListCell>`,
-    targets: ['DataListItemCells']
+    targets: ["DataListItemCells"],
   },
   DataListCheck: {
     // also needs prop `otherControls` if inserted right after DataListDragButton
     jsx: `<DataListCheck />`,
-    targets: ['DataListItemRow', 'DataListControl']
+    targets: ["DataListItemRow", "DataListControl"],
   },
   DataListAction: {
     jsx: `<DataListAction><Button>Action</Button></DataListAction>`,
-    targets: ['DataListItemRow']
+    targets: ["DataListItemRow"],
   },
   DataListToggle: {
     // should also add prop isExpanded to DataListItem further up the tree
     jsx: `<DataListToggle isExpanded />`,
-    targets: ['DataListItemRow']
+    targets: ["DataListItemRow"],
   },
   DataListContent: {
     jsx: `<DataListContent isHidden={false}>Content</DataListContent>`,
-    targets: ['DataListItem']
+    targets: ["DataListItem"],
   },
   DataListControl: {
-    targets: ['DataListItemRow']
+    targets: ["DataListItemRow"],
   },
   DataListDragButton: {
     jsx: `<DataListDragButton />`,
-    targets: ['DataListControl']
+    targets: ["DataListControl"],
   },
   DatePicker: `<DatePicker />`,
   DescriptionListTerm: {
-    targets: ['DescriptionListGroup']
+    targets: ["DescriptionListGroup"],
   },
   DescriptionListDescription: {
     jsx: `<DescriptionListDescription>Description</DescriptionListDescription>`,
-    targets: ['DescriptionListGroup']
+    targets: ["DescriptionListGroup"],
   },
   DescriptionListTermHelpText: {
-    targets: ['DescriptionListGroup']
+    targets: ["DescriptionListGroup"],
   },
   DescriptionListTermHelpTextButton: {
     jsx: `<Popover bodyContent="Additional info"><DescriptionListTermHelpTextButton>Field</DescriptionListTermHelpTextButton></Popover>`,
-    targets: ['DescriptionListTermHelpText']
+    targets: ["DescriptionListTermHelpText"],
   },
   Divider: `<Divider />`,
-  DropdownSeparator: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}"></DropdownSeparator>`,
+  Drawer: `<Drawer isExpanded></Drawer>`,
+  DrawerContentBody: {
+    targets: ["DrawerContent"],
+    jsx: `<DrawerContentBody>Content</DrawerContentBody>`
+  },
+  DrawerPanelContent: {
+    component: "DrawerContent",
+    prop: "panelContent",
+    targets: ["DrawerContent"],
+    jsx: `<DrawerPanelContent>
+    <DrawerHead>
+      <span>Drawer panel</span>
+      <DrawerActions>
+        <DrawerCloseButton />
+      </DrawerActions>
+    </DrawerHead>
+  </DrawerPanelContent>`,
+  },
+  DrawerHead: {
+    targets: ["DrawerPanelContent"],
+  },
+  DrawerActions: {
+    targets: ["DrawerHead"],
+  },
+  DrawerCloseButton: {
+    targets: ["DrawerActions"],
+  },
+  DrawerPanelBody: {
+    targets: ["DrawerPanelContent"],
+  },
+  DrawerSection: `<DrawerSection>Section</DrawerSection>`,
+  Dropdown: `<Dropdown
+  toggle={<DropdownToggle>Dropdown</DropdownToggle>}
+  isOpen
+  dropdownItems={[]}
+/>`,
+  DropdownItem: {
+    component: 'Dropdown',
+    prop: 'dropdownItems',
+    targets: ['Dropdown', 'DropdownGroup'],
+    jsx: `<DropdownItem>Item</DropdownItem>`
+  },
+  DropdownSeparator: {
+    component: 'Dropdown',
+    prop: 'dropdownItems',
+    targets: ['Dropdown', 'DropdownGroup'],
+    jsx: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}" />`
+  },
+  DropdownGroup: {
+    component: 'Dropdown',
+    prop: 'dropdownItems'
+  },
+  DropdownToggle: {
+    component: 'Dropdown',
+    prop: 'toggle',
+    jsx: `<DropdownToggle>Dropdown</DropdownToggle>`
+  },
+  KebabToggle: {
+    component: 'Dropdown',
+    prop: 'toggle',
+    jsx: `<KebabToggle className="${componentToClassMap.KebabToggle}" />`
+  },
+  BadgeToggle: {
+    component: 'Dropdown',
+    prop: 'toggle',
+    jsx: `<BadgeToggle className="${componentToClassMap.BadgeToggle}">3</BadgeToggle>`
+  },
+  DropdownToggleCheckbox: {
+    component: 'DropdownToggle',
+    props: [
+      {
+        prop: 'splitButtonItems',
+        jsx: '<DropdownToggleCheckbox></DropdownToggleCheckbox>'
+      }, {
+        prop: 'splitButtonVariant',
+        jsx: '"checkbox"'
+      }
+    ],
+    targets: ['DropdownToggleAction | DropdownToggle'] 
+  },
+  DropdownToggleAction: {
+    component: 'DropdownToggle',
+    props: [
+      {
+        prop: 'splitButtonItems',
+        jsx: '<DropdownToggleAction>Action</DropdownToggleAction>'
+      }, {
+        prop: 'splitButtonVariant',
+        jsx: '"action"'
+      }
+    ],
+    targets: ['DropdownToggleAction | DropdownToggle'] 
+  },
+  DualListSelector: `<DualListSelector availableOptions={['Option 1', 'Option 2', 'Option 3']} chosenOptions={[]} />`,
   FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
   FormSelectOption: `<FormSelectOption className="${componentToClassMap.FormSelectOption}"></FormSelectOption>`,
   FormSelectOptionGroup: `<FormSelectOptionGroup className="${componentToClassMap.FormSelectOptionGroup}"></FormSelectOptionGroup>`,
-  KebabToggle: `<KebabToggle className="${componentToClassMap.KebabToggle}"></KebabToggle>`,
   LoginFooterItem: `<LoginFooterItem className="${componentToClassMap.LoginFooterItem}"></LoginFooterItem>`,
   LoginForm: `<LoginForm className="${componentToClassMap.LoginForm}"></LoginForm>`,
   LoginPage: `<LoginPage className="${componentToClassMap.LoginPage}"></LoginPage>`,
@@ -190,7 +282,7 @@ export const componentRules = {
   OverflowMenuDropdownItem: `<OverflowMenuDropdownItem className="${componentToClassMap.OverflowMenuDropdownItem}"></OverflowMenuDropdownItem>`,
   PageHeader: {
     component: "Page",
-    prop: "header"
+    prop: "header",
   },
   PageSection: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,
