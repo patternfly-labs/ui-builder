@@ -75,6 +75,17 @@ export const App = ({ vscode, data, filePath }) => {
     }
   };
 
+  React.useEffect(() => {
+    const bodyElement = document.body;
+    if (showCode) {
+      bodyElement.classList.remove('preview-mode');
+      bodyElement.classList.add('layout-mode');
+    } else {
+      bodyElement.classList.add('preview-mode');
+      bodyElement.classList.remove('layout-mode');
+    }
+  }, [showCode])
+
   // React.useEffect(() => {
   //   const extraTabs = [];
   //   for (const component in componentsInfo) {
