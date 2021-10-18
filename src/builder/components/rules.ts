@@ -10,7 +10,6 @@ import { componentToClassMap } from "./componentToClassMap";
 export const componentRules = {
   // AboutModal: FocusTrap steals focus on each change in the editor
   AboutModal: `<AboutModal className="${componentToClassMap.AboutModal}" isOpen appendTo={() => APPEND_TO_SELECTOR}></AboutModal>`,
-  AccordionItem: `<AccordionItem><div className="${componentToClassMap.AccordionItem}"></div></AccordionItem>`,
   AccordionToggle: {
     jsx: "<AccordionToggle isExpanded>Item</AccordionToggle>",
     targets: ["AccordionItem"],
@@ -26,42 +25,67 @@ export const componentRules = {
     jsx: `<ActionListItem className="${componentToClassMap.ActionListItem}">Action</ActionListItem>`,
     targets: ["ActionList", "ActionListGroup"],
   },
+  // target AlertGroup?
   Alert: `<Alert title="Alert"></Alert>`,
   AlertActionCloseButton: {
-    component: "Alert",
-    prop: "actionClose",
     jsx: `<AlertActionCloseButton className="${componentToClassMap.AlertActionCloseButton}"></AlertActionCloseButton>`,
+    props: [
+      {
+        component: "Alert",
+        prop: "actionClose",
+      },
+    ],
   },
   AlertActionLink: {
-    component: "Alert",
-    prop: "actionLinks",
     jsx: `<AlertActionLink className="${componentToClassMap.AlertActionLink}">Action link</AlertActionLink>`,
+    props: [
+      {
+        component: "Alert",
+        prop: "actionLinks",
+      },
+    ],
   },
   ApplicationLauncher: `<ApplicationLauncher items={[]} isOpen />`,
   ApplicationLauncherItem: {
-    component: "ApplicationLauncher",
-    prop: "items",
     jsx: `<ApplicationLauncherItem>Item</ApplicationLauncherItem>`,
-    targets: ['ApplicationLauncher', 'ApplicationLauncherGroup']
+    targets: ["ApplicationLauncher", "ApplicationLauncherGroup"],
+    props: [
+      {
+        component: "ApplicationLauncher",
+        prop: "items",
+      },
+    ],
   },
   ApplicationLauncherContent: {
-    component: "ApplicationLauncherItem",
-    prop: "component",
     jsx: `<a href="#"><ApplicationLauncherContent>Link</ApplicationLauncherContent></a>`,
     targets: ["ApplicationLauncherItem"],
+    props: [
+      {
+        component: "ApplicationLauncherItem",
+        prop: "component",
+      },
+    ],
   },
   ApplicationLauncherGroup: {
-    component: "ApplicationLauncher",
-    prop: "items",
+    props: [
+      {
+        component: "ApplicationLauncher",
+        prop: "items",
+      },
+    ],
   },
   ApplicationLauncherSeparator: {
-    component: "ApplicationLauncher",
-    prop: "items",
-    targets: ['ApplicationLauncher', 'ApplicationLauncherGroup'],
     jsx: `<ApplicationLauncherSeparator className="${componentToClassMap.ApplicationLauncherSeparator}" />`,
+    targets: ["ApplicationLauncher", "ApplicationLauncherGroup"],
+    props: [
+      {
+        component: "ApplicationLauncher",
+        prop: "items",
+      },
+    ],
   },
   Avatar: `<Avatar alt="avatar" src="https://www.patternfly.org/v4/images/avatarImg.668560cdf25a4932ef9f711b4acad52d.svg" />`,
-  BackgroundImage: `<BackgroundImage />`,
+  // BackgroundImage: `<BackgroundImage />`,
   Badge: "<Badge>5</Badge>",
   Banner: `<Banner>Banner</Banner>`,
   Brand: `<Brand alt="PatternFly logo" src="https://www.patternfly.org/v4/images/pfLogo.ffdafb0c74aa4c9c011251aa8f0c144c.svg" />`,
@@ -82,30 +106,26 @@ export const componentRules = {
   Checkbox: `<Checkbox />`,
   Chip: {
     jsx: `<Chip>Chip</Chip>`,
-    targets: ["ChipGroupList", "*"],
+    targets: ["ChipGroupList"],
   },
   ChipGroup: `<ChipGroup categoryName="Category"><Chip>Chip</Chip></ChipGroup>`,
   ClipboardCopy: `<ClipboardCopy>Clipboard copyable</ClipboardCopy>`,
   ClipboardCopyAction: {
-    component: "ClipboardCopy",
     props: [
       {
+        component: "ClipboardCopy",
         prop: "additionalActions",
         jsx: `<ClipboardCopyAction><Button variant="plain">Action</Button></ClipboardCopyAction>`,
       },
       {
+        component: "ClipboardCopy",
         prop: "variant",
         jsx: `"inline-compact"`,
       },
     ],
   },
-  ClipboardCopyButton: {
-    jsx: `<ClipboardCopyButton className="${componentToClassMap.ClipboardCopyButton}" />`,
-    targets: ["*"],
-  },
+  ClipboardCopyButton: `<ClipboardCopyButton className="${componentToClassMap.ClipboardCopyButton}" />`,
   CodeBlockAction: {
-    component: "CodeBlock",
-    prop: "actions",
     jsx: `<React.Fragment>
     <CodeBlockAction>
       <ClipboardCopyButton variant="plain">
@@ -113,14 +133,24 @@ export const componentRules = {
       </ClipboardCopyButton>
     </CodeBlockAction>
   </React.Fragment>`,
+    props: [
+      {
+        component: "CodeBlock",
+        prop: "actions",
+      },
+    ],
   },
   CodeBlockCode: `<CodeBlockCode>const msg = "Hello world!";</CodeBlockCode>`,
   ContextSelector: `<ContextSelector isOpen toggleText="Selected item"></ContextSelector>`,
   ContextSelectorItem: `<ContextSelectorItem>Item</ContextSelectorItem>`,
   ContextSelectorFooter: {
-    component: "ContextSelector",
-    prop: "footer",
     jsx: `<ContextSelectorFooter><Button variant="link" isInline>Footer</Button></ContextSelectorFooter>`,
+    props: [
+      {
+        component: "ContextSelector",
+        prop: "footer",
+      },
+    ],
   },
   DataListItemRow: {
     targets: ["DataListItem"],
@@ -130,10 +160,14 @@ export const componentRules = {
     targets: ["DataListItemRow"],
   },
   DataListCell: {
-    component: "DataListItemCells",
-    prop: "dataListCells",
     jsx: `<DataListCell>Cell</DataListCell>`,
     targets: ["DataListItemCells"],
+    props: [
+      {
+        component: "DataListItemCells",
+        prop: "dataListCells",
+      },
+    ],
   },
   DataListCheck: {
     // also needs prop `otherControls` if inserted right after DataListDragButton
@@ -179,11 +213,9 @@ export const componentRules = {
   Drawer: `<Drawer isExpanded></Drawer>`,
   DrawerContentBody: {
     targets: ["DrawerContent"],
-    jsx: `<DrawerContentBody>Content</DrawerContentBody>`
+    jsx: `<DrawerContentBody>Content</DrawerContentBody>`,
   },
   DrawerPanelContent: {
-    component: "DrawerContent",
-    prop: "panelContent",
     targets: ["DrawerContent"],
     jsx: `<DrawerPanelContent>
     <DrawerHead>
@@ -193,6 +225,12 @@ export const componentRules = {
       </DrawerActions>
     </DrawerHead>
   </DrawerPanelContent>`,
+    props: [
+      {
+        component: "DrawerContent",
+        prop: "panelContent",
+      },
+    ],
   },
   DrawerHead: {
     targets: ["DrawerPanelContent"],
@@ -213,76 +251,213 @@ export const componentRules = {
   dropdownItems={[]}
 />`,
   DropdownItem: {
-    component: 'Dropdown',
-    prop: 'dropdownItems',
-    targets: ['Dropdown', 'DropdownGroup'],
-    jsx: `<DropdownItem>Item</DropdownItem>`
+    targets: ["Dropdown", "DropdownGroup"],
+    jsx: `<DropdownItem>Item</DropdownItem>`,
+    props: [
+      {
+        component: "Dropdown",
+        prop: "dropdownItems",
+      },
+    ],
   },
   DropdownSeparator: {
-    component: 'Dropdown',
-    prop: 'dropdownItems',
-    targets: ['Dropdown', 'DropdownGroup'],
-    jsx: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}" />`
+    targets: ["Dropdown", "DropdownGroup"],
+    jsx: `<DropdownSeparator className="${componentToClassMap.DropdownSeparator}" />`,
+    props: [
+      {
+        component: "Dropdown",
+        prop: "dropdownItems",
+      },
+    ],
   },
   DropdownGroup: {
-    component: 'Dropdown',
-    prop: 'dropdownItems'
+    props: [
+      {
+        component: "Dropdown",
+        prop: "dropdownItems",
+      },
+    ],
   },
   DropdownToggle: {
-    component: 'Dropdown',
-    prop: 'toggle',
-    jsx: `<DropdownToggle>Dropdown</DropdownToggle>`
+    jsx: `<DropdownToggle>Dropdown</DropdownToggle>`,
+    props: [
+      {
+        component: "Dropdown",
+        prop: "toggle",
+      },
+    ],
   },
   KebabToggle: {
-    component: 'Dropdown',
-    prop: 'toggle',
-    jsx: `<KebabToggle className="${componentToClassMap.KebabToggle}" />`
+    jsx: `<KebabToggle className="${componentToClassMap.KebabToggle}" />`,
+    props: [
+      {
+        component: "Dropdown",
+        prop: "toggle",
+      },
+    ],
   },
   BadgeToggle: {
-    component: 'Dropdown',
-    prop: 'toggle',
-    jsx: `<BadgeToggle className="${componentToClassMap.BadgeToggle}">3</BadgeToggle>`
+    jsx: `<BadgeToggle className="${componentToClassMap.BadgeToggle}">3</BadgeToggle>`,
+    props: [
+      {
+        component: "Dropdown",
+        prop: "toggle",
+      },
+    ],
   },
   DropdownToggleCheckbox: {
-    component: 'DropdownToggle',
     props: [
       {
-        prop: 'splitButtonItems',
-        jsx: '<DropdownToggleCheckbox></DropdownToggleCheckbox>'
-      }, {
-        prop: 'splitButtonVariant',
-        jsx: '"checkbox"'
-      }
+        component: "DropdownToggle",
+        prop: "splitButtonItems",
+        jsx: "<DropdownToggleCheckbox></DropdownToggleCheckbox>",
+      },
+      {
+        component: "DropdownToggle",
+        prop: "splitButtonVariant",
+        jsx: '"checkbox"',
+      },
     ],
-    targets: ['DropdownToggleAction | DropdownToggle'] 
+    targets: ["DropdownToggleAction | DropdownToggle"],
   },
   DropdownToggleAction: {
-    component: 'DropdownToggle',
     props: [
       {
-        prop: 'splitButtonItems',
-        jsx: '<DropdownToggleAction>Action</DropdownToggleAction>'
-      }, {
-        prop: 'splitButtonVariant',
-        jsx: '"action"'
-      }
+        component: "DropdownToggle",
+        prop: "splitButtonItems",
+        jsx: "<DropdownToggleAction>Action</DropdownToggleAction>",
+      },
+      {
+        component: "DropdownToggle",
+        prop: "splitButtonVariant",
+        jsx: '"action"',
+      },
     ],
-    targets: ['DropdownToggleAction | DropdownToggle'] 
+    targets: ["DropdownToggleAction | DropdownToggle"],
   },
   DualListSelector: `<DualListSelector availableOptions={['Option 1', 'Option 2', 'Option 3']} chosenOptions={[]} />`,
-  FormFieldGroupExpandable: `<FormFieldGroupExpandable className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
-  FormSelectOption: `<FormSelectOption className="${componentToClassMap.FormSelectOption}"></FormSelectOption>`,
-  FormSelectOptionGroup: `<FormSelectOptionGroup className="${componentToClassMap.FormSelectOptionGroup}"></FormSelectOptionGroup>`,
-  LoginFooterItem: `<LoginFooterItem className="${componentToClassMap.LoginFooterItem}"></LoginFooterItem>`,
-  LoginForm: `<LoginForm className="${componentToClassMap.LoginForm}"></LoginForm>`,
-  LoginPage: `<LoginPage className="${componentToClassMap.LoginPage}"></LoginPage>`,
-  ModalBoxCloseButton: `<ModalBoxCloseButton className="${componentToClassMap.ModalBoxCloseButton}"></ModalBoxCloseButton>`,
-  NavItemSeparator: `<NavItemSeparator className="${componentToClassMap.NavItemSeparator}"></NavItemSeparator>`,
+  EmptyStateIcon: `<EmptyStateIcon icon={() => 'ICON'} />`,
+  EmptyStateBody: `<EmptyStateBody>Body</EmptyStateBody>`,
+  ExpandableSection: `<ExpandableSection isExpanded toggleText="Show less">Expanded section</ExpandableSection>`,
+  ExpandableSectionToggle: {
+    jsx: `<ExpandableSectionToggle isExpanded>Show less</ExpandableSectionToggle>`,
+  },
+  // bug: when you remove the code from the editor, cannot drop another component into the builder
+  // FileUpload: `<FileUpload>Preview</FileUpload>`,
+  FileUploadField: {
+    jsx: `<FileUploadField>Preview</FileUploadField>`,
+  },
+  FormFieldGroupExpandable: {
+    jsx: `<FormFieldGroupExpandable isExpanded className="${componentToClassMap.FormFieldGroupExpandable}"></FormFieldGroupExpandable>`,
+    targets: ["FormFieldGroupExpandable | Form"],
+  },
+  FormFieldGroupHeader: {
+    jsx: `<FormFieldGroupHeader titleText={{ text: 'Group title' }} titleDescription="Group description" />`,
+    targets: ["FormFieldGroupExpandable"],
+    props: [
+      {
+        component: "FormFieldGroupExpandable",
+        prop: "header",
+      },
+    ],
+  },
+  FormGroup: {
+    jsx: `<FormGroup label="Label"></FormGroup>`,
+    targets: ["Form", "FormSection"],
+  },
+  FormHelperText: {
+    jsx: `<FormHelperText>Helper text</FormHelperText>`,
+    targets: ["FormGroup"],
+    props: [
+      {
+        component: "FormGroup",
+        prop: "helperText",
+      },
+    ],
+  },
+  FormSection: `<FormSection title="Section with optional title"></FormSection>`,
+  FormSelectOption: `<FormSelectOption value="value" label="Option" className="${componentToClassMap.FormSelectOption}"></FormSelectOption>`,
+  FormSelectOptionGroup: `<FormSelectOptionGroup label="Group" className="${componentToClassMap.FormSelectOptionGroup}"></FormSelectOptionGroup>`,
+  HelperTextItem: `<HelperTextItem>Helper text</HelperTextItem>`,
+  HintTitle: `<HintTitle>Title</HintTitle>`,
+  HintBody: `<HintBody>Body</HintBody>`,
+  HintFooter: `<HintFooter>Footer</HintFooter>`,
+  InputGroupText: `<InputGroupText>Text</InputGroupText>`,
+  JumpLinksItem: `<JumpLinksItem>Jump link item</JumpLinksItem>`,
+  Label: `<Label>Label</Label>`,
+  LabelGroup: `<LabelGroup><Label>Label</Label></LabelGroup>`,
+  ListItem: `<ListItem>List item</ListItem>`,
+  // LoginFooterItem: `<LoginFooterItem className="${componentToClassMap.LoginFooterItem}"></LoginFooterItem>`,
+  // LoginForm: `<LoginForm className="${componentToClassMap.LoginForm}"></LoginForm>`,
+  // LoginPage: `<LoginPage className="${componentToClassMap.LoginPage}"></LoginPage>`,
+  MastheadBrand: {
+    jsx: `<MastheadBrand>Logo</MastheadBrand>`,
+    targets: ["MastheadMain"],
+  },
+  MastheadContent: `<MastheadContent>Content</MastheadContent>`,
+  MastheadToggle: `<MastheadToggle>Toggle</MastheadToggle>`,
+  MenuList: {
+    targets: ["MenuContent", "MenuGroup"],
+  },
+  MenuItem: {
+    jsx: `<MenuItem>Menu item</MenuItem>`,
+    targets: ["MenuList"],
+  },
+  MenuItemAction: {
+    jsx: `<MenuItemAction icon="Icon" />`,
+    targets: ["MenuItem"],
+    props: [
+      {
+        component: "MenuItem",
+        prop: "actions",
+      },
+    ],
+  },
+  MenuGroup: {
+    jsx: `<MenuGroup label="Group"></MenuGroup>`,
+    targets: ["MenuContent"],
+  },
+  DrilldownMenu: {
+    jsx: `<DrilldownMenu>
+    <MenuItem>
+      Drilldown Menu item
+    </MenuItem>
+    </DrilldownMenu>`,
+    targets: ["MenuItem"],
+    props: [
+      {
+        component: "MenuItem",
+        prop: "drilldownMenu",
+      },
+    ],
+  },
+  MenuFooter: `<MenuFooter>Footer</MenuFooter>`,
+  MenuToggle: `<MenuToggle isExpanded>Menu toggle</MenuToggle>`,
+  Modal: `<Modal isOpen appendTo={() => APPEND_TO_SELECTOR} title="Title" actions={[<Button variant="primary">Confirm</Button>, <Button variant="link">Cancel</Button>]}>Modal content</Modal>`,
+  // ModalBoxCloseButton: `<ModalBoxCloseButton className="${componentToClassMap.ModalBoxCloseButton}"></ModalBoxCloseButton>`,
+  Nav: `<Nav theme="light"></Nav>`,
+  NavExpandable: {
+    jsx: `<NavExpandable isExpanded title="Expandable"></NavExpandable>`,
+    targets: ["NavList"],
+  },
+  NavGroup: `<NavGroup title="Group"></NavGroup>`,
+  NavItem: {
+    jsx: `<NavItem>Nav item</NavItem>`,
+    targets: ["NavList", "NavGroup", "NavExpandable"],
+  },
+  NavItemSeparator: {
+    jsx: `<NavItemSeparator className="${componentToClassMap.NavItemSeparator}"></NavItemSeparator>`,
+    targets: ["NavList", "NavGroup", "NavExpandable"],
+  },
   OptionsMenuSeparator: `<OptionsMenuSeparator className="${componentToClassMap.OptionsMenuSeparator}"></OptionsMenuSeparator>`,
   OverflowMenuDropdownItem: `<OverflowMenuDropdownItem className="${componentToClassMap.OverflowMenuDropdownItem}"></OverflowMenuDropdownItem>`,
   PageHeader: {
-    component: "Page",
-    prop: "header",
+    props: [
+      {
+        component: "Page",
+        prop: "header",
+      },
+    ],
   },
   PageSection: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,

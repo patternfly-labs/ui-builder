@@ -43,6 +43,9 @@ const filteredOut = [
   "ApplicationLauncherIcon",
   "ApplicationLauncherText",
   "DataListText",
+  "FileUpload", // bug: when you remove the code from the editor, cannot drop another component into the builder
+  "Backdrop",
+  "BackgroundImage",
 ];
 const isParent = [
   "AlertGroup",
@@ -52,6 +55,7 @@ const isParent = [
   "MenuToggle",
   "TextArea",
   "TextInput",
+  "FileUploadField", // raise to parent while FileUpload is filtered out
 ];
 const parentMap = {
   FormSelectOptionGroup: "FormSelect",
@@ -77,7 +81,12 @@ const filterFnc = ([key, value]) => {
     startsWithCapital(key) &&
     (typeof value === "function" ||
       (typeof value === "object" && value.render)) &&
-    filteredOut.indexOf(key) === -1
+    filteredOut.indexOf(key) === -1 &&
+    // filter out Login items for now
+    !key.startsWith("Login") &&
+    // filter out ModalContent/Box items for now
+    !key.startsWith("ModalBox") &&
+    !key.startsWith("ModalContent")
   );
 };
 
@@ -228,39 +237,33 @@ export const allItems = {
   ...componentSnippets,
 };
 
-const getContent = (component, value, canPlace = true) => {
+const getContent = (component, value) => {
   const placementTargets =
     componentRules[component] && componentRules[component].targets;
   let body = "";
   if (placementTargets) {
-    body += `Should be nested within ${componentRules[component].targets.join(
-      ", "
+    body += `&#8226; Should be nested within ${componentRules[component].targets.join(
+      " | "
     )}<br />`;
-  } else if (!canPlace && value.parent) {
-    body += `Should be nested within ${value.parent}<br />`;
+  } else if (value.parent) {
+    body += `&#8226; Should be nested within ${value.parent}<br />`;
   }
-  if (value.prop) {
-    body += `Will be added to ${value.component}'s prop ${value.prop}<br />`;
-  } else if (value.props) {
-    body += `Will add the following props to ${value.component}:<br />`;
+  if (value.props) {
+    body += body ? `<br />` : '';
+    body += `&#8226; Will add the following props:<br />`;
     value.props.forEach((p) => {
-      body += `${p.prop}<br />`;
+      body += `&nbsp;&nbsp;- ${p.component || value.component}: ${p.prop}<br />`;
     });
   }
-  const bodyHtml = { __html: body };
-  return (
-    <div>
-      {/* <Title headingLevel="h3" size="lg">
-        {component}
-      </Title> */}
-      <div dangerouslySetInnerHTML={bodyHtml} />
-    </div>
-  );
+  return { __html: body };
 };
 
 const onDragStart = (ev, component) => {
   ev.stopPropagation();
   console.log(`dragStart: ${component}`);
+  [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
+    el.classList.add("pf-m-droppable");
+  });
   const rule = componentRules[component];
   let classTargets =
     (rule && rule.targets) || (rule && rule.component && [rule.component]);
@@ -271,29 +274,25 @@ const onDragStart = (ev, component) => {
         // i.e. targets: ['DropdownToggleAction | DropdownToggle']
         // means target 'DropdownToggleAction', and only if it doesn't exist target 'DropdownToggle'
         const prioritizedClassNames = className.split("|");
-        let selector;
         for (let i = 0; i < prioritizedClassNames.length; i++) {
-          selector = prioritizedClassNames[i].trim();
-          selector =
-            selector !== "*" ? `.${componentToClassMap[selector]}` : selector;
+          const selector = `.${
+            componentToClassMap[prioritizedClassNames[i].trim()]
+          }`;
           if (document.querySelector(`.uib-preview ${selector}`)) {
             // exists
             [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
               (el) => {
-                el.classList.add("pf-m-droppable");
-                selector !== "*" && el.classList.add("pf-m-droppable-bg");
+                el.classList.add("pf-m-droppable-bg");
               }
             );
             break;
           }
         }
       } else {
-        const selector =
-          className !== "*" ? `.${componentToClassMap[className]}` : className;
+        const selector = `.${componentToClassMap[className]}`;
         [...document.querySelectorAll(`.uib-preview ${selector}`)].forEach(
           (el) => {
-            el.classList.add("pf-m-droppable");
-            selector !== "*" && el.classList.add("pf-m-droppable-bg");
+            el.classList.add("pf-m-droppable-bg");
           }
         );
       }
@@ -306,14 +305,9 @@ const onDragStart = (ev, component) => {
         "." + componentToClassMap[(componentInfo as any).parent as string];
       [...document.querySelectorAll(`.uib-preview ${className}`)].forEach(
         (el) => {
-          el.classList.add("pf-m-droppable", "pf-m-droppable-bg");
+          el.classList.add("pf-m-droppable-bg");
         }
       );
-    } else {
-      // does not have specific targets set and does not have a parent item: open up everything
-      [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
-        el.classList.add("pf-m-droppable");
-      });
     }
   }
   ev.dataTransfer.setData(
@@ -332,6 +326,12 @@ const onDragEnd = (ev) => {
   [...document.querySelectorAll(".pf-m-droppable")].forEach((el) => {
     el.classList.remove("pf-m-droppable", "pf-m-droppable-bg");
   });
+  const tooltip: HTMLElement = document.querySelector(
+    "#component-name-tt .pf-c-tooltip__content"
+  );
+  if (tooltip) {
+    tooltip.style.display = "none";
+  }
 };
 
 const ComponentItem = ({
@@ -353,6 +353,8 @@ const ComponentItem = ({
       setExpanded(component);
     }
   };
+  const content = getContent(component, value);
+
   return (
     <DataListItem
       key={component}
@@ -383,9 +385,13 @@ const ComponentItem = ({
               <div id={spanId} className="cell-text" title={component}>
                 {component}
               </div>
-              {value.prop && (
+              {content.__html && (
                 <Tooltip
-                  content={getContent(component, value, canPlace)}
+                  content={
+                    <div
+                      dangerouslySetInnerHTML={content}
+                    />
+                  }
                   isContentLeftAligned
                   position="right"
                 >
@@ -452,6 +458,7 @@ const ComponentItemChild = ({
     (!value.parent
       ? true
       : placeable(component, componentsInUse, value.parent));
+  const content = getContent(component, value);
   return (
     <DataListItem
       key={component}
@@ -473,24 +480,16 @@ const ComponentItemChild = ({
         <DataListItemCells
           dataListCells={[
             <DataListCell key={`cell-child-${component}`}>
-              {!canPlace ? (
-                <Tooltip
-                  content={getContent(component, value, canPlace)}
-                  isContentLeftAligned
-                  position="right"
-                >
-                  <div id={spanId} className="cell-text">
-                    {component}
-                  </div>
-                </Tooltip>
-              ) : (
-                <div id={spanId} className="cell-text" title={component}>
+              <div id={spanId} className="cell-text">
                   {component}
                 </div>
-              )}
-              {value.prop && (
+              {content.__html && (
                 <Tooltip
-                  content={getContent(component, value)}
+                  content={
+                    <div
+                      dangerouslySetInnerHTML={content}
+                    />
+                  }
                   isContentLeftAligned
                   position="right"
                 >

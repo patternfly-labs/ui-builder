@@ -26,11 +26,17 @@ const scope = {
     ev.stopPropagation();
     console.log(`${idCounter} ${name}`);
   },
-  onLiveRegionDragEnter(ev: React.DragEvent<any>) {
+  onLiveRegionDragEnter(ev: React.DragEvent<any>, idCounter, name) {
     ev.preventDefault();
     ev.stopPropagation();
     // console.log(ev.target);
     (ev.target as HTMLElement).classList.add("pf-m-dropzone");
+    // console.log(`${ev.clientX} ${ev.clientY}`);
+    console.log(`${idCounter} ${name}`);
+
+    const tooltip: HTMLElement = document.querySelector("#component-name-tt .pf-c-tooltip__content");
+    tooltip.innerText = name;
+    tooltip.style.display = 'block';
   },
   onLiveRegionDragLeave(ev: React.DragEvent<any>) {
     ev.preventDefault();
@@ -94,6 +100,7 @@ const jsxTransforms = (ev: any, jsx: string) => {
 };
 
 export const LiveRegion = ({ code, setCode }) => {
+  const liveRegionRef = React.useRef<any>();
   const { setComponentsInUse } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
@@ -156,27 +163,29 @@ export const LiveRegion = ({ code, setCode }) => {
         };
 
         const componentInfo: any = allItems[component];
-        if (componentInfo) {
-          const componentToAddPropToMatches = componentInfo.component && componentInfo.component === componentName;
-          if (componentToAddPropToMatches && componentInfo.props) {
-            componentInfo.props.forEach((propObj) => {
-              const { prop, jsx } = propObj;
-              addAttribute(prop, jsx, parent, node);
-            });
-          } else if (componentToAddPropToMatches && componentInfo.prop) {
-            const { prop, jsx } = componentInfo;
-            addAttribute(prop, jsx, parent, node);
-          } else {
-            // add as child
-            const componentValue = componentInfo;
-            let jsxString =
-              typeof componentValue === "string"
-                ? componentValue
-                : componentValue.jsx;
-            jsxString = jsxTransforms(ev, jsxString);
-            const expression = parse(jsxString).body[0].expression;
-            parent.children.push(expression);
-          }
+        let addedAsProp = false;
+        if (componentInfo && componentInfo.props) {
+          componentInfo.props.forEach((propObj) => {
+            const { component, prop, jsx } = propObj;
+            const propComponent = component || componentInfo.component;
+            const propJsx = jsx || componentInfo.jsx;
+            if (componentName === propComponent) {
+              addedAsProp = true;
+              addAttribute(prop, propJsx, parent, node);
+            }
+          });
+        } 
+        
+        if (!addedAsProp) {
+          // add as child
+          const componentValue = componentInfo;
+          let jsxString =
+            typeof componentValue === "string"
+              ? componentValue
+              : componentValue.jsx;
+          jsxString = jsxTransforms(ev, jsxString);
+          const expression = parse(jsxString).body[0].expression;
+          parent.children.push(expression);
         }
       });
       setCode(stringifyAST(ast));
@@ -209,14 +218,25 @@ export const LiveRegion = ({ code, setCode }) => {
   }
 
   return (
-    <div
-      className="live-region pf-u-h-100"
-      onDragEnter={scope.onLiveRegionDragEnter}
-      onDragLeave={scope.onLiveRegionDragLeave}
-      onDrop={scope.onLiveRegionDrop}
-      // onMouseOver={scope.onLiveRegionMouseOver}
-    >
-      {livePreview}
-    </div>
+    <>
+      <div
+        className="live-region pf-u-h-100"
+        onDragEnter={scope.onLiveRegionDragEnter}
+        onDragLeave={scope.onLiveRegionDragLeave}
+        onDrop={scope.onLiveRegionDrop}
+        onMouseOver={scope.onLiveRegionMouseOver}
+        ref={liveRegionRef}
+      >
+        {livePreview}
+      </div>
+      <div
+        id="component-name-tt"
+        className="pf-c-tooltip"
+        role="tooltip"
+      >
+        <div className="pf-c-tooltip__content" style={{ display: 'none' }}>
+        </div>
+      </div>
+    </>
   );
 };
