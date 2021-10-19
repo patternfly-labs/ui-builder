@@ -24,6 +24,9 @@ import {
   Form,
   Tooltip,
   Title,
+  Flex,
+  FlexItem,
+  Bullseye,
 } from "@patternfly/react-core";
 import CodepenIcon from "@patternfly/react-icons/dist/esm/icons/codepen-icon";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
@@ -74,17 +77,21 @@ export const App = ({ vscode, data, filePath }) => {
       setComponentsInUseState(compsInUse);
     }
   };
+  const drawerWidthFromStorage = localStorage.getItem("pf-builder-code-width");
+  const [drawerWidth, setDrawerWidth] = React.useState(
+    drawerWidthFromStorage || 500
+  );
 
   React.useEffect(() => {
     const bodyElement = document.body;
     if (showCode) {
-      bodyElement.classList.remove('preview-mode');
-      bodyElement.classList.add('layout-mode');
+      bodyElement.classList.remove("preview-mode");
+      bodyElement.classList.add("layout-mode");
     } else {
-      bodyElement.classList.add('preview-mode');
-      bodyElement.classList.remove('layout-mode');
+      bodyElement.classList.add("preview-mode");
+      bodyElement.classList.remove("layout-mode");
     }
-  }, [showCode])
+  }, [showCode]);
 
   // React.useEffect(() => {
   //   const extraTabs = [];
@@ -174,6 +181,143 @@ export const App = ({ vscode, data, filePath }) => {
 
   const showProps = component && parsedPropsMap[`${component}Props`];
 
+  const pageHeader = (
+    <PageHeader
+      className="pf-builder-header"
+      showNavToggle
+      logo={
+        vscode ? (
+          // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
+          <Title className={css("pf-c-brand")} headingLevel="h1" size="xl">
+            PatternFly UI Builder
+          </Title>
+        ) : (
+          <>
+            <Brand src={logo} alt="PatternFly Logo" />
+            <span className="logo-text">PatternFly Labs_ UI Builder</span>
+          </>
+        )
+      }
+      logoProps={{
+        href: "https://github.com/patternfly-labs/ui-builder",
+        target: "_blank",
+      }}
+      logoComponent={vscode ? "div" : "a"}
+      headerTools={
+        <PageHeaderTools>
+          <PageHeaderToolsGroup>
+            <PageHeaderToolsItem>
+              <Button
+                variant="plain"
+                component="a"
+                href="https://github.com/patternfly-labs/ui-builder/issues"
+                target="_blank"
+              >
+                Feedback
+              </Button>
+            </PageHeaderToolsItem>
+          </PageHeaderToolsGroup>
+          <PageHeaderToolsGroup>
+            <PageHeaderToolsItem>
+              {/* @ts-ignore */}
+              <NewFromTemplate setCode={onChange} />
+            </PageHeaderToolsItem>
+          </PageHeaderToolsGroup>
+          <PageHeaderToolsGroup>
+            {!vscode && (
+              <PageHeaderToolsItem>
+                <Tooltip
+                  trigger="mouseenter"
+                  content="Export to Codesandbox"
+                  exitDelay={300}
+                  entryDelay={300}
+                  position="bottom"
+                >
+                  <Form
+                    // aria-label={codesandboxLabel}
+                    action="https://codesandbox.io/api/v1/sandboxes/define"
+                    method="POST"
+                    target="_blank"
+                    style={{ display: "inline-block" }}
+                  >
+                    <Button
+                      // aria-label={codesandboxLabel}
+                      variant="control"
+                      type="submit"
+                    >
+                      <input
+                        type="hidden"
+                        name="parameters"
+                        // @ts-ignore
+                        value={getParameters(
+                          getReactParams("NewComponent", code)
+                        )}
+                      />
+                      <CodepenIcon />
+                    </Button>
+                  </Form>
+                </Tooltip>
+              </PageHeaderToolsItem>
+            )}
+          </PageHeaderToolsGroup>
+          <PageHeaderToolsGroup>
+            <PageHeaderToolsItem>
+              <Switch
+                label="Layout mode"
+                labelOff="Preview mode"
+                isChecked={showCode}
+                onChange={() => setShowCode(!showCode)}
+              />
+            </PageHeaderToolsItem>
+          </PageHeaderToolsGroup>
+        </PageHeaderTools>
+      }
+    />
+  );
+
+  const onDrawerResize = (newWidth, id) => {
+    console.log(newWidth);
+    setDrawerWidth(newWidth);
+    localStorage.setItem("pf-builder-code-width", newWidth);
+  };
+  const panelContent = (
+    <DrawerPanelContent
+      isResizable
+      onResize={onDrawerResize}
+      defaultSize={`${drawerWidth}px`}
+      className={css("pf-builder-editor", vscode && "vscode")}
+    >
+      <CodeEditor
+        language={Language.javascript}
+        // height={`calc(${showProps ? "50vh - 96px" : "100vh - 174px"})`}
+        height={`calc(100vh - 92px)`}
+        code={code as string}
+        onChange={onChange}
+        isLineNumbersVisible
+        onEditorDidMount={onEditorDidMount}
+        options={{
+          automaticLayout: true,
+        }}
+      />
+    </DrawerPanelContent>
+  );
+  const uiBuilderDrawer = (
+    <Drawer isExpanded isInline className="pf-builder-drawer">
+      <DrawerContent
+        panelContent={showCode && panelContent}
+        colorVariant="light-200"
+      >
+        <DrawerContentBody>
+          <div className={css("uib-preview", vscode && "vscode")}>
+            <ErrorBoundary>
+              <LiveRegion code={code} setCode={onChange} />
+            </ErrorBoundary>
+          </div>
+        </DrawerContentBody>
+      </DrawerContent>
+    </Drawer>
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -186,193 +330,114 @@ export const App = ({ vscode, data, filePath }) => {
           "pf-builder-page",
           showCode ? "layout-mode" : "preview-mode"
         )}
-        // isManagedSidebar={showCode ? true : false}
-        isManagedSidebar={false}
-        header={
-          <PageHeader
-            className="pf-builder-header"
-            /*showNavToggle*/
-            logo={
-              vscode ? (
-                // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
-                <Title
-                  className={css("pf-c-brand")}
-                  headingLevel="h1"
-                  size="xl"
-                >
-                  PatternFly UI Builder
-                </Title>
-              ) : (
-                <>
-                <Brand src={logo} alt="PatternFly Logo" />
-                <span className="logo-text">PatternFly Labs_ UI Builder</span>
-                </>
-              )
-            }
-            logoProps={{
-              href:
-                "https://github.com/patternfly-labs/ui-builder",
-              target: "_blank",
-            }}
-            logoComponent={vscode ? "div" : "a"}
-            headerTools={
-              <PageHeaderTools>
-                <PageHeaderToolsGroup>
-                  <PageHeaderToolsItem>
-                    <Button
-                      variant="plain"
-                      component="a"
-                      href="https://github.com/patternfly-labs/ui-builder/issues"
-                      target="_blank"
-                    >
-                      Feedback
-                    </Button>
-                  </PageHeaderToolsItem>
-                </PageHeaderToolsGroup>
-                <PageHeaderToolsGroup>
-                  <PageHeaderToolsItem>
-                    {/* @ts-ignore */}
-                    <NewFromTemplate setCode={onChange} />
-                  </PageHeaderToolsItem>
-                </PageHeaderToolsGroup>
-                <PageHeaderToolsGroup>
-                  {!vscode && (
-                    <PageHeaderToolsItem>
-                      <Tooltip
-                        trigger="mouseenter"
-                        content="Export to Codesandbox"
-                        exitDelay={300}
-                        entryDelay={300}
-                        position="bottom"
-                      >
-                        <Form
-                          // aria-label={codesandboxLabel}
-                          action="https://codesandbox.io/api/v1/sandboxes/define"
-                          method="POST"
-                          target="_blank"
-                          style={{ display: "inline-block" }}
-                        >
-                          <Button
-                            // aria-label={codesandboxLabel}
-                            variant="control"
-                            type="submit"
-                          >
-                            <input
-                              type="hidden"
-                              name="parameters"
-                              // @ts-ignore
-                              value={getParameters(
-                                getReactParams("NewComponent", code)
-                              )}
-                            />
-                            <CodepenIcon />
-                          </Button>
-                        </Form>
-                      </Tooltip>
-                    </PageHeaderToolsItem>
-                  )}
-                </PageHeaderToolsGroup>
-                <PageHeaderToolsGroup>
-                  <PageHeaderToolsItem>
-                    <Switch
-                      label="Layout mode"
-                      labelOff="Preview mode"
-                      isChecked={showCode}
-                      onChange={() => setShowCode(!showCode)}
-                    />
-                  </PageHeaderToolsItem>
-                </PageHeaderToolsGroup>
-              </PageHeaderTools>
-            }
+        isManagedSidebar
+        header={pageHeader}
+        sidebar={
+          <PageSidebar
+            className="pf-builder-sidebar"
+            theme="light"
+            nav={<ComponentList code={code} />}
           />
         }
-        // sidebar={
-        //   <PageSidebar
-        //     isNavOpen={showCode}
-        //     className="pf-builder-sidebar"
-        //     nav={<ComponentList code={code} />}
-        //   />
-        // }
       >
-        <PageSection className="pf-builder-section">
-          <Split style={{ height: "100%" }}>
-            <div className="pf-builder-sidebar">
-              <ComponentList code={code} />
-            </div>
-            <SplitItem
-              isFilled
-              className={css("uib-preview", vscode && "vscode")}
-            >
-              <ErrorBoundary>
-                <LiveRegion code={code} setCode={onChange} />
-              </ErrorBoundary>
-            </SplitItem>
-            {showCode && (
-              <>
-                <SplitItem
-                  className={css("pf-builder-editor", vscode && "vscode")}
-                >
-                  <div>
-                    <Tabs defaultActiveKey={0}>
-                      <Tab
-                        eventKey={0}
-                        title={<TabTitleText>Main</TabTitleText>}
-                      >
-                        <CodeEditor
-                          language={Language.javascript}
-                          height={`calc(${
-                            showProps ? "50vh - 96px" : "100vh - 174px"
-                          })`}
-                          width="500px"
-                          code={code as string}
-                          onChange={onChange}
-                          isLineNumbersVisible
-                          // onEditorWillMount={onEditorWillMount}
-                          onEditorDidMount={onEditorDidMount}
-                          options={{
-                            automaticLayout: true,
-                          }}
-                        />
-                      </Tab>
-                      {additionalTabs &&
-                        additionalTabs.map((tab, index) => (
+        <PageSection
+          className="pf-builder-section"
+          padding={{ default: "noPadding" }}
+        >
+          {uiBuilderDrawer}
+        </PageSection>
+      </Page>
+    </AppContext.Provider>
+  );
+
+  const section = (
+    <Split style={{ height: "100%" }}>
+      <div className="pf-builder-sidebar">
+        <ComponentList code={code} />
+      </div>
+      <SplitItem isFilled className={css("uib-preview", vscode && "vscode")}>
+        <ErrorBoundary>
+          <LiveRegion code={code} setCode={onChange} />
+        </ErrorBoundary>
+      </SplitItem>
+      {showCode && (
+        <>
+          <SplitItem className={css("pf-builder-editor", vscode && "vscode")}>
+            <Flex alignItems={{ default: "alignItemsStretch" }}>
+              <FlexItem spacer={{ default: "spacerNone" }}>
+                <Bullseye>
+                  <div>{">>"}</div>
+                </Bullseye>
+              </FlexItem>
+              <FlexItem spacer={{ default: "spacerNone" }}>
+                <CodeEditor
+                  language={Language.javascript}
+                  height={`calc(${
+                    showProps ? "50vh - 96px" : "100vh - 174px"
+                  })`}
+                  width="500px"
+                  code={code as string}
+                  onChange={onChange}
+                  isLineNumbersVisible
+                  // onEditorWillMount={onEditorWillMount}
+                  onEditorDidMount={onEditorDidMount}
+                  options={{
+                    automaticLayout: true,
+                  }}
+                />
+                {/* <div>
+                        <Tabs defaultActiveKey={0}>
                           <Tab
-                            key={index + 1}
-                            eventKey={index + 1}
-                            title={<TabTitleText>{tab.title}</TabTitleText>}
+                            eventKey={0}
+                            title={<TabTitleText>Main</TabTitleText>}
                           >
-                            {/* <pre style={{ width: "500px" }}>{tab.code}</pre> */}
                             <CodeEditor
-                              key={`editor-${index + 1}`}
                               language={Language.javascript}
                               height={`calc(${
                                 showProps ? "50vh - 96px" : "100vh - 174px"
                               })`}
                               width="500px"
-                              code={tab.code}
-                              // onChange={onChange}
+                              code={code as string}
+                              onChange={onChange}
                               isLineNumbersVisible
                               // onEditorWillMount={onEditorWillMount}
-                              // onEditorDidMount={onEditorDidMount}
+                              onEditorDidMount={onEditorDidMount}
                               options={{
                                 automaticLayout: true,
                               }}
-                              isReadOnly
                             />
-                            {/* <MonacoEditor
-                            height={`calc(${
-                              showProps ? "50vh - 96px" : "100vh - 174px"
-                            })`}
-                            width="500px"
-                            language="javascript"
-                            theme="vs-dark"
-                            value={code}
-                          /> */}
                           </Tab>
-                        ))}
-                    </Tabs>
-                  </div>
-                  {showProps && (
+                          {additionalTabs &&
+                            additionalTabs.map((tab, index) => (
+                              <Tab
+                                key={index + 1}
+                                eventKey={index + 1}
+                                title={<TabTitleText>{tab.title}</TabTitleText>}
+                              >
+                                <CodeEditor
+                                  key={`editor-${index + 1}`}
+                                  language={Language.javascript}
+                                  height={`calc(${
+                                    showProps ? "50vh - 96px" : "100vh - 174px"
+                                  })`}
+                                  width="500px"
+                                  code={tab.code}
+                                  // onChange={onChange}
+                                  isLineNumbersVisible
+                                  // onEditorWillMount={onEditorWillMount}
+                                  // onEditorDidMount={onEditorDidMount}
+                                  options={{
+                                    automaticLayout: true,
+                                  }}
+                                  isReadOnly
+                                />
+                              </Tab>
+                            ))}
+                        </Tabs>
+                      </div> */}
+              </FlexItem>
+            </Flex>
+            {/* {showProps && (
                     <div className="props-editor">
                       <Props
                         component={component}
@@ -380,13 +445,10 @@ export const App = ({ vscode, data, filePath }) => {
                         onClose={() => setComponent(null)}
                       />
                     </div>
-                  )}
-                </SplitItem>
-              </>
-            )}
-          </Split>
-        </PageSection>
-      </Page>
-    </AppContext.Provider>
+                  )} */}
+          </SplitItem>
+        </>
+      )}
+    </Split>
   );
 };

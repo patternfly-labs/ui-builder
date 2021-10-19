@@ -521,6 +521,12 @@ export const componentRules = {
   },
   OverflowMenuControl: `<OverflowMenuControl hasAdditionalOptions></OverflowMenuControl>`,
   PageHeader: {
+    jsx: `<PageHeader
+    logo="Logo"
+    headerTools={<PageHeaderTools></PageHeaderTools>}
+    showNavToggle
+    isNavOpen
+  />`,
     props: [
       {
         component: "Page",
@@ -528,7 +534,37 @@ export const componentRules = {
       },
     ],
   },
-  PageSection: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
+  PageHeaderTools: {
+    props: [{
+      component: 'PageHeader',
+      prop: 'headerTools'
+    }],
+    targets: ['PageHeader']
+  },
+  PageHeaderToolsGroup: {
+    targets: ['PageHeaderTools']
+  },
+  PageHeaderToolsItem: {
+    jsx: `<PageHeaderToolsItem>Item</PageHeaderToolsItem>`,
+    targets: ['PageHeaderTools', 'PageHeaderToolsGroup']
+  },
+  PageSidebar: {
+    jsx: `<PageSidebar nav="Navigation" isNavOpen theme="light" />`,
+    props: [{
+      component: 'Page',
+      prop: 'sidebar'
+    }],
+  },
+  PageNavigation: {
+    targets: ['PageGroup']
+  },
+  PageBreadcrumb: {
+    targets: ['PageGroup']
+  },
+  PageSection: {
+    jsx: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
+    targets: ['Page', 'PageGroup']
+  },
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,
   SimpleListItem: `<SimpleListItem className="${componentToClassMap.SimpleListItem}"></SimpleListItem>`,
   Text: `<Text className="${componentToClassMap.Text}"></Text>`,

@@ -7,10 +7,7 @@ class NewComponent extends React.Component {
   }
 
   render() {
-    return (
-      <Flex direction={{ default: "column" }} className="pf-u-h-100">
-      </Flex>
-    );
+    return <Flex direction={{ default: "column" }}></Flex>;
   }
 }
 

@@ -1,17 +1,49 @@
-// @ts-ignore
-import PageHeaderSnippetRaw from "!!raw-loader!./PageHeaderSnippet";
-
 // snippets that are more than just simple passthroughs
 export const componentSnippets = {
+  // PageHeaderSnippet: {
+  //   component: "Page",
+  //   prop: "header",
+  //   jsx: "<PageHeaderSnippet />",
+  //   code: PageHeaderSnippetRaw,
+  // },
   PageHeaderSnippet: {
-    component: "Page",
-    prop: "header",
-    jsx: "<PageHeaderSnippet />",
-    code: PageHeaderSnippetRaw,
+    jsx: `<PageHeader
+    logo={<Brand alt="Patternfly Logo" />}
+    headerTools={<PageHeaderTools></PageHeaderTools>}
+    showNavToggle
+  />`,
+    targets: ["Page"],
+    props: [
+      {
+        component: "Page",
+        prop: "header",
+      },
+    ],
   },
-  PageNav: {
-    component: "Page",
-    prop: "tertiaryNav",
+  // PageHeaderSnippet: {
+  //   props: [{
+  //     component: 'Page',
+  //     prop: 'header',
+  //     jsx: `<Masthead>
+  //     <MastheadToggle>
+  //       <PageToggleButton
+  //         variant="plain"
+  //         aria-label="Global navigation"
+  //         isNavOpen
+  //       >
+  //       </PageToggleButton>
+  //     </MastheadToggle>
+  //     <MastheadMain>
+  //       <MastheadBrand href="https://patternfly.org" onClick={() => console.log('clicked logo')} target="_blank">
+  //         Logo
+  //       </MastheadBrand>
+  //     </MastheadMain>
+  //     <MastheadContent>Toolbar</MastheadContent>
+  //   </Masthead>`
+  //   }],
+  //   targets: ['Page']
+  // },
+  PageNavSnippet: {
     jsx: `<Nav variant="tertiary" aria-label="Nav">
       <NavList>
         <NavItem itemId={0}>
@@ -31,10 +63,15 @@ export const componentSnippets = {
         </NavItem>
       </NavList>
     </Nav>`,
+    targets: ["Page"],
+    props: [
+      {
+        component: "Page",
+        prop: "tertiaryNav",
+      },
+    ],
   },
-  PageBreadcrumbs: {
-    component: "Page",
-    prop: "breadcrumb",
+  PageBreadcrumbSnippet: {
     jsx: `<Breadcrumb>
       <BreadcrumbItem>Section home</BreadcrumbItem>
       <BreadcrumbItem to="#">Section title</BreadcrumbItem>
@@ -43,8 +80,16 @@ export const componentSnippets = {
         Section landing
       </BreadcrumbItem>
     </Breadcrumb>`,
+    targets: ["Page"],
+    props: [
+      {
+        component: "Page",
+        prop: "breadcrumb",
+      },
+    ],
   },
-  PageGroupedContent: {
+  PageGroupedContentSnippet: {
+    targets: ["Page"],
     component: "Page",
     props: [
       {
