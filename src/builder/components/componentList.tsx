@@ -242,17 +242,19 @@ const getContent = (component, value) => {
     componentRules[component] && componentRules[component].targets;
   let body = "";
   if (placementTargets) {
-    body += `&#8226; Should be nested within ${componentRules[component].targets.join(
-      " | "
-    )}<br />`;
+    body += `&#8226; Should be nested within ${componentRules[
+      component
+    ].targets.join(" | ")}<br />`;
   } else if (value.parent) {
     body += `&#8226; Should be nested within ${value.parent}<br />`;
   }
   if (value.props) {
-    body += body ? `<br />` : '';
+    body += body ? `<br />` : "";
     body += `&#8226; Will add the following props:<br />`;
     value.props.forEach((p) => {
-      body += `&nbsp;&nbsp;- ${p.component || value.component}: ${p.prop}<br />`;
+      body += `&nbsp;&nbsp;- ${p.component || value.component}: ${
+        p.prop
+      }<br />`;
     });
   }
   return { __html: body };
@@ -388,9 +390,10 @@ const ComponentItem = ({
               {content.__html && (
                 <Tooltip
                   content={
-                    <div
-                      dangerouslySetInnerHTML={content}
-                    />
+                    <>
+                      <Title headingLevel="h4" size="lg">{component}</Title>
+                      <div dangerouslySetInnerHTML={content} />
+                    </>
                   }
                   isContentLeftAligned
                   position="right"
@@ -481,14 +484,15 @@ const ComponentItemChild = ({
           dataListCells={[
             <DataListCell key={`cell-child-${component}`}>
               <div id={spanId} className="cell-text">
-                  {component}
-                </div>
+                {component}
+              </div>
               {content.__html && (
                 <Tooltip
                   content={
-                    <div
-                      dangerouslySetInnerHTML={content}
-                    />
+                    <>
+                      <Title headingLevel="h4" size="lg">{component}</Title>
+                      <div dangerouslySetInnerHTML={content} />
+                    </>
                   }
                   isContentLeftAligned
                   position="right"
