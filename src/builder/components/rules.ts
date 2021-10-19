@@ -9,7 +9,7 @@ import { componentToClassMap } from "./componentToClassMap";
  */
 export const componentRules = {
   // AboutModal: FocusTrap steals focus on each change in the editor
-  AboutModal: `<AboutModal className="${componentToClassMap.AboutModal}" isOpen appendTo={() => APPEND_TO_SELECTOR}></AboutModal>`,
+  AboutModal: `<AboutModal isOpen appendTo={() => APPEND_TO_SELECTOR}></AboutModal>`,
   AccordionToggle: {
     jsx: "<AccordionToggle isExpanded>Item</AccordionToggle>",
     targets: ["AccordionItem"],
@@ -449,9 +449,84 @@ export const componentRules = {
     jsx: `<NavItemSeparator className="${componentToClassMap.NavItemSeparator}"></NavItemSeparator>`,
     targets: ["NavList", "NavGroup", "NavExpandable"],
   },
-  OptionsMenuSeparator: `<OptionsMenuSeparator className="${componentToClassMap.OptionsMenuSeparator}"></OptionsMenuSeparator>`,
-  OverflowMenuDropdownItem: `<OverflowMenuDropdownItem className="${componentToClassMap.OverflowMenuDropdownItem}"></OverflowMenuDropdownItem>`,
+  NotificationDrawerHeader: `<NotificationDrawerHeader count={3}></NotificationDrawerHeader>`,
+  NotificationDrawerList: {
+    targets: ['NotificationDrawerBody', 'NotificationDrawerGroup']
+  },
+  NotificationDrawerListItem: {
+    targets: ['NotificationDrawerList']
+  },
+  NotificationDrawerListItemHeader: {
+    jsx: `<NotificationDrawerListItemHeader title="Notification title"></NotificationDrawerListItemHeader>`,
+    targets: ['NotificationDrawerListItem']
+  },
+  NotificationDrawerListItemBody: {
+    jsx: `<NotificationDrawerListItemBody timestamp="5 minutes ago">Description</NotificationDrawerListItemBody>`,
+    targets: ['NotificationDrawerListItem']
+  },
+  NotificationDrawerGroupList: {
+    targets: ['NotificationDrawerBody']
+  },
+  NotificationDrawerGroup: {
+    jsx: `<NotificationDrawerGroup title="Notification group" count={2} isExpanded></NotificationDrawerGroup>`,
+    targets: ['NotificationDrawerGroupList']
+  },
+  NumberInput: `<NumberInput value={20} />`,
+  OptionsMenu: `<OptionsMenu menuItems={[]} isOpen toggle={<OptionsMenuToggle toggleTemplate="Options menu" />} />`,
+  OptionsMenuToggle: {
+    jsx: `<OptionsMenuToggle toggleTemplate="Options menu" />`,
+    props: [{
+      component: 'OptionsMenu',
+      prop: 'toggle'
+    }]
+  },
+  OptionsMenuItem: {
+    jsx: `<OptionsMenuItem>Option</OptionsMenuItem>`,
+    props: [{
+      component: 'OptionsMenu',
+      prop: 'menuItems'
+    }],
+    targets: ['OptionsMenu', 'OptionsMenuItemGroup']
+  },
+  OptionsMenuItemGroup: {
+    jsx: `<OptionsMenuItemGroup></OptionsMenuItemGroup>`,
+    props: [{
+      component: 'OptionsMenu',
+      prop: 'menuItems'
+    }]
+  },
+  OptionsMenuSeparator: {
+    jsx: `<OptionsMenuSeparator className="${componentToClassMap.OptionsMenuSeparator}"></OptionsMenuSeparator>`,
+    props: [{
+      component: 'OptionsMenu',
+      prop: 'menuItems'
+    }],
+    targets: ['OptionsMenu', 'OptionsMenuItemGroup']
+  },
+  OverflowMenu: `<OverflowMenu breakpoint="lg"></OverflowMenu>`,
+  OverflowMenuDropdownItem: {
+    jsx: `<OverflowMenuDropdownItem className="${componentToClassMap.OverflowMenuDropdownItem}">Item</OverflowMenuDropdownItem>`,
+    props: [{
+      component: 'Dropdown',
+      prop: 'dropdownItems'
+    }],
+    targets: ['Dropdown']
+  },
+  OverflowMenuItem: {
+    jsx: `<OverflowMenuItem>Item</OverflowMenuItem>`,
+    targets: ['OverflowMenuContent', 'OverflowMenuGroup']
+  },
+  OverflowMenuGroup: {
+    targets: ['OverflowMenuContent']
+  },
+  OverflowMenuControl: `<OverflowMenuControl hasAdditionalOptions></OverflowMenuControl>`,
   PageHeader: {
+    jsx: `<PageHeader
+    logo="Logo"
+    headerTools={<PageHeaderTools></PageHeaderTools>}
+    showNavToggle
+    isNavOpen
+  />`,
     props: [
       {
         component: "Page",
@@ -459,7 +534,37 @@ export const componentRules = {
       },
     ],
   },
-  PageSection: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
+  PageHeaderTools: {
+    props: [{
+      component: 'PageHeader',
+      prop: 'headerTools'
+    }],
+    targets: ['PageHeader']
+  },
+  PageHeaderToolsGroup: {
+    targets: ['PageHeaderTools']
+  },
+  PageHeaderToolsItem: {
+    jsx: `<PageHeaderToolsItem>Item</PageHeaderToolsItem>`,
+    targets: ['PageHeaderTools', 'PageHeaderToolsGroup']
+  },
+  PageSidebar: {
+    jsx: `<PageSidebar nav="Navigation" isNavOpen theme="light" />`,
+    props: [{
+      component: 'Page',
+      prop: 'sidebar'
+    }],
+  },
+  PageNavigation: {
+    targets: ['PageGroup']
+  },
+  PageBreadcrumb: {
+    targets: ['PageGroup']
+  },
+  PageSection: {
+    jsx: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
+    targets: ['Page', 'PageGroup']
+  },
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,
   SimpleListItem: `<SimpleListItem className="${componentToClassMap.SimpleListItem}"></SimpleListItem>`,
   Text: `<Text className="${componentToClassMap.Text}"></Text>`,

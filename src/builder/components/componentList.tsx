@@ -237,22 +237,32 @@ export const allItems = {
   ...componentSnippets,
 };
 
+const rules = {
+  ...componentRules,
+  ...layoutRules,
+  ...componentSnippets
+};
+
 const getContent = (component, value) => {
   const placementTargets =
-    componentRules[component] && componentRules[component].targets;
+    rules[component] && rules[component].targets;
   let body = "";
   if (placementTargets) {
-    body += `&#8226; Should be nested within ${componentRules[component].targets.join(
-      " | "
-    )}<br />`;
+    body += `&#8226; Should be nested within ${rules[
+      component
+    ].targets.join(" | ")}<br />`;
   } else if (value.parent) {
     body += `&#8226; Should be nested within ${value.parent}<br />`;
+  } else if (value.component) {
+    body += `&#8226; Should be nested within ${value.component}<br />`;
   }
   if (value.props) {
-    body += body ? `<br />` : '';
+    body += body ? `<br />` : "";
     body += `&#8226; Will add the following props:<br />`;
     value.props.forEach((p) => {
-      body += `&nbsp;&nbsp;- ${p.component || value.component}: ${p.prop}<br />`;
+      body += `&nbsp;&nbsp;- ${p.component || value.component}: ${
+        p.prop
+      }<br />`;
     });
   }
   return { __html: body };
@@ -264,7 +274,7 @@ const onDragStart = (ev, component) => {
   [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
     el.classList.add("pf-m-droppable");
   });
-  const rule = componentRules[component];
+  const rule = rules[component];
   let classTargets =
     (rule && rule.targets) || (rule && rule.component && [rule.component]);
   if (classTargets) {
@@ -388,9 +398,12 @@ const ComponentItem = ({
               {content.__html && (
                 <Tooltip
                   content={
-                    <div
-                      dangerouslySetInnerHTML={content}
-                    />
+                    <>
+                      <Title headingLevel="h4" size="lg">
+                        {component}
+                      </Title>
+                      <div dangerouslySetInnerHTML={content} />
+                    </>
                   }
                   isContentLeftAligned
                   position="right"
@@ -423,8 +436,8 @@ const ComponentItem = ({
                     value={childValue}
                     canPlace={
                       Boolean(
-                        componentRules[childComponent] &&
-                          componentRules[childComponent].targets
+                        rules[childComponent] &&
+                          rules[childComponent].targets
                           ? true
                           : componentsInUse[component]
                       ) && placeable(childComponent, componentsInUse)
@@ -481,14 +494,17 @@ const ComponentItemChild = ({
           dataListCells={[
             <DataListCell key={`cell-child-${component}`}>
               <div id={spanId} className="cell-text">
-                  {component}
-                </div>
+                {component}
+              </div>
               {content.__html && (
                 <Tooltip
                   content={
-                    <div
-                      dangerouslySetInnerHTML={content}
-                    />
+                    <>
+                      <Title headingLevel="h4" size="lg">
+                        {component}
+                      </Title>
+                      <div dangerouslySetInnerHTML={content} />
+                    </>
                   }
                   isContentLeftAligned
                   position="right"
@@ -533,7 +549,7 @@ const getHash = (text: string) => {
 
 const placeable = (component, componentsInUse, parent = null) => {
   const placementRules =
-    componentRules[component] && componentRules[component].targets;
+    rules[component] && rules[component].targets;
   let canPlace = placementRules
     ? false
     : parent
@@ -594,6 +610,7 @@ export const ComponentList = ({ code }) => {
     ));
   const [componentsList, setComponentsList] = React.useState(allComponentsList);
   const [layoutsList, setLayoutsList] = React.useState(allLayoutsList);
+  const [activeTab, setActiveTab] = React.useState(0);
   // React.useEffect(() => {
   //   console.log("ComponentList new code");
   // }, [code]);
@@ -640,7 +657,82 @@ export const ComponentList = ({ code }) => {
     }
   };
   return (
-    <Tabs defaultActiveKey={0}>
+    <>
+      <div className="pf-c-tabs">
+        <ul className="pf-c-tabs__list">
+          <li
+            className={css(
+              "pf-c-tabs__item",
+              activeTab === 0 && "pf-m-current"
+            )}
+          >
+            <button className="pf-c-tabs__link" onClick={() => setActiveTab(0)}>
+              <span className="pf-c-tabs__item-text">Components</span>
+            </button>
+          </li>
+          <li
+            className={css(
+              "pf-c-tabs__item",
+              activeTab === 1 && "pf-m-current"
+            )}
+          >
+            <button className="pf-c-tabs__link" onClick={() => setActiveTab(1)}>
+              <span className="pf-c-tabs__item-text">Layouts</span>
+            </button>
+          </li>
+          <li
+            className={css(
+              "pf-c-tabs__item",
+              activeTab === 2 && "pf-m-current"
+            )}
+          >
+            <button className="pf-c-tabs__link" onClick={() => setActiveTab(2)}>
+              <span className="pf-c-tabs__item-text">Snippets</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <section className="pf-c-tab-content" role="tabpanel">
+        <div className="pf-c-tab-content__body">
+          <ul
+            className="pf-c-data-list pf-m-compact"
+            role="list"
+            aria-label="Components"
+            hidden={activeTab !== 0}
+          >
+            {componentsList}
+          </ul>
+          <ul
+            className="pf-c-data-list pf-m-compact"
+            role="list"
+            aria-label="Components"
+            hidden={activeTab !== 1}
+          >
+            {layoutsList}
+          </ul>
+          <ul
+            className="pf-c-data-list pf-m-compact"
+            role="list"
+            aria-label="Components"
+            hidden={activeTab !== 2}
+          >
+            {Object.entries(componentSnippets)
+              .sort()
+              .map((c) => (
+                <ComponentItem
+                  key={`flat-${c[0]}`}
+                  component={c[0]}
+                  value={c[1]}
+                  canPlace={placeable(c[0], componentsInUse)}
+                />
+              ))}
+          </ul>
+        </div>
+      </section>
+    </>
+  );
+  return (
+    <Tabs defaultActiveKey={0} variant="light300">
       <Tab eventKey={0} title={<TabTitleText>Components</TabTitleText>}>
         <ComponentSearch
           placeholder="Find component"

@@ -29,14 +29,16 @@ const scope = {
   onLiveRegionDragEnter(ev: React.DragEvent<any>, idCounter, name) {
     ev.preventDefault();
     ev.stopPropagation();
-    // console.log(ev.target);
-    (ev.target as HTMLElement).classList.add("pf-m-dropzone");
-    // console.log(`${ev.clientX} ${ev.clientY}`);
-    console.log(`${idCounter} ${name}`);
+    if (name) {
+      (ev.target as HTMLElement).classList.add("pf-m-dropzone");
+      console.log(`${idCounter} ${name}`);
 
-    const tooltip: HTMLElement = document.querySelector("#component-name-tt .pf-c-tooltip__content");
-    tooltip.innerText = name;
-    tooltip.style.display = 'block';
+      const tooltip: HTMLElement = document.querySelector(
+        "#component-name-tt .pf-c-tooltip__content"
+      );
+      tooltip.innerText = name;
+      tooltip.style.display = "block";
+    }
   },
   onLiveRegionDragLeave(ev: React.DragEvent<any>) {
     ev.preventDefault();
@@ -174,8 +176,8 @@ export const LiveRegion = ({ code, setCode }) => {
               addAttribute(prop, propJsx, parent, node);
             }
           });
-        } 
-        
+        }
+
         if (!addedAsProp) {
           // add as child
           const componentValue = componentInfo;
@@ -220,7 +222,7 @@ export const LiveRegion = ({ code, setCode }) => {
   return (
     <>
       <div
-        className="live-region pf-u-h-100"
+        className="live-region"
         onDragEnter={scope.onLiveRegionDragEnter}
         onDragLeave={scope.onLiveRegionDragLeave}
         onDrop={scope.onLiveRegionDrop}
@@ -229,13 +231,11 @@ export const LiveRegion = ({ code, setCode }) => {
       >
         {livePreview}
       </div>
-      <div
-        id="component-name-tt"
-        className="pf-c-tooltip"
-        role="tooltip"
-      >
-        <div className="pf-c-tooltip__content" style={{ display: 'none' }}>
-        </div>
+      <div id="component-name-tt" className="pf-c-tooltip" role="tooltip">
+        <div
+          className="pf-c-tooltip__content"
+          style={{ display: "none" }}
+        ></div>
       </div>
     </>
   );
