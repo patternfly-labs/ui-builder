@@ -240,17 +240,16 @@ export const allItems = {
 const rules = {
   ...componentRules,
   ...layoutRules,
-  ...componentSnippets
+  ...componentSnippets,
 };
 
 export const getContent = (component, value) => {
-  const placementTargets =
-    rules[component] && rules[component].targets;
+  const placementTargets = rules[component] && rules[component].targets;
   let body = "";
   if (placementTargets) {
-    body += `&#8226; Should be nested within ${rules[
-      component
-    ].targets.join(" | ")}<br />`;
+    body += `&#8226; Should be nested within ${rules[component].targets.join(
+      " | "
+    )}<br />`;
   } else if (value.parent) {
     body += `&#8226; Should be nested within ${value.parent}<br />`;
   } else if (value.component) {
@@ -274,9 +273,11 @@ const onDragStart = (ev, component, setActiveComponent) => {
   [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
     el.classList.add("pf-m-droppable");
   });
-  const rule = rules[component];
+  const rule = rules[component] || allParentChildItems[component];
   let classTargets =
-    (rule && rule.targets) || (rule && rule.component && [rule.component]);
+    (rule && rule.targets) ||
+    (rule && rule.component && [rule.component]) ||
+    (rule && rule.parent && [rule.parent]);
   if (classTargets) {
     classTargets.forEach((className) => {
       if (className.indexOf("|") > -1) {
@@ -329,7 +330,7 @@ const onDragStart = (ev, component, setActiveComponent) => {
   ev.dataTransfer.dropEffect = "copy";
   // hack so that in dragEnter we know which component originated the drag
   ev.dataTransfer.setData("component/" + component, component);
-  setActiveComponent(component);
+  // setActiveComponent(component);
 };
 
 const onDragEnd = (ev) => {
@@ -438,8 +439,7 @@ const ComponentItem = ({
                     value={childValue}
                     canPlace={
                       Boolean(
-                        rules[childComponent] &&
-                          rules[childComponent].targets
+                        rules[childComponent] && rules[childComponent].targets
                           ? true
                           : componentsInUse[component]
                       ) && placeable(childComponent, componentsInUse)
@@ -550,8 +550,7 @@ const getHash = (text: string) => {
 };
 
 const placeable = (component, componentsInUse, parent = null) => {
-  const placementRules =
-    rules[component] && rules[component].targets;
+  const placementRules = rules[component] && rules[component].targets;
   let canPlace = placementRules
     ? false
     : parent

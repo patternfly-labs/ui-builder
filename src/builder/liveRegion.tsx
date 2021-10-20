@@ -153,7 +153,7 @@ export const LiveRegion = ({ code, setCode }) => {
       const tooltip: HTMLElement = document.querySelector(
         "#component-name-tt .pf-c-tooltip__content"
       );
-      if (activeComponent) {
+      if (componentName) {
         // console.log(`${idCounter} ${name}`);
         // const content = getContent(activeComponent, allParentChildItems[activeComponent]);
         // if (content.__html) {
