@@ -243,7 +243,7 @@ const rules = {
   ...componentSnippets
 };
 
-const getContent = (component, value) => {
+export const getContent = (component, value) => {
   const placementTargets =
     rules[component] && rules[component].targets;
   let body = "";
@@ -268,7 +268,7 @@ const getContent = (component, value) => {
   return { __html: body };
 };
 
-const onDragStart = (ev, component) => {
+const onDragStart = (ev, component, setActiveComponent) => {
   ev.stopPropagation();
   console.log(`dragStart: ${component}`);
   [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
@@ -329,6 +329,7 @@ const onDragStart = (ev, component) => {
   ev.dataTransfer.dropEffect = "copy";
   // hack so that in dragEnter we know which component originated the drag
   ev.dataTransfer.setData("component/" + component, component);
+  setActiveComponent(component);
 };
 
 const onDragEnd = (ev) => {
@@ -351,6 +352,7 @@ const ComponentItem = ({
   canPlace = true,
 }) => {
   // console.log(value);
+  const { setActiveComponent } = React.useContext(AppContext);
   const [expanded, setExpanded] = React.useState(null);
   const spanId = `component-list-${component}`;
   const { componentsInUse } = React.useContext(AppContext);
@@ -372,7 +374,7 @@ const ComponentItem = ({
       className={css(!canPlace && "pf-m-hide", !hasChildren && "pf-m-grab")}
       aria-labelledby={spanId}
       draggable={!hasChildren}
-      onDragStart={(ev) => onDragStart(ev, component)}
+      onDragStart={(ev) => onDragStart(ev, component, setActiveComponent)}
       onDragEnd={onDragEnd}
     >
       <DataListItemRow>
@@ -463,7 +465,7 @@ const ComponentItemChild = ({
   canPlace?: boolean;
   showExpand?: boolean;
 }) => {
-  const { componentsInUse } = React.useContext(AppContext);
+  const { componentsInUse, setActiveComponent } = React.useContext(AppContext);
   // console.log(`${JSON.stringify(componentsInUse)}`);
   const spanId = `component-list-${component}`;
   const canPlace =
@@ -482,7 +484,7 @@ const ComponentItemChild = ({
       )}
       aria-labelledby={spanId}
       draggable
-      onDragStart={(ev) => onDragStart(ev, component)}
+      onDragStart={(ev) => onDragStart(ev, component, setActiveComponent)}
       onDragEnd={onDragEnd}
     >
       <DataListItemRow>

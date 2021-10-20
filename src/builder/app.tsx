@@ -58,6 +58,8 @@ const prettier = require("prettier/standalone");
 export const AppContext = React.createContext({
   componentsInUse: {},
   setComponentsInUse: (comps) => {},
+  activeComponent: '',
+  setActiveComponent: (comp) => {}
 });
 
 /* vscode = { postMessage: (msg) => console.log(msg) } */
@@ -77,6 +79,7 @@ export const App = ({ vscode, data, filePath }) => {
       setComponentsInUseState(compsInUse);
     }
   };
+  const [activeComponentState, setActiveComponentState] = React.useState('');
   const drawerWidthFromStorage = localStorage.getItem("pf-builder-code-width");
   const [drawerWidth, setDrawerWidth] = React.useState(
     drawerWidthFromStorage || 500
@@ -323,6 +326,8 @@ export const App = ({ vscode, data, filePath }) => {
       value={{
         componentsInUse: componentsInUseState,
         setComponentsInUse: onSetComponentsInUse,
+        activeComponent: activeComponentState,
+        setActiveComponent: setActiveComponentState
       }}
     >
       <Page

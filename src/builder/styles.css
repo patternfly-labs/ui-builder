@@ -34,6 +34,10 @@ body {
   padding-left: 7px;
 }
 
+.pf-m-highlight {
+  border: 1px solid yellow;
+}
+
 .pf-m-dropzone {
   background-color: deepskyblue !important;
 }

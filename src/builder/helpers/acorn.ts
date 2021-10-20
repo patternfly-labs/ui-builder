@@ -407,7 +407,10 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
         injectProp(node, 'onDragEnter', 'onLiveRegionDragEnter', idCounter, node.name.name);
         injectProp(node, 'onDragLeave', 'onLiveRegionDragLeave', idCounter, node.name.name);
         injectProp(node, 'onDrop', 'onLiveRegionDrop', idCounter, node.name.name);
-        injectProp(node, 'onMouseOver', 'onLiveRegionMouseOver', idCounter, node.name.name);
+        injectProp(node, 'onDragOver', 'onLiveRegionDragOver', idCounter, node.name.name);
+        // injectProp(node, 'onMouseEnter', 'onLiveRegionMouseEnter', idCounter, node.name.name);
+        injectProp(node, 'onMouseLeave', 'onLiveRegionMouseLeave', idCounter, node.name.name);
+        injectProp(node, 'onMouseMove', 'onLiveRegionMouseOver', idCounter, node.name.name);
       }
       idCounter += 1;
     });

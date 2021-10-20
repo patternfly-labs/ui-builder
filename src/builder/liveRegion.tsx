@@ -10,34 +10,65 @@ import {
   visit,
 } from "./helpers/acorn";
 import { parse } from "./helpers/parse";
-import { components, allItems } from "./components/componentList";
+import {
+  components,
+  allItems,
+  allParentChildItems,
+} from "./components/componentList";
 import { componentSnippets } from "./components/snippets/snippets";
 import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
 import { AppContext } from "./app";
 import unique from "unique-selector";
+import { getContent } from "./components/componentList";
 
 const scope = {
   ...reactCoreModule,
   // ...wrappedReactCoreModule,
   ...componentSnippetModules,
   ComponentAdder,
+  // onLiveRegionMouseEnter(ev, idCounter, name) {
+  //   ev.preventDefault();
+  //   ev.stopPropagation();
+  //   [...document.querySelectorAll(".live-region *")].forEach((el) => {
+  //     el.classList.remove("pf-m-highlight");
+  //   });
+  //   ev.target.classList.add('pf-m-highlight');
+  // },
   onLiveRegionMouseOver(ev, idCounter, name) {
     ev.preventDefault();
     ev.stopPropagation();
-    console.log(`${idCounter} ${name}`);
+    const tooltip: HTMLElement = document.querySelector(
+      ".layout-mode #component-name-tt .pf-c-tooltip__content"
+    );
+    if (tooltip) {
+      if (name) {
+        // console.log(`${idCounter} ${name}`);
+        tooltip.innerText = name;
+        tooltip.style.display = "block";
+        tooltip.style.position = "fixed";
+        tooltip.style.left = `${ev.pageX - 16}px`;
+        tooltip.style.top = `${ev.pageY + 32}px`;
+      } else {
+        tooltip.style.display = "none";
+      }
+    }
+  },
+  onLiveRegionMouseLeave(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const tooltip: HTMLElement = document.querySelector(
+      ".layout-mode #component-name-tt .pf-c-tooltip__content"
+    );
+    if (tooltip) {
+      tooltip.style.display = "none";
+    }
+    // ev.target.classList.remove('pf-m-highlight');
   },
   onLiveRegionDragEnter(ev: React.DragEvent<any>, idCounter, name) {
     ev.preventDefault();
     ev.stopPropagation();
     if (name) {
       (ev.target as HTMLElement).classList.add("pf-m-dropzone");
-      console.log(`${idCounter} ${name}`);
-
-      const tooltip: HTMLElement = document.querySelector(
-        "#component-name-tt .pf-c-tooltip__content"
-      );
-      tooltip.innerText = name;
-      tooltip.style.display = "block";
     }
   },
   onLiveRegionDragLeave(ev: React.DragEvent<any>) {
@@ -45,6 +76,12 @@ const scope = {
     ev.stopPropagation();
     // console.log(`removing dropzone`);
     (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
+    setTimeout(() => {
+      const tooltip: HTMLElement = document.querySelector(
+        "#component-name-tt .pf-c-tooltip__content"
+      );
+      tooltip.style.display = "none";
+    });
   },
 } as any;
 
@@ -103,13 +140,39 @@ const jsxTransforms = (ev: any, jsx: string) => {
 
 export const LiveRegion = ({ code, setCode }) => {
   const liveRegionRef = React.useRef<any>();
-  const { setComponentsInUse } = React.useContext(AppContext);
+  const { setComponentsInUse, activeComponent } = React.useContext(AppContext);
   let livePreview = null;
   if (code) {
+    scope.onLiveRegionDragOver = (
+      ev: React.DragEvent<any>,
+      idCounter: number,
+      componentName: string
+    ) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const tooltip: HTMLElement = document.querySelector(
+        "#component-name-tt .pf-c-tooltip__content"
+      );
+      if (activeComponent) {
+        // console.log(`${idCounter} ${name}`);
+        // const content = getContent(activeComponent, allParentChildItems[activeComponent]);
+        // if (content.__html) {
+        //   content.__html = `<h3>${componentName}</h3><br />${activeComponent}<br />${content.__html}`
+        // }
+        // tooltip.innerHTML = content.__html || componentName;
+        tooltip.innerText = componentName;
+        tooltip.style.display = "block";
+        tooltip.style.position = "fixed";
+        tooltip.style.left = `${ev.pageX - 16}px`;
+        tooltip.style.top = `${ev.pageY + 32}px`;
+      } else {
+        tooltip.style.display = "none";
+      }
+    };
     scope.onLiveRegionDrop = (
       ev: React.DragEvent<any>,
       idCounter: number,
-      componentName
+      componentName: string
     ) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -221,14 +284,7 @@ export const LiveRegion = ({ code, setCode }) => {
 
   return (
     <>
-      <div
-        className="live-region"
-        onDragEnter={scope.onLiveRegionDragEnter}
-        onDragLeave={scope.onLiveRegionDragLeave}
-        onDrop={scope.onLiveRegionDrop}
-        onMouseOver={scope.onLiveRegionMouseOver}
-        ref={liveRegionRef}
-      >
+      <div className="live-region" ref={liveRegionRef}>
         {livePreview}
       </div>
       <div id="component-name-tt" className="pf-c-tooltip" role="tooltip">
