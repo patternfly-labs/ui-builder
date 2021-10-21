@@ -208,7 +208,7 @@ body {
 }
 
 /* Backdrop (AboutModal, Modal) */
-body.layout-mode.pf-c-backdrop__open,
+/* body.layout-mode.pf-c-backdrop__open, */
 .layout-mode .uib-preview.pf-c-backdrop__open {
   overflow: unset;
 }
@@ -216,7 +216,7 @@ body.preview-mode > div > .pf-c-backdrop,
 .preview-mode .uib-preview .pf-c-backdrop {
   top: 76px;
 }
-body.layout-mode > div > .pf-c-backdrop,
+/* body.layout-mode > div > .pf-c-backdrop, */
 .layout-mode .uib-preview .pf-c-backdrop {
   background-color: unset;
   position: relative;

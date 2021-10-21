@@ -566,6 +566,15 @@ export const componentRules = {
     targets: ['Page', 'PageGroup']
   },
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,
+  Pagination: `<Pagination itemCount={523} perPage={20} />`,
+  Popover: `<Popover
+  aria-label="Basic popover"
+  headerContent={<div>Popover header</div>}
+  bodyContent={<div>Popovers are triggered by click rather than hover.</div>}
+  footerContent="Popover footer"
+>
+  <Button>Toggle popover</Button>
+</Popover>`,
   SimpleListItem: `<SimpleListItem className="${componentToClassMap.SimpleListItem}"></SimpleListItem>`,
   Text: `<Text className="${componentToClassMap.Text}"></Text>`,
   TextList: `<TextList className="${componentToClassMap.TextList}"></TextList>`,

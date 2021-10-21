@@ -27,8 +27,13 @@ import {
   Flex,
   FlexItem,
   Bullseye,
+  Modal,
+  ClipboardCopy,
+  ClipboardCopyAction,
 } from "@patternfly/react-core";
 import CodepenIcon from "@patternfly/react-icons/dist/esm/icons/codepen-icon";
+import GithubIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
+import ExternalLinkAltIcon from "@patternfly/react-icons/dist/esm/icons/external-link-alt-icon";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 // @ts-ignore
 import logo from "./logo.png";
@@ -55,11 +60,16 @@ import NewPage from "!!raw-loader!./components/templates/NewPage";
 
 const prettier = require("prettier/standalone");
 
+const Gists = require("gists");
+const gists = new Gists({
+  token: "",
+});
+
 export const AppContext = React.createContext({
   componentsInUse: {},
   setComponentsInUse: (comps) => {},
-  activeComponent: '',
-  setActiveComponent: (comp) => {}
+  activeComponent: "",
+  setActiveComponent: (comp) => {},
 });
 
 /* vscode = { postMessage: (msg) => console.log(msg) } */
@@ -79,11 +89,14 @@ export const App = ({ vscode, data, filePath }) => {
       setComponentsInUseState(compsInUse);
     }
   };
-  const [activeComponentState, setActiveComponentState] = React.useState('');
+  const [activeComponentState, setActiveComponentState] = React.useState("");
   const drawerWidthFromStorage = localStorage.getItem("pf-builder-code-width");
   const [drawerWidth, setDrawerWidth] = React.useState(
     drawerWidthFromStorage || 500
   );
+  const [creatingGist, setCreatingGist] = React.useState(false);
+  const [gistUrl, setGistUrl] = React.useState("");
+  const [gistModalOpen, setGistModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     const bodyElement = document.body;
@@ -184,6 +197,29 @@ export const App = ({ vscode, data, filePath }) => {
 
   const showProps = component && parsedPropsMap[`${component}Props`];
 
+  const createGist = () => {
+    setCreatingGist(true);
+    const options = {
+      accept: "application/vnd.github.v3+json",
+      description: "pf-ui-builder gist",
+      public: true,
+      files: {
+        NewComponent: {
+          content: code,
+        },
+      },
+    };
+    gists
+      .create(options)
+      .then((res) => {
+        console.log(res.body);
+        setGistUrl(res.body.html_url);
+        setCreatingGist(false);
+        setGistModalOpen(true);
+      })
+      .catch(console.error);
+  };
+
   const pageHeader = (
     <PageHeader
       className="pf-builder-header"
@@ -228,39 +264,58 @@ export const App = ({ vscode, data, filePath }) => {
           </PageHeaderToolsGroup>
           <PageHeaderToolsGroup>
             {!vscode && (
-              <PageHeaderToolsItem>
-                <Tooltip
-                  trigger="mouseenter"
-                  content="Export to Codesandbox"
-                  exitDelay={300}
-                  entryDelay={300}
-                  position="bottom"
-                >
-                  <Form
-                    // aria-label={codesandboxLabel}
-                    action="https://codesandbox.io/api/v1/sandboxes/define"
-                    method="POST"
-                    target="_blank"
-                    style={{ display: "inline-block" }}
+              <>
+                <PageHeaderToolsItem>
+                  <Tooltip
+                    trigger="mouseenter"
+                    content="Export to gist"
+                    exitDelay={300}
+                    entryDelay={300}
+                    position="bottom"
                   >
                     <Button
-                      // aria-label={codesandboxLabel}
                       variant="control"
-                      type="submit"
+                      onClick={createGist}
+                      isDisabled={creatingGist}
                     >
-                      <input
-                        type="hidden"
-                        name="parameters"
-                        // @ts-ignore
-                        value={getParameters(
-                          getReactParams("NewComponent", code)
-                        )}
-                      />
-                      <CodepenIcon />
+                      <GithubIcon />
                     </Button>
-                  </Form>
-                </Tooltip>
-              </PageHeaderToolsItem>
+                  </Tooltip>
+                </PageHeaderToolsItem>
+                <PageHeaderToolsItem>
+                  <Tooltip
+                    trigger="mouseenter"
+                    content="Export to Codesandbox"
+                    exitDelay={300}
+                    entryDelay={300}
+                    position="bottom"
+                  >
+                    <Form
+                      // aria-label={codesandboxLabel}
+                      action="https://codesandbox.io/api/v1/sandboxes/define"
+                      method="POST"
+                      target="_blank"
+                      style={{ display: "inline-block" }}
+                    >
+                      <Button
+                        // aria-label={codesandboxLabel}
+                        variant="control"
+                        type="submit"
+                      >
+                        <input
+                          type="hidden"
+                          name="parameters"
+                          // @ts-ignore
+                          value={getParameters(
+                            getReactParams("NewComponent", code)
+                          )}
+                        />
+                        <CodepenIcon />
+                      </Button>
+                    </Form>
+                  </Tooltip>
+                </PageHeaderToolsItem>
+              </>
             )}
           </PageHeaderToolsGroup>
           <PageHeaderToolsGroup>
@@ -327,7 +382,7 @@ export const App = ({ vscode, data, filePath }) => {
         componentsInUse: componentsInUseState,
         setComponentsInUse: onSetComponentsInUse,
         activeComponent: activeComponentState,
-        setActiveComponent: setActiveComponentState
+        setActiveComponent: setActiveComponentState,
       }}
     >
       <Page
@@ -352,108 +407,39 @@ export const App = ({ vscode, data, filePath }) => {
           {uiBuilderDrawer}
         </PageSection>
       </Page>
+      <Modal
+        variant="medium"
+        isOpen={gistModalOpen}
+        onClose={() => setGistModalOpen(false)}
+      >
+        <div>Created gist at:</div>
+        <div>
+          <ClipboardCopy
+            variant="inline-compact"
+            additionalActions={
+              <ClipboardCopyAction>
+                <Tooltip
+                  trigger="mouseenter"
+                  content="Open URL"
+                  exitDelay={300}
+                  entryDelay={300}
+                  position="bottom"
+                >
+                  <Button
+                    variant="plain"
+                    aria-label="Open new browser tab"
+                    onClick={() => window.open(gistUrl)}
+                  >
+                    <ExternalLinkAltIcon aria-hidden />
+                  </Button>
+                </Tooltip>
+              </ClipboardCopyAction>
+            }
+          >
+            {gistUrl}
+          </ClipboardCopy>
+        </div>
+      </Modal>
     </AppContext.Provider>
-  );
-
-  const section = (
-    <Split style={{ height: "100%" }}>
-      <div className="pf-builder-sidebar">
-        <ComponentList code={code} />
-      </div>
-      <SplitItem isFilled className={css("uib-preview", vscode && "vscode")}>
-        <ErrorBoundary>
-          <LiveRegion code={code} setCode={onChange} />
-        </ErrorBoundary>
-      </SplitItem>
-      {showCode && (
-        <>
-          <SplitItem className={css("pf-builder-editor", vscode && "vscode")}>
-            <Flex alignItems={{ default: "alignItemsStretch" }}>
-              <FlexItem spacer={{ default: "spacerNone" }}>
-                <Bullseye>
-                  <div>{">>"}</div>
-                </Bullseye>
-              </FlexItem>
-              <FlexItem spacer={{ default: "spacerNone" }}>
-                <CodeEditor
-                  language={Language.javascript}
-                  height={`calc(${
-                    showProps ? "50vh - 96px" : "100vh - 174px"
-                  })`}
-                  width="500px"
-                  code={code as string}
-                  onChange={onChange}
-                  isLineNumbersVisible
-                  // onEditorWillMount={onEditorWillMount}
-                  onEditorDidMount={onEditorDidMount}
-                  options={{
-                    automaticLayout: true,
-                  }}
-                />
-                {/* <div>
-                        <Tabs defaultActiveKey={0}>
-                          <Tab
-                            eventKey={0}
-                            title={<TabTitleText>Main</TabTitleText>}
-                          >
-                            <CodeEditor
-                              language={Language.javascript}
-                              height={`calc(${
-                                showProps ? "50vh - 96px" : "100vh - 174px"
-                              })`}
-                              width="500px"
-                              code={code as string}
-                              onChange={onChange}
-                              isLineNumbersVisible
-                              // onEditorWillMount={onEditorWillMount}
-                              onEditorDidMount={onEditorDidMount}
-                              options={{
-                                automaticLayout: true,
-                              }}
-                            />
-                          </Tab>
-                          {additionalTabs &&
-                            additionalTabs.map((tab, index) => (
-                              <Tab
-                                key={index + 1}
-                                eventKey={index + 1}
-                                title={<TabTitleText>{tab.title}</TabTitleText>}
-                              >
-                                <CodeEditor
-                                  key={`editor-${index + 1}`}
-                                  language={Language.javascript}
-                                  height={`calc(${
-                                    showProps ? "50vh - 96px" : "100vh - 174px"
-                                  })`}
-                                  width="500px"
-                                  code={tab.code}
-                                  // onChange={onChange}
-                                  isLineNumbersVisible
-                                  // onEditorWillMount={onEditorWillMount}
-                                  // onEditorDidMount={onEditorDidMount}
-                                  options={{
-                                    automaticLayout: true,
-                                  }}
-                                  isReadOnly
-                                />
-                              </Tab>
-                            ))}
-                        </Tabs>
-                      </div> */}
-              </FlexItem>
-            </Flex>
-            {/* {showProps && (
-                    <div className="props-editor">
-                      <Props
-                        component={component}
-                        onChange={onChange}
-                        onClose={() => setComponent(null)}
-                      />
-                    </div>
-                  )} */}
-          </SplitItem>
-        </>
-      )}
-    </Split>
   );
 };

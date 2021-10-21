@@ -46,6 +46,7 @@ const filteredOut = [
   "FileUpload", // bug: when you remove the code from the editor, cannot drop another component into the builder
   "Backdrop",
   "BackgroundImage",
+  "ToggleTemplate"
 ];
 const isParent = [
   "AlertGroup",
