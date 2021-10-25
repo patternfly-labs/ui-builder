@@ -1,14 +1,8 @@
 // snippets that are more than just simple passthroughs
 export const componentSnippets = {
-  // PageHeaderSnippet: {
-  //   component: "Page",
-  //   prop: "header",
-  //   jsx: "<PageHeaderSnippet />",
-  //   code: PageHeaderSnippetRaw,
-  // },
   PageHeaderSnippet: {
     jsx: `<PageHeader
-    logo={<Brand alt="Patternfly Logo" />}
+    logo={<Brand src="https://www.patternfly.org/v4/images/pfColorLogo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg" alt="Patternfly Logo" />}
     headerTools={<PageHeaderTools></PageHeaderTools>}
     showNavToggle
   />`,

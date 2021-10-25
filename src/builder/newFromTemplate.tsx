@@ -1,12 +1,7 @@
 // @ts-nocheck
 import * as React from "react";
-import CubeIcon from "@patternfly/react-icons/dist/esm/icons/cube-icon";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-  SelectDirection,
-} from "@patternfly/react-core";
+import CaretDownIcon from "@patternfly/react-icons/dist/esm/icons/caret-down-icon";
+import { Dropdown, DropdownItem, DropdownToggle } from "@patternfly/react-core";
 import NewPage from "!!raw-loader!./components/templates/NewPage";
 import NewComponent from "!!raw-loader!./components/templates/NewComponent";
 import PageSticky from "!!raw-loader!./components/templates/PageSticky";
@@ -16,26 +11,22 @@ class NewFromTemplate extends React.Component {
   constructor(props) {
     super(props);
     this.options = [
-      <SelectOption key={0} value={NewComponent}>
-        New component
-      </SelectOption>,
-      <SelectOption key={1} value={NewPage}>
-        New page
-      </SelectOption>,
-      <SelectOption key={2} value={PageSticky}>
-        New sticky top page
-      </SelectOption>,
-      <SelectOption key={3} value={Drawer}>
-        New drawer
-      </SelectOption>,
+      <DropdownItem key={0} onClick={() => this.props.setCode(NewComponent)}>
+        Component
+      </DropdownItem>,
+      <DropdownItem key={1} onClick={() => this.props.setCode(NewPage)}>
+        Basic page
+      </DropdownItem>,
+      <DropdownItem key={2} onClick={() => this.props.setCode(PageSticky)}>
+        Sticky page
+      </DropdownItem>,
+      <DropdownItem key={3} onClick={() => this.props.setCode(Drawer)}>
+        Drawer
+      </DropdownItem>,
     ];
 
     this.state = {
-      isToggleIcon: false,
       isOpen: false,
-      selected: null,
-      isDisabled: false,
-      direction: SelectDirection.down,
     };
 
     this.onToggle = (isOpen) => {
@@ -44,47 +35,10 @@ class NewFromTemplate extends React.Component {
       });
     };
 
-    this.onSelect = (event, selection, isPlaceholder) => {
-      if (isPlaceholder) {
-        this.clearSelection();
-      } else {
-        this.setState({
-          selected: selection,
-          isOpen: false,
-        });
-        this.props.setCode(selection);
-      }
-    };
-
-    this.clearSelection = () => {
+    this.onSelect = (event) => {
       this.setState({
-        selected: null,
         isOpen: false,
       });
-    };
-
-    this.toggleDisabled = (checked) => {
-      this.setState({
-        isDisabled: checked,
-      });
-    };
-
-    this.setIcon = (checked) => {
-      this.setState({
-        isToggleIcon: checked,
-      });
-    };
-
-    this.toggleDirection = () => {
-      if (this.state.direction === SelectDirection.up) {
-        this.setState({
-          direction: SelectDirection.down,
-        });
-      } else {
-        this.setState({
-          direction: SelectDirection.up,
-        });
-      }
     };
   }
 
@@ -92,19 +46,20 @@ class NewFromTemplate extends React.Component {
     const { isOpen, selected } = this.state;
     const titleId = "title-id-1";
     return (
-      <Select
-        toggleIcon={<CubeIcon />}
-        variant={SelectVariant.single}
-        placeholderText="New from template"
-        aria-label="Select Input"
-        onToggle={this.onToggle}
+      <Dropdown
         onSelect={this.onSelect}
-        selections={selected}
+        toggle={
+          <DropdownToggle
+            id="toggle-id"
+            onToggle={this.onToggle}
+            toggleIndicator={CaretDownIcon}
+          >
+            New from template
+          </DropdownToggle>
+        }
         isOpen={isOpen}
-        aria-labelledby={titleId}
-      >
-        {this.options}
-      </Select>
+        dropdownItems={this.options}
+      />
     );
   }
 }

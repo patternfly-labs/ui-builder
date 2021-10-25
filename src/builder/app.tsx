@@ -9,32 +9,24 @@ import {
   PageSection,
   Switch,
   Brand,
-  Split,
-  SplitItem,
   Drawer,
   DrawerPanelContent,
   DrawerContent,
   DrawerContentBody,
-  Stack,
-  StackItem,
-  Tab,
-  Tabs,
-  TabTitleText,
   Button,
   Form,
   Tooltip,
   Title,
-  Flex,
-  FlexItem,
-  Bullseye,
-  Modal,
-  ClipboardCopy,
-  ClipboardCopyAction,
+  Dropdown,
+  DropdownItem,
+  KebabToggle,
+  DropdownToggle,
 } from "@patternfly/react-core";
 import CodepenIcon from "@patternfly/react-icons/dist/esm/icons/codepen-icon";
 import GithubIcon from "@patternfly/react-icons/dist/esm/icons/github-icon";
-import ExternalLinkAltIcon from "@patternfly/react-icons/dist/esm/icons/external-link-alt-icon";
+import ImportIcon from "@patternfly/react-icons/dist/esm/icons/import-icon";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
+import codeEditorStyles from "@patternfly/react-styles/css/components/CodeEditor/code-editor";
 // @ts-ignore
 import logo from "./logo.png";
 import { LiveRegion } from "./liveRegion";
@@ -57,19 +49,19 @@ import { getParameters } from "codesandbox/lib/api/define";
 import { shallowEqual } from "./helpers/shallowEqual";
 // @ts-ignore
 import NewPage from "!!raw-loader!./components/templates/NewPage";
+import { GistExportModal } from "./components/GistExportModal";
+import { GistImportModal } from "./components/GistImportModal";
+import { scope } from "./liveRegion";
 
 const prettier = require("prettier/standalone");
-
-const Gists = require("gists");
-const gists = new Gists({
-  token: "",
-});
 
 export const AppContext = React.createContext({
   componentsInUse: {},
   setComponentsInUse: (comps) => {},
   activeComponent: "",
   setActiveComponent: (comp) => {},
+  theme: "dark",
+  toggleTheme: (theme) => {},
 });
 
 /* vscode = { postMessage: (msg) => console.log(msg) } */
@@ -92,11 +84,28 @@ export const App = ({ vscode, data, filePath }) => {
   const [activeComponentState, setActiveComponentState] = React.useState("");
   const drawerWidthFromStorage = localStorage.getItem("pf-builder-code-width");
   const [drawerWidth, setDrawerWidth] = React.useState(
-    drawerWidthFromStorage || 500
+    drawerWidthFromStorage || 600
   );
-  const [creatingGist, setCreatingGist] = React.useState(false);
-  const [gistUrl, setGistUrl] = React.useState("");
-  const [gistModalOpen, setGistModalOpen] = React.useState(false);
+  const [gistExportModalOpen, setGistExportModalOpen] = React.useState(false);
+  const [gistImportModalOpen, setGistImportModalOpen] = React.useState(false);
+  const localStorageTheme = localStorage.getItem("pf-builder-code-theme") as
+    | "light"
+    | "dark"
+    | null;
+  const [themeState, setThemeState] = React.useState<"light" | "dark">(
+    localStorageTheme || "dark"
+  );
+  const [overflowOpen, setOverflowOpen] = React.useState(false);
+
+  const toggleTheme = () => {
+    if (themeState === "light") {
+      setThemeState("dark");
+      localStorage.setItem("pf-builder-code-theme", "dark");
+    } else {
+      setThemeState("light");
+      localStorage.setItem("pf-builder-code-theme", "light");
+    }
+  };
 
   React.useEffect(() => {
     const bodyElement = document.body;
@@ -197,27 +206,67 @@ export const App = ({ vscode, data, filePath }) => {
 
   const showProps = component && parsedPropsMap[`${component}Props`];
 
-  const createGist = () => {
-    setCreatingGist(true);
-    const options = {
-      accept: "application/vnd.github.v3+json",
-      description: "pf-ui-builder gist",
-      public: true,
-      files: {
-        NewComponent: {
-          content: code,
-        },
-      },
-    };
-    gists
-      .create(options)
-      .then((res) => {
-        console.log(res.body);
-        setGistUrl(res.body.html_url);
-        setCreatingGist(false);
-        setGistModalOpen(true);
-      })
-      .catch(console.error);
+  const feedbackThemeItems = [
+    <DropdownItem key="feedback">
+      <Button
+        variant="plain"
+        component="a"
+        href="https://github.com/patternfly-labs/ui-builder/issues"
+        target="_blank"
+      >
+        Feedback
+      </Button>
+    </DropdownItem>,
+    <DropdownItem key="theme-toggle" onClick={toggleTheme}>
+      <Button variant="plain">Toggle theme</Button>
+    </DropdownItem>,
+  ];
+
+  const codesandboxForm = (description = "") => (
+    <Form
+      // aria-label={codesandboxLabel}
+      action="https://codesandbox.io/api/v1/sandboxes/define"
+      method="POST"
+      target="_blank"
+      style={{ display: "inline-block" }}
+    >
+      <Button
+        // aria-label={codesandboxLabel}
+        variant="control"
+        type="submit"
+      >
+        <input
+          type="hidden"
+          name="parameters"
+          // @ts-ignore
+          value={getParameters(getReactParams("NewComponent", code, scope))}
+        />
+        {description || <CodepenIcon />}
+      </Button>
+    </Form>
+  );
+
+  const importExportItems = [
+    <DropdownItem
+      key="import-gist"
+      onClick={() => setGistImportModalOpen(true)}
+    >
+      <Button variant="plain">Import from gist</Button>
+    </DropdownItem>,
+    <DropdownItem
+      key="export-gist"
+      onClick={() => setGistExportModalOpen(true)}
+    >
+      <Button variant="plain">Export to gist</Button>
+    </DropdownItem>,
+  ];
+
+  const onKebabDropdownToggle = (isOpen) => {
+    setOverflowOpen(isOpen);
+  };
+
+  const onKebabDropdownSelect = (event) => {
+    setOverflowOpen(!overflowOpen);
   };
 
   const pageHeader = (
@@ -226,25 +275,30 @@ export const App = ({ vscode, data, filePath }) => {
       showNavToggle
       logo={
         vscode ? (
-          // <img className={css("pf-c-brand")} src={'http://patternfly-react.surge.sh/images/logo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg'} alt={"UI Builder"} />
           <Title className={css("pf-c-brand")} headingLevel="h1" size="xl">
             PatternFly UI Builder
           </Title>
         ) : (
           <>
             <Brand src={logo} alt="PatternFly Logo" />
-            <span className="logo-text">PatternFly Labs_ UI Builder</span>
+            <div>
+              <div className="logo-text">PatternFly Labs_ UI Builder</div>
+              <div>Release 2021.13</div>
+            </div>
           </>
         )
       }
       logoProps={{
-        href: "https://github.com/patternfly-labs/ui-builder",
+        href:
+          "https://www.patternfly.org/v4/developer-resources/release-notes#2021.13-release-notes-2021-10-13",
         target: "_blank",
       }}
       logoComponent={vscode ? "div" : "a"}
       headerTools={
         <PageHeaderTools>
-          <PageHeaderToolsGroup>
+          <PageHeaderToolsGroup
+            visibility={{ default: "hidden", "2xl": "visible" }}
+          >
             <PageHeaderToolsItem>
               <Button
                 variant="plain"
@@ -256,10 +310,60 @@ export const App = ({ vscode, data, filePath }) => {
               </Button>
             </PageHeaderToolsItem>
           </PageHeaderToolsGroup>
+          <PageHeaderToolsGroup
+            visibility={{ default: "hidden", "2xl": "visible" }}
+          >
+            <PageHeaderToolsItem>
+              <Switch
+                id="theme-toggle"
+                label="Dark theme"
+                labelOff="Light theme"
+                isChecked={themeState === "dark"}
+                onChange={toggleTheme}
+                isReversed
+              />
+            </PageHeaderToolsItem>
+          </PageHeaderToolsGroup>
           <PageHeaderToolsGroup>
             <PageHeaderToolsItem>
               {/* @ts-ignore */}
               <NewFromTemplate setCode={onChange} />
+            </PageHeaderToolsItem>
+          </PageHeaderToolsGroup>
+          <PageHeaderToolsGroup visibility={{ default: "hidden", "2xl": "visible" }}>
+            <PageHeaderToolsItem>
+              <Tooltip
+                trigger="mouseenter"
+                content="Import from gist"
+                exitDelay={300}
+                entryDelay={300}
+                position="bottom"
+              >
+                <Button
+                  variant="control"
+                  onClick={() => setGistImportModalOpen(true)}
+                  isDisabled={gistImportModalOpen}
+                >
+                  <ImportIcon />
+                </Button>
+              </Tooltip>
+            </PageHeaderToolsItem>
+            <PageHeaderToolsItem>
+              <Tooltip
+                trigger="mouseenter"
+                content="Export to gist"
+                exitDelay={300}
+                entryDelay={300}
+                position="bottom"
+              >
+                <Button
+                  variant="control"
+                  onClick={() => setGistExportModalOpen(true)}
+                  isDisabled={gistExportModalOpen}
+                >
+                  <GithubIcon />
+                </Button>
+              </Tooltip>
             </PageHeaderToolsItem>
           </PageHeaderToolsGroup>
           <PageHeaderToolsGroup>
@@ -268,55 +372,37 @@ export const App = ({ vscode, data, filePath }) => {
                 <PageHeaderToolsItem>
                   <Tooltip
                     trigger="mouseenter"
-                    content="Export to gist"
-                    exitDelay={300}
-                    entryDelay={300}
-                    position="bottom"
-                  >
-                    <Button
-                      variant="control"
-                      onClick={createGist}
-                      isDisabled={creatingGist}
-                    >
-                      <GithubIcon />
-                    </Button>
-                  </Tooltip>
-                </PageHeaderToolsItem>
-                <PageHeaderToolsItem>
-                  <Tooltip
-                    trigger="mouseenter"
                     content="Export to Codesandbox"
                     exitDelay={300}
                     entryDelay={300}
                     position="bottom"
                   >
-                    <Form
-                      // aria-label={codesandboxLabel}
-                      action="https://codesandbox.io/api/v1/sandboxes/define"
-                      method="POST"
-                      target="_blank"
-                      style={{ display: "inline-block" }}
-                    >
-                      <Button
-                        // aria-label={codesandboxLabel}
-                        variant="control"
-                        type="submit"
-                      >
-                        <input
-                          type="hidden"
-                          name="parameters"
-                          // @ts-ignore
-                          value={getParameters(
-                            getReactParams("NewComponent", code)
-                          )}
-                        />
-                        <CodepenIcon />
-                      </Button>
-                    </Form>
+                    {codesandboxForm()}
                   </Tooltip>
                 </PageHeaderToolsItem>
               </>
             )}
+          </PageHeaderToolsGroup>
+          <PageHeaderToolsGroup
+            visibility={{
+              default: "hidden",
+              md: "hidden",
+              lg: "hidden",
+              xl: "visible",
+              "2xl": "hidden",
+            }}
+          >
+            <PageHeaderToolsItem>
+              <Dropdown
+                isPlain
+                position="right"
+                onSelect={onKebabDropdownSelect}
+                toggle={<KebabToggle onToggle={onKebabDropdownToggle} />}
+                isOpen={overflowOpen}
+                dropdownItems={feedbackThemeItems.concat(importExportItems)}
+                className="pf-builder-overflow"
+              />
+            </PageHeaderToolsItem>
           </PageHeaderToolsGroup>
           <PageHeaderToolsGroup>
             <PageHeaderToolsItem>
@@ -345,7 +431,7 @@ export const App = ({ vscode, data, filePath }) => {
       defaultSize={`${drawerWidth}px`}
       className={css("pf-builder-editor", vscode && "vscode")}
     >
-      <CodeEditor
+      {/* <CodeEditor
         language={Language.javascript}
         // height={`calc(${showProps ? "50vh - 96px" : "100vh - 174px"})`}
         height={`calc(100vh - 92px)`}
@@ -356,7 +442,23 @@ export const App = ({ vscode, data, filePath }) => {
         options={{
           automaticLayout: true,
         }}
-      />
+      /> */}
+      {/* until fixed: https://github.com/patternfly/patternfly-react/issues/6501 */}
+      <div className={css(codeEditorStyles.codeEditor)}>
+        <div className={css(codeEditorStyles.codeEditorMain)}>
+          <MonacoEditor
+            height={`calc(100vh - 76px)`}
+            language="javascript"
+            theme={themeState === "dark" ? "vs-dark" : "vs-light"}
+            value={code as string}
+            onChange={onChange}
+            editorDidMount={onEditorDidMount}
+            options={{
+              automaticLayout: true,
+            }}
+          />
+        </div>
+      </div>
     </DrawerPanelContent>
   );
   const uiBuilderDrawer = (
@@ -383,19 +485,22 @@ export const App = ({ vscode, data, filePath }) => {
         setComponentsInUse: onSetComponentsInUse,
         activeComponent: activeComponentState,
         setActiveComponent: setActiveComponentState,
+        theme: themeState,
+        toggleTheme,
       }}
     >
       <Page
         className={css(
           "pf-builder-page",
-          showCode ? "layout-mode" : "preview-mode"
+          showCode ? "layout-mode" : "preview-mode",
+          themeState === "dark" && "dark-theme"
         )}
         isManagedSidebar
         header={pageHeader}
         sidebar={
           <PageSidebar
             className="pf-builder-sidebar"
-            theme="light"
+            theme={themeState}
             nav={<ComponentList code={code} />}
           />
         }
@@ -407,39 +512,20 @@ export const App = ({ vscode, data, filePath }) => {
           {uiBuilderDrawer}
         </PageSection>
       </Page>
-      <Modal
-        variant="medium"
-        isOpen={gistModalOpen}
-        onClose={() => setGistModalOpen(false)}
-      >
-        <div>Created gist at:</div>
-        <div>
-          <ClipboardCopy
-            variant="inline-compact"
-            additionalActions={
-              <ClipboardCopyAction>
-                <Tooltip
-                  trigger="mouseenter"
-                  content="Open URL"
-                  exitDelay={300}
-                  entryDelay={300}
-                  position="bottom"
-                >
-                  <Button
-                    variant="plain"
-                    aria-label="Open new browser tab"
-                    onClick={() => window.open(gistUrl)}
-                  >
-                    <ExternalLinkAltIcon aria-hidden />
-                  </Button>
-                </Tooltip>
-              </ClipboardCopyAction>
-            }
-          >
-            {gistUrl}
-          </ClipboardCopy>
-        </div>
-      </Modal>
+      {gistExportModalOpen && (
+        <GistExportModal
+          isOpen={gistExportModalOpen}
+          onClose={() => setGistExportModalOpen(false)}
+          code={code}
+        />
+      )}
+      {gistImportModalOpen && (
+        <GistImportModal
+          isOpen={gistImportModalOpen}
+          onClose={() => setGistImportModalOpen(false)}
+          setCode={setCode}
+        />
+      )}
     </AppContext.Provider>
   );
 };

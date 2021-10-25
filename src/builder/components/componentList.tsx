@@ -660,7 +660,7 @@ export const ComponentList = ({ code }) => {
   };
   return (
     <>
-      <div className="pf-c-tabs">
+      <div className="pf-c-tabs pf-m-box">
         <ul className="pf-c-tabs__list">
           <li
             className={css(

@@ -142,7 +142,7 @@ class NewComponent extends React.Component {
     );
 
     const Header = (
-      <PageHeader logo={<Brand alt="Patternfly Logo" />} headerTools={headerTools} showNavToggle />
+      <PageHeader src="https://www.patternfly.org/v4/images/pfColorLogo.4189e7eb1a0741ea2b3b51b80d33c4cb.svg" logo={<Brand alt="Patternfly Logo" />} headerTools={headerTools} showNavToggle />
     );
     const pageId = 'main-content-page-layout-tertiary-nav';
     const PageSkipToContent = <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>;

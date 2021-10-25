@@ -54,7 +54,7 @@ class NewComponent extends React.Component {
         isResizable
         onResize={this.onResize}
         id="right-resize-panel"
-        defaultSize={"500px"}
+        defaultSize={"600px"}
         minSize={"150px"}
       >
         <DrawerHead>

@@ -3,6 +3,7 @@ import * as React from "react";
 import * as reactCoreModule from "@patternfly/react-core";
 import * as componentSnippetModules from "./components/snippets";
 import { ComponentAdder } from "./components/componentAdder";
+import * as reactIcons from "@patternfly/react-icons";
 import {
   convertToReactComponent,
   parseComponent,
@@ -21,7 +22,8 @@ import { AppContext } from "./app";
 import unique from "unique-selector";
 import { getContent } from "./components/componentList";
 
-const scope = {
+export const scope = {
+  ...reactIcons,
   ...reactCoreModule,
   // ...wrappedReactCoreModule,
   ...componentSnippetModules,
