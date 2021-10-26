@@ -14,7 +14,7 @@ import ExternalLinkAltIcon from "@patternfly/react-icons/dist/esm/icons/external
 
 const Gists = require("gists");
 const gists = new Gists({
-  token: "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",
+  token: "",
 });
 
 export const GistExportModal = ({ code, isOpen, onClose }) => {
