@@ -6,6 +6,7 @@ export const componentSnippets = {
     headerTools={<PageHeaderTools></PageHeaderTools>}
     showNavToggle
   />`,
+    imports: ['PageHeader'],
     targets: ["Page"],
     props: [
       {
@@ -57,6 +58,7 @@ export const componentSnippets = {
         </NavItem>
       </NavList>
     </Nav>`,
+    imports: ['Nav', 'NavList', 'NavItem'],
     targets: ["Page"],
     props: [
       {
@@ -74,6 +76,7 @@ export const componentSnippets = {
         Section landing
       </BreadcrumbItem>
     </Breadcrumb>`,
+    imports: ['Breadcrumb', 'BreadcrumbItem'],
     targets: ["Page"],
     props: [
       {
@@ -85,6 +88,7 @@ export const componentSnippets = {
   PageGroupedContentSnippet: {
     targets: ["Page"],
     component: "Page",
+    imports: ['PageSection', 'TextContent', 'Text'],
     props: [
       {
         prop: "isTertiaryNavGrouped",

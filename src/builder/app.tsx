@@ -152,11 +152,13 @@ export const App = ({ vscode, data, filePath }) => {
     return code;
   };
 
-  const onChange = (newCode) => {
+  const onChange = (newCode, cleanUp = true) => {
     if (!newCode) {
       setTimeout(() => setCode(template), 10);
     } else {
-      newCode = cleanupCode(newCode);
+      if (cleanUp) {
+        newCode = cleanupCode(newCode);
+      }
       setCode(newCode);
     }
     vscode &&
@@ -168,19 +170,19 @@ export const App = ({ vscode, data, filePath }) => {
   };
 
   const onEditorWillMount = (monaco) => {
-    monaco.languages.registerHoverProvider("javascript", {
-      provideHover: function (model, position) {
-        return {
-          // range: new monaco.Range(
-          //   1,
-          //   1,
-          //   model.getLineCount(),
-          //   model.getLineMaxColumn(model.getLineCount())
-          // ),
-          contents: [{ value: "**SOURCE**" }, { value: "hello" }],
-        };
-      },
-    });
+    // monaco.languages.registerHoverProvider("javascript", {
+    //   provideHover: function (model, position) {
+    //     return {
+    //       // range: new monaco.Range(
+    //       //   1,
+    //       //   1,
+    //       //   model.getLineCount(),
+    //       //   model.getLineMaxColumn(model.getLineCount())
+    //       // ),
+    //       contents: [{ value: "**SOURCE**" }, { value: parsedPropsMap['ButtonProps'] }],
+    //     };
+    //   },
+    // });
   };
 
   const onEditorDidMount = (editor, monaco) => {
@@ -429,7 +431,7 @@ export const App = ({ vscode, data, filePath }) => {
       isResizable
       onResize={onDrawerResize}
       defaultSize={`${drawerWidth}px`}
-      className={css("pf-builder-editor", vscode && "vscode")}
+      className={css("pf-builder-editor", vscode && "vscode", !showCode && "pf-u-display-none")}
     >
       {/* <CodeEditor
         language={Language.javascript}
@@ -451,7 +453,7 @@ export const App = ({ vscode, data, filePath }) => {
             language="javascript"
             theme={themeState === "dark" ? "vs-dark" : "vs-light"}
             value={code as string}
-            onChange={onChange}
+            onChange={(value) => onChange(value, false)}
             editorDidMount={onEditorDidMount}
             options={{
               automaticLayout: true,
@@ -464,11 +466,11 @@ export const App = ({ vscode, data, filePath }) => {
   const uiBuilderDrawer = (
     <Drawer isExpanded isInline className="pf-builder-drawer">
       <DrawerContent
-        panelContent={showCode && panelContent}
+        panelContent={panelContent}
         colorVariant="light-200"
       >
         <DrawerContentBody>
-          <div className={css("uib-preview", vscode && "vscode")}>
+          <div className={css("uib-preview", vscode && "vscode", "pf-u-h-100")}>
             <ErrorBoundary>
               <LiveRegion code={code} setCode={onChange} />
             </ErrorBoundary>

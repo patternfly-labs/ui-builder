@@ -22,7 +22,7 @@ export const GistImportModal = ({ isOpen, onClose, setCode }) => {
     gists
       .list("pf-ui-builder")
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
       })
       .catch(console.error);
   };
@@ -36,7 +36,7 @@ export const GistImportModal = ({ isOpen, onClose, setCode }) => {
       gists
         .get(checkedId)
         .then((res) => {
-          console.log(res.body);
+          // console.log(res.body);
           setIsImporting(false);
           setLoaded(true);
           setCode(res.body.files["NewComponent"].content);

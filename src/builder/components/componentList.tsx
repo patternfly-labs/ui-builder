@@ -46,7 +46,21 @@ const filteredOut = [
   "FileUpload", // bug: when you remove the code from the editor, cannot drop another component into the builder
   "Backdrop",
   "BackgroundImage",
-  "ToggleTemplate"
+  "ToggleTemplate",
+  "WizardBody",
+  "WizardFooter",
+  "WizardHeader",
+  "WizardNav",
+  "WizardNavItem",
+  "WizardToggle",
+  "ToolbarExpandIconWrapper",
+  "TimeOption",
+  "Text",
+  "TextContent",
+  "TextList",
+  "TextListItem",
+  "ProgressBar",
+  "ProgressContainer"
 ];
 const isParent = [
   "AlertGroup",
@@ -57,6 +71,7 @@ const isParent = [
   "TextArea",
   "TextInput",
   "FileUploadField", // raise to parent while FileUpload is filtered out
+  "ProgressStepper"
 ];
 const parentMap = {
   FormSelectOptionGroup: "FormSelect",
@@ -71,6 +86,7 @@ const parentMap = {
   BadgeToggle: "Dropdown",
   Chip: "ChipGroup",
   DrilldownMenu: "Menu",
+  ProgressStep: "ProgressStepper"
 };
 
 const startsWithCapital = (word: string) =>
@@ -238,7 +254,7 @@ export const allItems = {
   ...componentSnippets,
 };
 
-const rules = {
+export const rules = {
   ...componentRules,
   ...layoutRules,
   ...componentSnippets,
@@ -248,13 +264,13 @@ export const getContent = (component, value) => {
   const placementTargets = rules[component] && rules[component].targets;
   let body = "";
   if (placementTargets) {
-    body += `&#8226; Should be nested within ${rules[component].targets.join(
+    body += `&#8226; Add to: ${rules[component].targets.join(
       " | "
     )}<br />`;
   } else if (value.parent) {
-    body += `&#8226; Should be nested within ${value.parent}<br />`;
+    body += `&#8226; Add to: ${value.parent}<br />`;
   } else if (value.component) {
-    body += `&#8226; Should be nested within ${value.component}<br />`;
+    body += `&#8226; Add to: ${value.component}<br />`;
   }
   if (value.props) {
     body += body ? `<br />` : "";
@@ -270,7 +286,7 @@ export const getContent = (component, value) => {
 
 const onDragStart = (ev, component, setActiveComponent) => {
   ev.stopPropagation();
-  console.log(`dragStart: ${component}`);
+  // console.log(`dragStart: ${component}`);
   [...document.querySelectorAll(`.uib-preview *`)].forEach((el) => {
     el.classList.add("pf-m-droppable");
   });

@@ -4,21 +4,21 @@ import CaretDownIcon from "@patternfly/react-icons/dist/esm/icons/caret-down-ico
 import { Dropdown, DropdownItem, DropdownToggle } from "@patternfly/react-core";
 import NewPage from "!!raw-loader!./components/templates/NewPage";
 import NewComponent from "!!raw-loader!./components/templates/NewComponent";
-import PageSticky from "!!raw-loader!./components/templates/PageSticky";
+import FullPage from "!!raw-loader!./components/templates/FullPage";
 import Drawer from "!!raw-loader!./components/templates/Drawer";
 
 class NewFromTemplate extends React.Component {
   constructor(props) {
     super(props);
     this.options = [
-      <DropdownItem key={0} onClick={() => this.props.setCode(NewComponent)}>
-        Component
-      </DropdownItem>,
+      // <DropdownItem key={0} onClick={() => this.props.setCode(NewComponent)}>
+      //   Component
+      // </DropdownItem>,
       <DropdownItem key={1} onClick={() => this.props.setCode(NewPage)}>
         Basic page
       </DropdownItem>,
-      <DropdownItem key={2} onClick={() => this.props.setCode(PageSticky)}>
-        Sticky page
+      <DropdownItem key={2} onClick={() => this.props.setCode(FullPage)}>
+        Full page
       </DropdownItem>,
       <DropdownItem key={3} onClick={() => this.props.setCode(Drawer)}>
         Drawer

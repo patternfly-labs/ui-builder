@@ -415,7 +415,6 @@ export function parseComponent(code: string, injectFunction: boolean, injectInte
       idCounter += 1;
     });
   }
-
   return {
     ast,
     componentsInUse
@@ -436,7 +435,7 @@ export function convertToReactComponent(code: string, injectInteractive: boolean
     return React.createElement(Page,{"onDragEnter":ev => onLiveRegionDragEnter(ev, 0),"onDragLeave":ev => onLiveRegionDragLeave(ev, 0),"onDrop":ev => onLiveRegionDrop(ev, 0)});;
   };
   */
-  console.log(code)
+  // console.log(code)
   return { code, hasTS: ast.sourceType === 'ts', componentsInUse };
 }
 

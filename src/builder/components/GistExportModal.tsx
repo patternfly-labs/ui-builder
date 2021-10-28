@@ -37,7 +37,7 @@ export const GistExportModal = ({ code, isOpen, onClose }) => {
     gists
       .create(options)
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
         setGistUrl(res.body.html_url);
         setIsCreating(false);
       })
@@ -51,7 +51,7 @@ export const GistExportModal = ({ code, isOpen, onClose }) => {
     gists
       .list("pf-ui-builder")
       .then((res) => {
-        console.log(res.body);
+        // console.log(res.body);
       })
       .catch(console.error);
   };
@@ -61,7 +61,7 @@ export const GistExportModal = ({ code, isOpen, onClose }) => {
       gists
         .get(id)
         .then((res) => {
-          console.log(res.body);
+          // console.log(res.body);
         })
         .catch(console.error);
     }
