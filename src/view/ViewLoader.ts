@@ -2,12 +2,14 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { Base64 } from 'js-base64';
+import { URI } from 'vscode-uri';
 
 import { CommandAction, ICommand } from "./model";
 
 export default class ViewLoader {
   private readonly _panel: vscode.WebviewPanel | undefined;
-  private readonly _extensionPath: string;
+  // @ts-ignore
+  private readonly _extensionPath: URI;
   private _disposables: vscode.Disposable[] = [];
 
   public update(text: string, fileName: string) {
@@ -17,7 +19,7 @@ export default class ViewLoader {
     }
   }
 
-  constructor(text: string, fileName: string, extensionPath: string) {
+  constructor(text: string, fileName: string, extensionPath: URI) {
     this._extensionPath = extensionPath;
 
     const encodedText = this.encodeContent(text, fileName);
@@ -30,7 +32,7 @@ export default class ViewLoader {
         {
           enableScripts: true,
           localResourceRoots: [
-            vscode.Uri.file(path.join(extensionPath, "uiBuilder"))
+            vscode.Uri.file(path.join(extensionPath.toString(), "dist"))
           ],
         }
       );
@@ -67,17 +69,21 @@ export default class ViewLoader {
 
   private getWebviewContent(text: string, filePath: string): string {
     // Local path to main script run in the webview
-    const reactAppPathOnDisk = vscode.Uri.file(
-      path.join(this._extensionPath, "uiBuilder", "index.js")
-    );
-    const reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
-    // @ts-ignore
-    const pfStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "patternfly.css")));
-    // @ts-ignore
-    const pfAddonsStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "patternfly-addons.css")));
-    // @ts-ignore
-    const otherStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "styles.css")));
-    // return fs.readFileSync(reactAppUri.fsPath,'utf8');
+    // const reactAppPathOnDisk = vscode.Uri.file(
+    //   path.join(this._extensionPath, "uiBuilder", "index.js")
+    // );
+    // const reactAppUri = reactAppPathOnDisk.with({ scheme: "vscode-resource" });
+    // <script src="${reactAppUri}"></script>
+    // // @ts-ignore
+    // const pfStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "patternfly.css")));
+    // // @ts-ignore
+    // const pfAddonsStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "patternfly-addons.css")));
+    // // @ts-ignore
+    // const otherStyles = this._panel?.webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "uiBuilder", "styles.css")));
+    // <link href="${pfStyles}" rel="stylesheet">
+    // <link href="${pfAddonsStyles}" rel="stylesheet">
+    // <link href="${otherStyles}" rel="stylesheet">
+
     const html = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -88,7 +94,7 @@ export default class ViewLoader {
         <meta http-equiv="Content-Security-Policy"
                     content="default-src 'self' 'unsafe-inline';
                              img-src https: 'self' 'unsafe-inline';
-                             script-src 'unsafe-eval' 'unsafe-inline' vscode-resource:;
+                             script-src 'unsafe-eval' https://cdn.jsdelivr.net/gh/patternfly/patternfly-quickstarts@main/packages/vscode/dist-cdn/quickStarts.js 'unsafe-inline' vscode-resource:;
                              style-src vscode-resource: 'self' 'unsafe-inline';">
 
         <script>
@@ -96,14 +102,11 @@ export default class ViewLoader {
           window.initialData = "${text}";
           window.filePath = "${filePath}";
         </script>
-        <link href="${pfStyles}" rel="stylesheet">
-        <link href="${pfAddonsStyles}" rel="stylesheet">
-        <link href="${otherStyles}" rel="stylesheet">
+        
     </head>
     <body>
         <div id="root"></div>
-
-        <script src="${reactAppUri}"></script>
+        <script src="https://cdn.jsdelivr.net/gh/patternfly/patternfly-quickstarts@main/packages/vscode/dist-cdn/quickStarts.js"></script>
     </body>
     </html>`;
     return html;

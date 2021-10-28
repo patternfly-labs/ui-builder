@@ -33,7 +33,6 @@ module.exports = {
       crypto: require.resolve("crypto-browserify"),
       zlib: require.resolve("browserify-zlib"),
       assert: require.resolve("assert/"),
-      // "process": require.resolve("process/browser"),
       fs: false,
     },
   },
