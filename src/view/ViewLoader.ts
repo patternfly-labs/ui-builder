@@ -84,6 +84,8 @@ export default class ViewLoader {
     // <link href="${pfAddonsStyles}" rel="stylesheet">
     // <link href="${otherStyles}" rel="stylesheet">
 
+    // cdn: https://cdn.jsdelivr.net/gh/patternfly-labs/ui-builder@create-gist/dist-cdn/uiBuilder.js
+
     const html = `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -94,7 +96,7 @@ export default class ViewLoader {
         <meta http-equiv="Content-Security-Policy"
                     content="default-src 'self' 'unsafe-inline';
                              img-src https: 'self' 'unsafe-inline';
-                             script-src 'unsafe-eval' https://cdn.jsdelivr.net/gh/patternfly/patternfly-quickstarts@main/packages/vscode/dist-cdn/quickStarts.js 'unsafe-inline' vscode-resource:;
+                             script-src 'unsafe-eval' https://cdn.jsdelivr.net/gh/patternfly-labs/ui-builder@create-gist/dist-cdn/uiBuilder.js 'unsafe-inline' vscode-resource:;
                              style-src vscode-resource: 'self' 'unsafe-inline';">
 
         <script>
@@ -106,7 +108,7 @@ export default class ViewLoader {
     </head>
     <body>
         <div id="root"></div>
-        <script src="https://cdn.jsdelivr.net/gh/patternfly/patternfly-quickstarts@main/packages/vscode/dist-cdn/quickStarts.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/patternfly-labs/ui-builder@create-gist/dist-cdn/uiBuilder.js"></script>
     </body>
     </html>`;
     return html;

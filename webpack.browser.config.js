@@ -6,7 +6,7 @@ const webExtensionConfig = {
   target: 'webworker', // extensions run in a webworker context
   entry: {
     extension: ['./src/extension.ts'], // source of the web extension main file
-    uiBuilder: './src/builder/entry.tsx'
+    // uiBuilder: './src/builder/entry.tsx'
   },
   output: {
     filename: '[name].js',
