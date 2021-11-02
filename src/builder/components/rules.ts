@@ -5,7 +5,6 @@ import { componentToClassMap } from "./componentToClassMap";
  * By default, components are simply mapped from their name to a simple jsx tag, i.e. Card -> <Card></Card>
  * If the tag should be different, that can be re-mapped here
  * You can also add additional information, for example if a component needs to be added as a prop to a parent component,
- * or if a component should come before or after a specific sibling component
  */
 export const componentRules = {
   // AboutModal: FocusTrap steals focus on each change in the editor
@@ -336,7 +335,7 @@ export const componentRules = {
     targets: ["DropdownToggleAction | DropdownToggle"],
   },
   DualListSelector: `<DualListSelector availableOptions={['Option 1', 'Option 2', 'Option 3']} chosenOptions={[]} />`,
-  EmptyStateIcon: `<EmptyStateIcon icon={() => 'ICON'} />`,
+  EmptyStateIcon: `<EmptyStateIcon icon={UsersIcon} />`,
   EmptyStateBody: `<EmptyStateBody>Body</EmptyStateBody>`,
   ExpandableSection: `<ExpandableSection isExpanded toggleText="Show less">Expanded section</ExpandableSection>`,
   ExpandableSectionToggle: {
@@ -404,7 +403,7 @@ export const componentRules = {
     targets: ["MenuList"],
   },
   MenuItemAction: {
-    jsx: `<MenuItemAction icon="Icon" />`,
+    jsx: `<MenuItemAction icon={<UsersIcon />} />`,
     targets: ["MenuItem"],
     props: [
       {
@@ -451,73 +450,83 @@ export const componentRules = {
   },
   NotificationDrawerHeader: `<NotificationDrawerHeader count={3}></NotificationDrawerHeader>`,
   NotificationDrawerList: {
-    targets: ['NotificationDrawerBody', 'NotificationDrawerGroup']
+    targets: ["NotificationDrawerBody", "NotificationDrawerGroup"],
   },
   NotificationDrawerListItem: {
-    targets: ['NotificationDrawerList']
+    targets: ["NotificationDrawerList"],
   },
   NotificationDrawerListItemHeader: {
     jsx: `<NotificationDrawerListItemHeader title="Notification title"></NotificationDrawerListItemHeader>`,
-    targets: ['NotificationDrawerListItem']
+    targets: ["NotificationDrawerListItem"],
   },
   NotificationDrawerListItemBody: {
     jsx: `<NotificationDrawerListItemBody timestamp="5 minutes ago">Description</NotificationDrawerListItemBody>`,
-    targets: ['NotificationDrawerListItem']
+    targets: ["NotificationDrawerListItem"],
   },
   NotificationDrawerGroupList: {
-    targets: ['NotificationDrawerBody']
+    targets: ["NotificationDrawerBody"],
   },
   NotificationDrawerGroup: {
     jsx: `<NotificationDrawerGroup title="Notification group" count={2} isExpanded></NotificationDrawerGroup>`,
-    targets: ['NotificationDrawerGroupList']
+    targets: ["NotificationDrawerGroupList"],
   },
   NumberInput: `<NumberInput value={20} />`,
   OptionsMenu: `<OptionsMenu menuItems={[]} isOpen toggle={<OptionsMenuToggle toggleTemplate="Options menu" />} />`,
   OptionsMenuToggle: {
     jsx: `<OptionsMenuToggle toggleTemplate="Options menu" />`,
-    props: [{
-      component: 'OptionsMenu',
-      prop: 'toggle'
-    }]
+    props: [
+      {
+        component: "OptionsMenu",
+        prop: "toggle",
+      },
+    ],
   },
   OptionsMenuItem: {
     jsx: `<OptionsMenuItem>Option</OptionsMenuItem>`,
-    props: [{
-      component: 'OptionsMenu',
-      prop: 'menuItems'
-    }],
-    targets: ['OptionsMenu', 'OptionsMenuItemGroup']
+    props: [
+      {
+        component: "OptionsMenu",
+        prop: "menuItems",
+      },
+    ],
+    targets: ["OptionsMenu", "OptionsMenuItemGroup"],
   },
   OptionsMenuItemGroup: {
     jsx: `<OptionsMenuItemGroup></OptionsMenuItemGroup>`,
-    props: [{
-      component: 'OptionsMenu',
-      prop: 'menuItems'
-    }]
+    props: [
+      {
+        component: "OptionsMenu",
+        prop: "menuItems",
+      },
+    ],
   },
   OptionsMenuSeparator: {
     jsx: `<OptionsMenuSeparator className="${componentToClassMap.OptionsMenuSeparator}"></OptionsMenuSeparator>`,
-    props: [{
-      component: 'OptionsMenu',
-      prop: 'menuItems'
-    }],
-    targets: ['OptionsMenu', 'OptionsMenuItemGroup']
+    props: [
+      {
+        component: "OptionsMenu",
+        prop: "menuItems",
+      },
+    ],
+    targets: ["OptionsMenu", "OptionsMenuItemGroup"],
   },
   OverflowMenu: `<OverflowMenu breakpoint="lg"></OverflowMenu>`,
   OverflowMenuDropdownItem: {
     jsx: `<OverflowMenuDropdownItem className="${componentToClassMap.OverflowMenuDropdownItem}">Item</OverflowMenuDropdownItem>`,
-    props: [{
-      component: 'Dropdown',
-      prop: 'dropdownItems'
-    }],
-    targets: ['Dropdown']
+    props: [
+      {
+        component: "Dropdown",
+        prop: "dropdownItems",
+      },
+    ],
+    targets: ["Dropdown"],
   },
   OverflowMenuItem: {
     jsx: `<OverflowMenuItem>Item</OverflowMenuItem>`,
-    targets: ['OverflowMenuContent', 'OverflowMenuGroup']
+    targets: ["OverflowMenuContent", "OverflowMenuGroup"],
   },
   OverflowMenuGroup: {
-    targets: ['OverflowMenuContent']
+    targets: ["OverflowMenuContent"],
   },
   OverflowMenuControl: `<OverflowMenuControl hasAdditionalOptions></OverflowMenuControl>`,
   PageHeader: {
@@ -535,41 +544,225 @@ export const componentRules = {
     ],
   },
   PageHeaderTools: {
-    props: [{
-      component: 'PageHeader',
-      prop: 'headerTools'
-    }],
-    targets: ['PageHeader']
+    props: [
+      {
+        component: "PageHeader",
+        prop: "headerTools",
+      },
+    ],
+    targets: ["PageHeader"],
   },
   PageHeaderToolsGroup: {
-    targets: ['PageHeaderTools']
+    targets: ["PageHeaderTools"],
   },
   PageHeaderToolsItem: {
     jsx: `<PageHeaderToolsItem>Item</PageHeaderToolsItem>`,
-    targets: ['PageHeaderTools', 'PageHeaderToolsGroup']
+    targets: ["PageHeaderTools", "PageHeaderToolsGroup"],
   },
   PageSidebar: {
     jsx: `<PageSidebar nav="Navigation" isNavOpen theme="light" />`,
-    props: [{
-      component: 'Page',
-      prop: 'sidebar'
-    }],
+    props: [
+      {
+        component: "Page",
+        prop: "sidebar",
+      },
+    ],
   },
   PageNavigation: {
-    targets: ['PageGroup']
+    targets: ["PageGroup"],
   },
   PageBreadcrumb: {
-    targets: ['PageGroup']
+    targets: ["PageGroup"],
   },
   PageSection: {
     jsx: `<PageSection className="${componentToClassMap.PageSection}"></PageSection>`,
-    targets: ['Page', 'PageGroup']
+    targets: ["Page", "PageGroup"],
   },
   PageToggleButton: `<PageToggleButton className="${componentToClassMap.PageToggleButton}"></PageToggleButton>`,
-  SimpleListItem: `<SimpleListItem className="${componentToClassMap.SimpleListItem}"></SimpleListItem>`,
-  Text: `<Text className="${componentToClassMap.Text}"></Text>`,
-  TextList: `<TextList className="${componentToClassMap.TextList}"></TextList>`,
-  TextListItem: `<TextListItem className="${componentToClassMap.TextListItem}"></TextListItem>`,
+  Pagination: `<Pagination itemCount={523} perPage={20} />`,
+  Popover: `<Popover
+  aria-label="Basic popover"
+  headerContent={<div>Popover header</div>}
+  bodyContent={<div>Popovers are triggered by click rather than hover.</div>}
+  footerContent="Popover footer"
+>
+  <Button>Toggle popover</Button>
+</Popover>`,
+  Progress: `<Progress value={33} title="Progress" />`,
+  ProgressStep: `<ProgressStep>Step</ProgressStep>`,
+  Radio: `<Radio label="Radio button" />`,
+  SearchInput: `<SearchInput placeholder="Search input" onChange={val => {}} onClear={e => {}} />`,
+  Select: `<Select isOpen onToggle={open => {}} onSelect={(e, selection, placeholder) => {}} children={[]} />`,
+  SelectGroup: {
+    jsx: `<SelectGroup label="Group 1" key="group1"></SelectGroup>`,
+    props: [{
+      component: 'Select',
+      prop: 'children'
+    }]
+  },
+  SelectOption: {
+    jsx: `<SelectOption key="option" value="Option" />`,
+    props: [{
+      component: 'Select',
+      prop: 'children'
+    }],
+    targets: ['Select', 'SelectGroup']
+  },
+  idebarPanel: `<SidebarPanel>Panel</SidebarPanel>`,
+  SidebarContent: `<SidebarContent>Content</SidebarContent>`,
+  SimpleListGroup: {
+    jsx: `<SimpleListGroup title="Group"></SimpleListGroup>`,
+  },
+  SimpleListItem: {
+    jsx: `<SimpleListItem className="${componentToClassMap.SimpleListItem}">Item</SimpleListItem>`,
+    targets: ["SimpleList", "SimpleListGroup"],
+  },
+  Skeleton: `<Skeleton width="25%" screenreaderText="Loading contents" />`,
+  SkipToContent: `<SkipToContent href="#main-content">Skip to content</SkipToContent>`,
+  Slider: `<Slider value={12} onChange={(val) => {}} />`,
+  Spinner: `<Spinner isSVG size="lg" />`,
+  Switch: `<Switch label="Message when on" labelOff="Message when off" onChange={(checked) => {}} />`,
+  Tabs: `<Tabs activeKey="tab1"></Tabs>`,
+  Tab: `<Tab eventKey="tab1" title={[]}>Tab content</Tab>`,
+  TabTitleText: {
+    jsx: `<TabTitleText>Tab title</TabTitleText>`,
+    props: [
+      {
+        component: "Tab",
+        prop: "title",
+      },
+    ],
+    targets: ["Tab"],
+  },
+  TabTitleIcon: {
+    jsx: `<TabTitleIcon><UsersIcon /></TabTitleIcon>`,
+    props: [
+      {
+        component: "Tab",
+        prop: "title",
+      },
+    ],
+    targets: ["Tab"],
+  },
+  TabContent: {
+    jsx: `<TabContent>Tab content</TabContent>`,
+    targets: ["*"],
+  },
+  // Text: {
+  //   jsx: `<Text className="${componentToClassMap.Text}"></Text>`,
+  //   targets: ['TextContent']
+  // },
+  // TextList: `<TextList className="${componentToClassMap.TextList}"></TextList>`,
+  // TextListItem: `<TextListItem className="${componentToClassMap.TextListItem}"></TextListItem>`,
+  TextArea: `<TextArea value="Text area" onChange={(val) => {}} />`,
+  TextInput: `<TextInput value="Text input" type="text" onChange={(val) => {}} />`,
+  Tile: `<Tile title="Tile title">Tile subtext</Tile>`,
+  TimePicker: `<TimePicker time="11:26 AM" />`,
+  Title: `<Title headingLevel="h1" size="4xl">Title</Title>`,
+  ToggleGroupItem: `<ToggleGroupItem text="Option" />`,
+  ToolbarGroup: {
+    targets: ["ToolbarContent", "ToolbarToggleGroup"],
+  },
+  ToolbarItem: {
+    jsx: `<ToolbarItem>Item</ToolbarItem>`,
+    targets: ["ToolbarContent", "ToolbarGroup", "ToolbarToggleGroup"],
+  },
+  ToolbarFilter: {
+    jsx: `<ToolbarFilter categoryName="Filter" chips={['Selected']}>
+      <Select variant="checkbox" placeholderText="Filter" isOpen>
+        <SelectOption key="item1" value="Item 1" />
+        <SelectOption key="item2" value="Item 2" />
+        <SelectOption key="item3" value="Item 3" />
+      </Select>
+    </ToolbarFilter>`,
+    targets: ["ToolbarContent", "ToolbarGroup", "ToolbarToggleGroup"],
+  },
+  ToolbarToggleGroup: {
+    jsx: `<ToolbarToggleGroup breakpoint="xl"></ToolbarToggleGroup>`,
+    targets: ["ToolbarContent"],
+  },
+  Tooltip: `<Tooltip
+  content={<div>I am a tooltip</div>}
+>
+  <Button>Button with tooltip</Button>
+</Tooltip>`,
+  TreeView: `<TreeView data={
+    [
+      {
+        name: 'Application launcher',
+        id: 'AppLaunch',
+        children: [
+          {
+            name: 'Application 1',
+            id: 'App1',
+            children: [
+              { name: 'Settings', id: 'App1Settings' },
+              { name: 'Current', id: 'App1Current' }
+            ]
+          },
+          {
+            name: 'Application 2',
+            id: 'App2',
+            children: [
+              { name: 'Settings', id: 'App2Settings' },
+              {
+                name: 'Loader',
+                id: 'App2Loader',
+                children: [
+                  { name: 'Loading App 1', id: 'LoadApp1' },
+                  { name: 'Loading App 2', id: 'LoadApp2' },
+                  { name: 'Loading App 3', id: 'LoadApp3' }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Cost management',
+        id: 'Cost',
+        children: [
+          {
+            name: 'Application 3',
+            id: 'App3',
+            children: [
+              { name: 'Settings', id: 'App3Settings' },
+              { name: 'Current', id: 'App3Current' }
+            ]
+          }
+        ]
+      }
+    ]
+  } allExpanded />`,
+  TreeViewSearch: {
+    jsx: `<Toolbar style={{ padding: 0 }}>
+    <ToolbarContent style={{ padding: 0 }}>
+      <ToolbarItem widths={{ default: '100%' }}>
+        <TreeViewSearch
+          id="input-search"
+          name="search-input"
+          aria-label="Search input example"
+        />
+      </ToolbarItem>
+    </ToolbarContent>
+  </Toolbar>`,
+    props: [
+      {
+        component: "TreeView",
+        prop: "toolbar",
+      },
+    ],
+    targets: ["TreeView"],
+  },
+  Wizard: `<Wizard steps={
+    [
+      { name: 'First step', component: <p>Step 1 content</p> },
+      { name: 'Second step', component: <p>Step 2 content</p> },
+      { name: 'Third step', component: <p>Step 3 content</p> },
+      { name: 'Fourth step', component: <p>Step 4 content</p> },
+      { name: 'Review', component: <p>Review step content</p>, nextButtonText: 'Finish' }
+    ]
+  } />`,
 };
 
 export const layoutRules = {

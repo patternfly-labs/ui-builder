@@ -6,23 +6,23 @@ const { capitalize } = require("./capitalize");
 const versions = {
   Releases: [
     {
-      name: "2021.12",
-      date: "2021-09-20",
+      name: "2021.13",
+      date: "2021-10-13",
       latest: true,
       versions: {
-        "@patternfly/patternfly": "4.135.2",
-        "@patternfly/react-catalog-view-extension": "4.12.74",
-        "@patternfly/react-charts": "6.15.23",
-        "@patternfly/react-code-editor": "4.3.61",
-        "@patternfly/react-core": "4.157.3",
-        "@patternfly/react-icons": "4.11.17",
-        "@patternfly/react-inline-edit-extension": "4.7.84",
-        "@patternfly/react-log-viewer": "4.6.14",
-        "@patternfly/react-styles": "4.11.16",
-        "@patternfly/react-table": "4.30.3",
-        "@patternfly/react-tokens": "4.12.18",
-        "@patternfly/react-topology": "4.9.80",
-        "@patternfly/react-virtualized-extension": "4.9.49",
+        "@patternfly/patternfly": "4.144.4",
+        "@patternfly/react-catalog-view-extension": "4.13.17",
+        "@patternfly/react-charts": "6.15.31",
+        "@patternfly/react-code-editor": "4.3.84",
+        "@patternfly/react-core": "4.162.2",
+        "@patternfly/react-icons": "4.13.0",
+        "@patternfly/react-inline-edit-extension": "4.7.108",
+        "@patternfly/react-log-viewer": "4.7.20",
+        "@patternfly/react-styles": "4.12.4",
+        "@patternfly/react-table": "4.31.7",
+        "@patternfly/react-tokens": "4.14.0",
+        "@patternfly/react-topology": "4.9.103",
+        "@patternfly/react-virtualized-extension": "4.9.73",
       },
     },
   ],
@@ -162,19 +162,20 @@ function getReactParams(title, code, scope) {
     // Ignore
   }
 
-  const imgImportRegex =
-    /import\s*(\w*).*['"](.*)(\.(png|jpe?g|webp|gif|svg))['"]/g;
-  let imgImportMatch;
-  while ((imgImportMatch = imgImportRegex.exec(code))) {
-    const imgName = imgImportMatch[1];
-    code = code.replace(
-      imgImportMatch[0],
-      `const ${imgName} = "https://www.patternfly.org/v4${scope[imgName]}"`
-    );
-  }
+  // const imgImportRegex =
+  //   /import\s*(\w*).*['"](.*)(\.(png|jpe?g|webp|gif|svg))['"]/g;
+  // let imgImportMatch;
+  // while ((imgImportMatch = imgImportRegex.exec(code))) {
+  //   const imgName = imgImportMatch[1];
+  //   code = code.replace(
+  //     imgImportMatch[0],
+  //     `const ${imgName} = "https://www.patternfly.org/v4${scope[imgName]}"`
+  //   );
+  // }
 
   const dependencies = {
-    "@patternfly/react-core": versions.Releases[0].versions['@patternfly/react-core']
+    "@patternfly/react-core":
+      versions.Releases[0].versions["@patternfly/react-core"],
   };
 
   Object.entries(versions.Releases[0].versions)

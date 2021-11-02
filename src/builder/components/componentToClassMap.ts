@@ -51,6 +51,7 @@ import Page from "@patternfly/react-styles/css/components/Page/page";
 import Pagination from "@patternfly/react-styles/css/components/Pagination/pagination";
 import Popover from "@patternfly/react-styles/css/components/Popover/popover";
 import Progress from "@patternfly/react-styles/css/components/Progress/progress";
+import ProgressStepper from '@patternfly/react-styles/css/components/ProgressStepper/progress-stepper';
 import Radio from "@patternfly/react-styles/css/components/Radio/radio";
 import Select from "@patternfly/react-styles/css/components/Select/select";
 import Sidebar from "@patternfly/react-styles/css/components/Sidebar/sidebar";
@@ -286,6 +287,8 @@ export const componentToClassMap = {
   Progress: Progress.progress,
   ProgressBar: Progress.progressBar,
   ProgressContainer: "", // cannot pass className
+  ProgressStepper: ProgressStepper.progressStepper,
+  ProgressStep: ProgressStepper.progressStepperStep,
   Radio: Radio.radio,
   Select: Select.select,
   SelectGroup: Select.selectMenuGroup,

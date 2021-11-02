@@ -1,10 +1,13 @@
-const path = require('path');
-const HTMLWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
+const HTMLWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const webpack = require("webpack");
 
-const pfDir = path.dirname(require.resolve('@patternfly/patternfly/package.json'));
+const pfDir = path.dirname(
+  require.resolve("@patternfly/patternfly/package.json")
+);
 
 module.exports = {
   mode: "development",
@@ -14,16 +17,27 @@ module.exports = {
     filename: "index.js",
     path: path.resolve(__dirname, "uiBuilder"),
     libraryTarget: "umd",
-    library: "patternfly-builder"
+    library: "patternfly-builder",
   },
   externals: {
-    vscode: 'commonjs vscode'
+    vscode: "commonjs vscode",
   },
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
+    fallback: {
+      stream: require.resolve("stream-browserify"),
+      util: require.resolve("util/"),
+      https: require.resolve("https-browserify"),
+      http: require.resolve("stream-http"),
+      path: require.resolve("path-browserify"),
+      crypto: require.resolve("crypto-browserify"),
+      zlib: require.resolve("browserify-zlib"),
+      assert: require.resolve("assert/"),
+      fs: false,
+    },
   },
   devServer: {
-    port: 8085
+    port: 8085,
   },
   module: {
     rules: [
@@ -51,15 +65,15 @@ module.exports = {
             use: [MiniCssExtractPlugin.loader, "css-loader"],
           },
           {
-            use: 'null-loader'
-          }
-        ]
+            use: "null-loader",
+          },
+        ],
       },
       {
         test: /\.(png|jpg|svg)$/i,
         use: [
           {
-            loader: 'url-loader',
+            loader: "url-loader",
             options: {
               limit: 8192,
             },
@@ -77,20 +91,26 @@ module.exports = {
     ],
   },
   plugins: [
-    new HTMLWebpackPlugin({ template: 'src/builder/index.html' }),
+    new HTMLWebpackPlugin({ template: "src/builder/index.html" }),
     new CopyPlugin({
       patterns: [
-        { from: path.join(pfDir, 'patternfly.css'), to: '' },
-        { from: path.join(pfDir, 'patternfly-addons.css'), to: '' },
-        { from: path.join(pfDir, 'assets'), to: 'assets' },
-        { from: path.join(__dirname, 'src/builder/styles.css'), to: '' },
+        { from: path.join(pfDir, "patternfly.css"), to: "" },
+        { from: path.join(pfDir, "patternfly-addons.css"), to: "" },
+        { from: path.join(pfDir, "assets"), to: "assets" },
+        { from: path.join(__dirname, "src/builder/styles.css"), to: "" },
       ],
     }),
     new MonacoWebpackPlugin({
-      languages: ['javascript', 'typescript', 'html', 'xml']
+      languages: ["javascript", "typescript", "html", "xml"],
     }),
-    new MiniCssExtractPlugin()
-  ]
+    new MiniCssExtractPlugin(),
+    new webpack.ProvidePlugin({
+      process: "process/browser",
+    }),
+    new webpack.ProvidePlugin({
+      Buffer: ["buffer", "Buffer"],
+    }),
+  ],
   // performance: {
   //   hints: false,
   // },

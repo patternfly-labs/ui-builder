@@ -43,7 +43,7 @@ body {
 }
 
 .pf-m-droppable-bg {
-  background-color: pink !important;
+  background-color: lime !important;
 }
 /* .pf-m-droppable {
   pointer-events: all !important;
@@ -65,7 +65,6 @@ body {
 }
 .layout-mode .uib-preview .live-region {
   padding: 16px;
-  border: 1px solid;
 }
 .preview-mode .uib-preview {
   position: absolute;
@@ -208,7 +207,7 @@ body {
 }
 
 /* Backdrop (AboutModal, Modal) */
-body.layout-mode.pf-c-backdrop__open,
+/* body.layout-mode.pf-c-backdrop__open, */
 .layout-mode .uib-preview.pf-c-backdrop__open {
   overflow: unset;
 }
@@ -216,7 +215,7 @@ body.preview-mode > div > .pf-c-backdrop,
 .preview-mode .uib-preview .pf-c-backdrop {
   top: 76px;
 }
-body.layout-mode > div > .pf-c-backdrop,
+/* body.layout-mode > div > .pf-c-backdrop, */
 .layout-mode .uib-preview .pf-c-backdrop {
   background-color: unset;
   position: relative;
@@ -255,4 +254,44 @@ body.layout-mode > div > .pf-c-backdrop,
 }
 #component-name-tt .pf-c-tooltip__content {
   padding: 4px 8px;
+}
+
+.pf-builder-editor .pf-c-code-editor__main {
+  border-color: unset;
+}
+
+.dark-theme .pf-builder-sidebar .pf-c-data-list {
+  --pf-c-data-list__item--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
+  --pf-c-data-list__item-draggable-button-icon--Color: #fff;
+  --pf-c-data-list__item-draggable-button--hover__draggable-icon--Color: #fff;
+  --pf-c-data-list__item-draggable-button--focus__draggable-icon--Color: #fff;
+  --pf-c-data-list--BorderTopColor: var(--pf-global--BackgroundColor--dark-200);
+  --pf-c-data-list__item--BorderBottomColor: var(--pf-global--BackgroundColor--dark-200);
+  --pf-c-data-list__item--m-selectable--hover--item--BorderTopColor: var(--pf-global--BackgroundColor--dark-200);
+  --pf-c-data-list__expandable-content--BorderTopColor: var(--pf-global--BackgroundColor--dark-200);
+  color: #fff;
+}
+.dark-theme .pf-builder-sidebar .pf-c-data-list__item.pf-m-hide {
+  color: var(--pf-global--BackgroundColor--dark-200);
+}
+.dark-theme .pf-builder-sidebar .pf-c-button {
+  --pf-c-button--m-plain--Color: #fff;
+  --pf-c-button--m-primary--hover--BackgroundColor: #fff;
+  --pf-c-button--m-primary--focus--BackgroundColor: #fff;
+}
+.dark-theme .pf-builder-sidebar .pf-c-tabs {
+  --pf-c-tabs__link--BackgroundColor: var(--pf-global--BackgroundColor--dark-300);
+  --pf-c-tabs__link--Color: #fff;
+}
+.dark-theme .pf-builder-sidebar .pf-c-tabs.pf-m-box .pf-c-tabs__item.pf-m-current {
+  --pf-c-tabs__link--BackgroundColor: #4f5255 /*var(--pf-c-nav__link--m-current--BackgroundColor)*/;
+  --pf-c-tabs__link--Color: #fff;
+}
+
+.pf-builder-overflow .pf-c-dropdown__menu {
+  background: var(--pf-c-page__header--BackgroundColor);
+}
+.pf-builder-overflow .pf-c-dropdown__menu-item:hover, 
+.pf-builder-overflow .pf-c-dropdown__menu-item:focus {
+  background: var(--pf-global--BackgroundColor--dark-200);
 }

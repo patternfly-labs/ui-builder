@@ -3,6 +3,7 @@ import * as React from "react";
 import * as reactCoreModule from "@patternfly/react-core";
 import * as componentSnippetModules from "./components/snippets";
 import { ComponentAdder } from "./components/componentAdder";
+import * as reactIcons from "@patternfly/react-icons";
 import {
   convertToReactComponent,
   parseComponent,
@@ -14,14 +15,16 @@ import {
   components,
   allItems,
   allParentChildItems,
+  rules,
 } from "./components/componentList";
-import { componentSnippets } from "./components/snippets/snippets";
 import ErrorBoundary, { errorComponent } from "./ErrorBoundary";
 import { AppContext } from "./app";
 import unique from "unique-selector";
 import { getContent } from "./components/componentList";
+import { css } from "@patternfly/react-styles";
 
-const scope = {
+export const scope = {
+  ...reactIcons,
   ...reactCoreModule,
   // ...wrappedReactCoreModule,
   ...componentSnippetModules,
@@ -85,7 +88,7 @@ const scope = {
   },
 } as any;
 
-const addImport = (ast, component) => {
+const addImport = (ast, components) => {
   for (var i = 0; i < ast.body.length; i++) {
     let node = ast.body[i];
     if (node.type === "ImportDeclaration") {
@@ -93,27 +96,28 @@ const addImport = (ast, component) => {
       if (node.source.value !== "@patternfly/react-core") {
         continue;
       }
-      let importAdded = false;
-      for (var j = 0; j < node.specifiers.length; j++) {
-        if (node.specifiers[j].imported.name === component) {
-          importAdded = true;
-          break;
+
+      for (var k = 0; k < components.length; k++) {
+        let importExists = false;
+        for (var j = 0; j < node.specifiers.length; j++) {
+          if (node.specifiers[j].imported.name === components[k]) {
+            importExists = true;
+            break;
+          }
         }
-      }
-      if (!importAdded) {
-        node.specifiers.push({
-          type: "ImportSpecifier",
-          imported: {
-            type: "Identifier",
-            name: component,
-          },
-          local: {
-            type: "Identifier",
-            name: component,
-          },
-        });
-        importAdded = true;
-        break;
+        if (!importExists) {
+          node.specifiers.push({
+            type: "ImportSpecifier",
+            imported: {
+              type: "Identifier",
+              name: components[k],
+            },
+            local: {
+              type: "Identifier",
+              name: components[k],
+            },
+          });
+        }
       }
     }
   }
@@ -180,7 +184,7 @@ export const LiveRegion = ({ code, setCode }) => {
       (ev.target as HTMLElement).classList.remove("pf-m-dropzone");
       const { component } = JSON.parse(ev.dataTransfer.getData("text/plain"));
       let { ast, componentsInUse } = parseComponent(code, false, false, true);
-      ast = addImport(ast, component);
+      ast = addImport(ast, allItems[component].imports || [component]);
       visit(ast, (node: any, parents: any[]) => {
         if (node.type !== "JSXOpeningElement" || node.idCounter !== idCounter) {
           return;
@@ -284,7 +288,7 @@ export const LiveRegion = ({ code, setCode }) => {
 
   return (
     <>
-      <div className="live-region" ref={liveRegionRef}>
+      <div className={css("live-region", "pf-u-h-100")} ref={liveRegionRef}>
         {livePreview}
       </div>
       <div id="component-name-tt" className="pf-c-tooltip" role="tooltip">
