@@ -4,6 +4,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const pfDir = path.dirname(
   require.resolve("@patternfly/patternfly/package.json")
@@ -16,25 +17,25 @@ module.exports = {
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "uiBuilder"),
-    libraryTarget: "umd",
-    library: "patternfly-builder",
+    // libraryTarget: "umd",
+    // library: "patternfly-builder",
   },
   externals: {
     vscode: "commonjs vscode",
   },
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
-    fallback: {
-      stream: require.resolve("stream-browserify"),
-      util: require.resolve("util/"),
-      https: require.resolve("https-browserify"),
-      http: require.resolve("stream-http"),
-      path: require.resolve("path-browserify"),
-      crypto: require.resolve("crypto-browserify"),
-      zlib: require.resolve("browserify-zlib"),
-      assert: require.resolve("assert/"),
-      fs: false,
-    },
+    // fallback: {
+    //   stream: require.resolve("stream-browserify"),
+    //   util: require.resolve("util/"),
+    //   https: require.resolve("https-browserify"),
+    //   http: require.resolve("stream-http"),
+    //   path: require.resolve("path-browserify"),
+    //   crypto: require.resolve("crypto-browserify"),
+    //   zlib: require.resolve("browserify-zlib"),
+    //   assert: require.resolve("assert/"),
+    //   fs: false,
+    // },
   },
   devServer: {
     port: 8085,
@@ -101,15 +102,16 @@ module.exports = {
       ],
     }),
     new MonacoWebpackPlugin({
-      languages: ["javascript", "typescript", "html", "xml"],
+      languages: ["javascript", "typescript"],
     }),
     new MiniCssExtractPlugin(),
-    new webpack.ProvidePlugin({
-      process: "process/browser",
-    }),
-    new webpack.ProvidePlugin({
-      Buffer: ["buffer", "Buffer"],
-    }),
+    // new webpack.ProvidePlugin({
+    //   process: "process/browser",
+    // }),
+    // new webpack.ProvidePlugin({
+    //   Buffer: ["buffer", "Buffer"],
+    // }),
+    new BundleAnalyzerPlugin()
   ],
   // performance: {
   //   hints: false,

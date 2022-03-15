@@ -1,5 +1,5 @@
 {
-  "name": "ui-builder",
+  "name": "@patternfly-labs/ui-builder",
   "displayName": "ui-builder",
   "description": "PatternFly UI Builder",
   "version": "0.0.1",
@@ -111,6 +111,7 @@
     "url-loader": "^4.1.1",
     "vscode": "^1.1.37",
     "webpack": "^5.52.1",
+    "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^3.11.2"
   }

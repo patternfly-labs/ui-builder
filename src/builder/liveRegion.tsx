@@ -5,12 +5,13 @@ import * as componentSnippetModules from "./components/snippets";
 import { ComponentAdder } from "./components/componentAdder";
 import * as reactIcons from "@patternfly/react-icons";
 import {
-  convertToReactComponent,
+  // convertToReactComponent,
   parseComponent,
   stringifyAST,
   visit,
 } from "./helpers/acorn";
-import { parse } from "./helpers/parse";
+// import { parse } from "./helpers/parse";
+import { parse, convertToReactComponent, convertToJSX } from '@patternfly/ast-helpers';
 import {
   components,
   allItems,
@@ -258,6 +259,7 @@ export const LiveRegion = ({ code, setCode }) => {
         }
       });
       setCode(stringifyAST(ast));
+      // setCode(convertToJSX())
       setComponentsInUse(componentsInUse);
     };
 

@@ -49,8 +49,8 @@ import { getParameters } from "codesandbox/lib/api/define";
 import { shallowEqual } from "./helpers/shallowEqual";
 // @ts-ignore
 import NewPage from "!!raw-loader!./components/templates/NewPage";
-import { GistExportModal } from "./components/GistExportModal";
-import { GistImportModal } from "./components/GistImportModal";
+// import { GistExportModal } from "./components/GistExportModal";
+// import { GistImportModal } from "./components/GistImportModal";
 import { scope } from "./liveRegion";
 
 const prettier = require("prettier/standalone");
@@ -332,7 +332,7 @@ export const App = ({ vscode, data, filePath }) => {
               <NewFromTemplate setCode={onChange} />
             </PageHeaderToolsItem>
           </PageHeaderToolsGroup>
-          <PageHeaderToolsGroup visibility={{ default: "hidden", "2xl": "visible" }}>
+          {/* <PageHeaderToolsGroup visibility={{ default: "hidden", "2xl": "visible" }}>
             <PageHeaderToolsItem>
               <Tooltip
                 trigger="mouseenter"
@@ -367,7 +367,7 @@ export const App = ({ vscode, data, filePath }) => {
                 </Button>
               </Tooltip>
             </PageHeaderToolsItem>
-          </PageHeaderToolsGroup>
+          </PageHeaderToolsGroup> */}
           <PageHeaderToolsGroup>
             {!vscode && (
               <>
@@ -401,7 +401,7 @@ export const App = ({ vscode, data, filePath }) => {
                 onSelect={onKebabDropdownSelect}
                 toggle={<KebabToggle onToggle={onKebabDropdownToggle} />}
                 isOpen={overflowOpen}
-                dropdownItems={feedbackThemeItems.concat(importExportItems)}
+                dropdownItems={feedbackThemeItems/*.concat(importExportItems)*/}
                 className="pf-builder-overflow"
               />
             </PageHeaderToolsItem>
@@ -514,7 +514,7 @@ export const App = ({ vscode, data, filePath }) => {
           {uiBuilderDrawer}
         </PageSection>
       </Page>
-      {gistExportModalOpen && (
+      {/* {gistExportModalOpen && (
         <GistExportModal
           isOpen={gistExportModalOpen}
           onClose={() => setGistExportModalOpen(false)}
@@ -527,7 +527,7 @@ export const App = ({ vscode, data, filePath }) => {
           onClose={() => setGistImportModalOpen(false)}
           setCode={setCode}
         />
-      )}
+      )} */}
     </AppContext.Provider>
   );
 };
